@@ -1,0 +1,43 @@
+# Current Media Project Management System - Project Intelligence
+
+## Project Patterns & Preferences
+
+### Communication Patterns
+- Always discuss and agree on solutions before implementation
+- Ask questions when creating something not explicitly stated
+- Seek user opinion on best approaches
+- Break down complex tasks into manageable chunks
+- Create a new task context when approaching information limits
+
+### Technical Patterns
+- Backend data source is ClickUp (managed by Jake)
+- Frontend will be custom-built for Current Media's workflow
+- Project will be hosted on currentmedia.ca or via direct link
+- Consider render.com for hosting the built application
+
+### Workflow Patterns
+- New projects require: Client, Budget, Scope, and Timeframe before proceeding
+- Project creation should generate necessary documentation automatically
+- Budget tracking should compare estimates vs. actual costs
+- System should provide reminders for project milestones and follow-ups
+- Final project review/debrief is required
+
+### Documentation Standards
+- Keep Memory Bank updated with all significant changes
+- Document current state and next steps clearly
+- Maintain comprehensive project context
+- Update technical decisions and system architecture as they evolve
+
+### Integration Requirements
+- New project forms should be emailed to jake@currentmedia.ca
+- Budget documents should be attached to projects
+- Project Overview/Shot list should be linkable to Google Calendar events
+- Consider how to integrate with Wix-based website if needed
+
+## Known Challenges
+- Integration with ClickUp for data synchronization
+- Balancing automation with flexibility in the workflow
+- Creating an intuitive UI that minimizes manual data entry
+- Ensuring proper notification/reminder system
+
+This document will evolve as we work together on the project, capturing new patterns, preferences, and project intelligence.
