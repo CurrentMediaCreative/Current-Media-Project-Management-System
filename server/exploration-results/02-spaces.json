@@ -1,0 +1,109 @@
+{
+  "spaces": [
+    {
+      "id": "90113312329",
+      "name": "Current Media",
+      "color": null,
+      "private": false,
+      "avatar": null,
+      "admin_can_manage": null,
+      "statuses": [
+        {
+          "id": "p90113312329_aAW0IaXc",
+          "status": "to do",
+          "type": "open",
+          "orderindex": 0,
+          "color": "#b5bcc2"
+        },
+        {
+          "id": "p90113312329_PiNjEsat",
+          "status": "media needed",
+          "type": "unstarted",
+          "orderindex": 1,
+          "color": "#b5bcc2"
+        },
+        {
+          "id": "p90113312329_uFh6hu3W",
+          "status": "in progress",
+          "type": "custom",
+          "orderindex": 2,
+          "color": "#7C4DFF"
+        },
+        {
+          "id": "p90113312329_VnN5wvpo",
+          "status": "revision",
+          "type": "custom",
+          "orderindex": 3,
+          "color": "#f9d900"
+        },
+        {
+          "id": "p90113312329_MOmNSu94",
+          "status": "done",
+          "type": "done",
+          "orderindex": 4,
+          "color": "#008844"
+        },
+        {
+          "id": "p90113312329_rXeEORMD",
+          "status": "complete",
+          "type": "closed",
+          "orderindex": 5,
+          "color": "#008844"
+        }
+      ],
+      "multiple_assignees": true,
+      "features": {
+        "due_dates": {
+          "enabled": true,
+          "start_date": true,
+          "remap_due_dates": false,
+          "remap_closed_due_date": false
+        },
+        "sprints": {
+          "enabled": false
+        },
+        "time_tracking": {
+          "enabled": true,
+          "harvest": false,
+          "rollup": false,
+          "default_to_billable": 2
+        },
+        "points": {
+          "enabled": false
+        },
+        "custom_items": {
+          "enabled": false
+        },
+        "tags": {
+          "enabled": true
+        },
+        "checklists": {
+          "enabled": true
+        },
+        "milestones": {
+          "enabled": false
+        },
+        "custom_fields": {
+          "enabled": true
+        },
+        "remap_dependencies": {
+          "enabled": true
+        },
+        "dependency_warning": {
+          "enabled": true
+        },
+        "status_pies": {
+          "enabled": true
+        },
+        "multiple_assignees": {
+          "enabled": true
+        },
+        "emails": {
+          "enabled": true
+        },
+        "scheduler_enabled": false
+      },
+      "archived": false
+    }
+  ]
+}

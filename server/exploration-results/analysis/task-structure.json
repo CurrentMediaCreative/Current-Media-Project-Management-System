@@ -1,0 +1,197 @@
+{
+  "totalTasks": 42,
+  "sampleTaskId": "868e9pafy",
+  "sampleTaskName": "OCBA Parade of Homes",
+  "fieldStructure": {
+    "id": {
+      "type": "string",
+      "isNull": false,
+      "sample": "868e9pafy"
+    },
+    "custom_id": {
+      "type": "object",
+      "isNull": true,
+      "sample": null
+    },
+    "custom_item_id": {
+      "type": "number",
+      "isNull": false,
+      "sample": "0"
+    },
+    "name": {
+      "type": "string",
+      "isNull": false,
+      "sample": "OCBA Parade of Homes"
+    },
+    "text_content": {
+      "type": "string",
+      "isNull": false,
+      "sample": ""
+    },
+    "description": {
+      "type": "string",
+      "isNull": false,
+      "sample": ""
+    },
+    "status": {
+      "type": "object",
+      "isNull": false,
+      "sample": "[Object]"
+    },
+    "orderindex": {
+      "type": "string",
+      "isNull": false,
+      "sample": "39865985.00001420000000000000000000000000"
+    },
+    "date_created": {
+      "type": "string",
+      "isNull": false,
+      "sample": "1749481150957"
+    },
+    "date_updated": {
+      "type": "string",
+      "isNull": false,
+      "sample": "1749481332343"
+    },
+    "date_closed": {
+      "type": "object",
+      "isNull": true,
+      "sample": null
+    },
+    "date_done": {
+      "type": "object",
+      "isNull": true,
+      "sample": null
+    },
+    "archived": {
+      "type": "boolean",
+      "isNull": false,
+      "sample": "false"
+    },
+    "creator": {
+      "type": "object",
+      "isNull": false,
+      "sample": "[Object]"
+    },
+    "assignees": {
+      "type": "array",
+      "isNull": false,
+      "sample": "[Object]"
+    },
+    "group_assignees": {
+      "type": "array",
+      "isNull": false,
+      "sample": "[Object]"
+    },
+    "watchers": {
+      "type": "array",
+      "isNull": false,
+      "sample": "[Object]"
+    },
+    "checklists": {
+      "type": "array",
+      "isNull": false,
+      "sample": "[Object]"
+    },
+    "tags": {
+      "type": "array",
+      "isNull": false,
+      "sample": "[Object]"
+    },
+    "parent": {
+      "type": "object",
+      "isNull": true,
+      "sample": null
+    },
+    "top_level_parent": {
+      "type": "object",
+      "isNull": true,
+      "sample": null
+    },
+    "priority": {
+      "type": "object",
+      "isNull": true,
+      "sample": null
+    },
+    "due_date": {
+      "type": "object",
+      "isNull": true,
+      "sample": null
+    },
+    "start_date": {
+      "type": "object",
+      "isNull": true,
+      "sample": null
+    },
+    "points": {
+      "type": "object",
+      "isNull": true,
+      "sample": null
+    },
+    "time_estimate": {
+      "type": "object",
+      "isNull": true,
+      "sample": null
+    },
+    "custom_fields": {
+      "type": "array",
+      "isNull": false,
+      "sample": "[Object]"
+    },
+    "dependencies": {
+      "type": "array",
+      "isNull": false,
+      "sample": "[Object]"
+    },
+    "linked_tasks": {
+      "type": "array",
+      "isNull": false,
+      "sample": "[Object]"
+    },
+    "locations": {
+      "type": "array",
+      "isNull": false,
+      "sample": "[Object]"
+    },
+    "team_id": {
+      "type": "string",
+      "isNull": false,
+      "sample": "9011918830"
+    },
+    "url": {
+      "type": "string",
+      "isNull": false,
+      "sample": "https://app.clickup.com/t/868e9pafy"
+    },
+    "sharing": {
+      "type": "object",
+      "isNull": false,
+      "sample": "[Object]"
+    },
+    "permission_level": {
+      "type": "string",
+      "isNull": false,
+      "sample": "create"
+    },
+    "list": {
+      "type": "object",
+      "isNull": false,
+      "sample": "[Object]"
+    },
+    "project": {
+      "type": "object",
+      "isNull": false,
+      "sample": "[Object]"
+    },
+    "folder": {
+      "type": "object",
+      "isNull": false,
+      "sample": "[Object]"
+    },
+    "space": {
+      "type": "object",
+      "isNull": false,
+      "sample": "[Object]"
+    }
+  }
+}

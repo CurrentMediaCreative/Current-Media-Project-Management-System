@@ -3,13 +3,22 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-import mongoose from 'mongoose';
+import path from 'path';
+import { MulterError } from 'multer';
+import { PrismaClient } from '@prisma/client';
+import authRoutes from './api/auth/authRoutes';
+import projectRoutes from './api/projects/projectRoutes';
+import contractorRoutes from './api/contractors/contractorRateRoutes';
+import invoiceRoutes from './api/invoices/invoiceRoutes';
 
 // Load environment variables
 dotenv.config();
 
 // Create Express server
 const app = express();
+
+// Initialize Prisma Client
+export const prisma = new PrismaClient();
 
 // Set port
 const PORT = process.env.PORT || 5000;
@@ -20,15 +29,23 @@ app.use(helmet());
 app.use(morgan('dev'));
 app.use(express.json());
 
-// Database connection
-const connectDB = async () => {
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// Database connection check
+const checkDBConnection = async () => {
   try {
-    const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/current-media-pms';
-    await mongoose.connect(mongoURI);
-    console.log('MongoDB connected');
+    await prisma.$connect();
+    console.log('Database connected');
+    return true;
   } catch (error) {
-    console.error('MongoDB connection error:', error);
-    process.exit(1);
+    console.error('Database connection error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Running in development mode without database connection');
+      return false;
+    } else {
+      process.exit(1);
+    }
   }
 };
 
@@ -37,14 +54,29 @@ app.get('/', (req, res) => {
   res.json({ message: 'Current Media Project Management System API' });
 });
 
-// API routes will be added here
-// app.use('/api/auth', authRoutes);
-// app.use('/api/projects', projectRoutes);
-// app.use('/api/users', userRoutes);
+// API routes
+app.use('/api/auth', authRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/contractors', contractorRoutes);
+app.use('/api/invoices', invoiceRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err.stack);
+
+  if (err instanceof MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({
+        message: 'File too large. Maximum size is 5MB.',
+        error: err,
+      });
+    }
+    return res.status(400).json({
+      message: 'File upload error',
+      error: err,
+    });
+  }
+
   res.status(500).json({
     message: 'Internal Server Error',
     error: process.env.NODE_ENV === 'production' ? {} : err,
@@ -54,14 +86,23 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 // Start server
 const startServer = async () => {
   try {
-    await connectDB();
+    const dbConnected = await checkDBConnection();
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
+      if (!dbConnected && process.env.NODE_ENV === 'development') {
+        console.log('Note: Server is running without database connection in development mode');
+        console.log('Some features requiring database access will not work');
+      }
     });
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);
   }
 };
+
+// Handle graceful shutdown
+process.on('beforeExit', async () => {
+  await prisma.$disconnect();
+});
 
 startServer();

@@ -1,0 +1,90 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EmailService = void 0;
+const nodemailer_1 = __importDefault(require("nodemailer"));
+// Configure email transporter
+const transporter = nodemailer_1.default.createTransport({
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    secure: false,
+    auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+    },
+});
+exports.EmailService = {
+    /**
+     * Send contractor assignment email
+     */
+    sendContractorAssignment: async (projectName, contractor, contactEmail) => {
+        const emailOptions = {
+            to: contactEmail,
+            subject: `Project Assignment: ${projectName}`,
+            html: `
+        <h1>Project Assignment: ${projectName}</h1>
+        <p>You have been assigned to the following role:</p>
+        <ul>
+          <li>Role: ${contractor.role}</li>
+          <li>Rate: $${contractor.rate}/hour</li>
+          ${contractor.estimatedHours ? `<li>Estimated Hours: ${contractor.estimatedHours}</li>` : ''}
+          ${contractor.estimatedDays ? `<li>Estimated Days: ${contractor.estimatedDays}</li>` : ''}
+        </ul>
+        <p>Please confirm your availability for this project.</p>
+      `,
+        };
+        return transporter.sendMail(emailOptions);
+    },
+    /**
+     * Send invoice reminder email
+     */
+    sendInvoiceReminder: async (invoiceNumber, dueDate, amount, recipientEmail) => {
+        const emailOptions = {
+            to: recipientEmail,
+            subject: `Invoice Reminder: ${invoiceNumber}`,
+            html: `
+        <h1>Invoice Payment Reminder</h1>
+        <p>This is a reminder that invoice ${invoiceNumber} is due on ${dueDate.toLocaleDateString()}.</p>
+        <p>Amount due: $${amount.toFixed(2)}</p>
+        <p>Please ensure payment is made by the due date.</p>
+      `,
+        };
+        return transporter.sendMail(emailOptions);
+    },
+    /**
+     * Send invoice to client
+     */
+    sendInvoice: async (invoiceNumber, clientEmail, amount, dueDate, attachments) => {
+        const emailOptions = {
+            to: clientEmail,
+            subject: `Invoice ${invoiceNumber}`,
+            html: `
+        <h1>Invoice ${invoiceNumber}</h1>
+        <p>Please find attached invoice ${invoiceNumber} for the amount of $${amount.toFixed(2)}.</p>
+        <p>Due date: ${dueDate.toLocaleDateString()}</p>
+        <p>Thank you for your business!</p>
+      `,
+            attachments,
+        };
+        return transporter.sendMail(emailOptions);
+    },
+    /**
+     * Send project status update
+     */
+    sendProjectUpdate: async (projectName, status, recipientEmail, details) => {
+        const emailOptions = {
+            to: recipientEmail,
+            subject: `Project Update: ${projectName}`,
+            html: `
+        <h1>Project Update: ${projectName}</h1>
+        <p>Status: ${status}</p>
+        <p>${details}</p>
+      `,
+        };
+        return transporter.sendMail(emailOptions);
+    },
+};
+exports.default = exports.EmailService;
+//# sourceMappingURL=emailService.js.map

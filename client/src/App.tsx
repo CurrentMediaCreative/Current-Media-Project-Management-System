@@ -1,95 +1,63 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
+import { ThemeProvider, CssBaseline } from '@mui/material';
+import { Provider } from 'react-redux';
+import { store } from './store';
+import theme from './theme';
+import { AuthProvider, useAuth } from './features/auth/contexts/AuthContext';
 
-// Placeholder components - these will be implemented later
-const Dashboard = () => <div>Dashboard Page</div>;
-const Login = () => <div>Login Page</div>;
-const ProjectForm = () => <div>Project Form Page</div>;
-const ProjectDetails = () => <div>Project Details Page</div>;
-const NotFound = () => <div>404 - Page Not Found</div>;
+// Layout & Pages
+import MainLayout from './components/layout/MainLayout';
+import LoginPage from './pages/auth/LoginPage';
+import DashboardPage from './pages/dashboard/DashboardPage';
+import { ProjectTracking as ProjectTrackingPage } from './features/projects/tracking';
+import { ProjectCreationFlow as ProjectCreationPage } from './features/projects/creation';
 
-// Create a theme
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1976d2',
-    },
-    secondary: {
-      main: '#dc004e',
-    },
-    background: {
-      default: '#f5f5f5',
-    },
-  },
-  typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    h1: {
-      fontSize: '2.5rem',
-      fontWeight: 500,
-    },
-    h2: {
-      fontSize: '2rem',
-      fontWeight: 500,
-    },
-    h3: {
-      fontSize: '1.75rem',
-      fontWeight: 500,
-    },
-  },
-});
-
-// Placeholder for authentication check
-const isAuthenticated = () => {
-  // This will be implemented with actual authentication logic later
-  return false;
+// Auth Guard Component
+const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 };
 
-// Protected route component
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  if (!isAuthenticated()) {
-    return <Navigate to="/login" replace />;
-  }
-  return <>{children}</>;
-};
-
-function App() {
+const AppRoutes: React.FC = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/projects/new"
-            element={
-              <ProtectedRoute>
-                <ProjectForm />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/projects/:id"
-            element={
-              <ProtectedRoute>
-                <ProjectDetails />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Router>
-    </ThemeProvider>
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/login" element={<LoginPage />} />
+
+      {/* Protected Routes */}
+      <Route
+        path="/"
+        element={
+          <PrivateRoute>
+            <MainLayout>
+              <Routes>
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/projects" element={<ProjectTrackingPage />} />
+                <Route path="/projects/new" element={<ProjectCreationPage />} />
+              </Routes>
+            </MainLayout>
+          </PrivateRoute>
+        }
+      />
+    </Routes>
   );
-}
+};
+
+const App: React.FC = () => {
+  return (
+    <Provider store={store}>
+      <Router>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
+        </ThemeProvider>
+      </Router>
+    </Provider>
+  );
+};
 
 export default App;

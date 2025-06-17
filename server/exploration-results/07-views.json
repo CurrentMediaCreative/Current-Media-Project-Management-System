@@ -1,0 +1,482 @@
+{
+  "views": [
+    {
+      "id": "4-90113312329-28",
+      "name": "Overview",
+      "type": "location_overview",
+      "parent": {
+        "id": "90113312329",
+        "type": 4
+      },
+      "grouping": {
+        "field": "none",
+        "dir": null,
+        "collapsed": [],
+        "ignore": false,
+        "single": false
+      },
+      "divide": {
+        "field": null,
+        "dir": null,
+        "by_subcategory": null,
+        "collapsed": []
+      },
+      "sorting": {
+        "fields": []
+      },
+      "filters": {
+        "op": null,
+        "fields": [],
+        "search": null,
+        "search_custom_fields": false,
+        "search_description": false,
+        "search_name": true,
+        "show_closed": false
+      },
+      "columns": {
+        "fields": []
+      },
+      "team_sidebar": {
+        "assignees": [],
+        "group_assignees": [],
+        "assigned_comments": false,
+        "unassigned_tasks": false
+      },
+      "settings": {
+        "show_task_locations": null,
+        "show_subtasks": null,
+        "show_subtask_parent_names": true,
+        "show_closed_subtasks": false,
+        "show_assignees": true,
+        "show_images": true,
+        "show_timer": null,
+        "collapse_empty_columns": null,
+        "me_comments": null,
+        "me_subtasks": null,
+        "me_checklists": null,
+        "show_empty_statuses": false,
+        "auto_wrap": false,
+        "time_in_status_view": 1,
+        "is_description_pinned": false,
+        "override_parent_hierarchy_filter": false,
+        "fast_load_mode": false
+      },
+      "date_created": "1736746580415",
+      "creator": 120182095,
+      "visibility": "public",
+      "protected": false,
+      "protected_note": null,
+      "protected_by": null,
+      "date_protected": null,
+      "orderindex": 1
+    }
+  ],
+  "required_views": {
+    "board": {
+      "id": "4-90113312329-2",
+      "name": "Board",
+      "type": "board",
+      "parent": {
+        "id": "90113312329",
+        "type": 4
+      },
+      "grouping": {
+        "field": "status",
+        "dir": 1,
+        "collapsed": [],
+        "ignore": false,
+        "single": false
+      },
+      "divide": {
+        "field": null,
+        "dir": null,
+        "by_subcategory": null,
+        "collapsed": []
+      },
+      "sorting": {
+        "fields": []
+      },
+      "filters": {
+        "op": "AND",
+        "fields": [],
+        "search": "",
+        "search_custom_fields": false,
+        "search_description": false,
+        "search_name": true,
+        "show_closed": false
+      },
+      "columns": {
+        "fields": [
+          {
+            "field": "assignee",
+            "idx": 0,
+            "width": null,
+            "hidden": false,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "dueDate",
+            "idx": 1,
+            "width": null,
+            "hidden": false,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "priority",
+            "idx": 2,
+            "width": null,
+            "hidden": false,
+            "name": null,
+            "display": null
+          }
+        ]
+      },
+      "team_sidebar": {
+        "assignees": [],
+        "group_assignees": [],
+        "assigned_comments": false,
+        "unassigned_tasks": false
+      },
+      "settings": {
+        "show_task_locations": true,
+        "show_subtasks": 1,
+        "show_subtask_parent_names": true,
+        "show_closed_subtasks": false,
+        "show_assignees": true,
+        "show_images": true,
+        "show_timer": false,
+        "collapse_empty_columns": false,
+        "me_comments": true,
+        "me_subtasks": true,
+        "me_checklists": true,
+        "show_empty_statuses": false,
+        "auto_wrap": false,
+        "time_in_status_view": 1,
+        "is_description_pinned": false,
+        "override_parent_hierarchy_filter": false,
+        "fast_load_mode": false,
+        "show_task_ids": false,
+        "task_cover": 1,
+        "field_rendering": 2,
+        "colored_columns": true,
+        "card_size": 2,
+        "show_empty_fields": true,
+        "show_task_properties": true
+      },
+      "date_created": "1736750642426",
+      "creator": 120182095,
+      "visibility": "public",
+      "protected": false,
+      "protected_note": null,
+      "protected_by": null,
+      "date_protected": null,
+      "orderindex": 9
+    },
+    "list": {
+      "id": "4-90113312329-1",
+      "name": "List",
+      "type": "list",
+      "parent": {
+        "id": "90113312329",
+        "type": 4
+      },
+      "grouping": {
+        "field": "dueDate",
+        "dir": 1,
+        "collapsed": [],
+        "ignore": false,
+        "single": false
+      },
+      "divide": {
+        "field": null,
+        "dir": null,
+        "by_subcategory": null,
+        "collapsed": []
+      },
+      "sorting": {
+        "fields": []
+      },
+      "filters": {
+        "op": "AND",
+        "fields": [],
+        "search": "",
+        "search_custom_fields": true,
+        "search_description": false,
+        "search_name": true,
+        "show_closed": false
+      },
+      "columns": {
+        "fields": [
+          {
+            "field": "assignee",
+            "idx": 0,
+            "width": 160,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "dueDate",
+            "idx": 1,
+            "width": 90,
+            "hidden": false,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "name",
+            "idx": 2,
+            "width": 472,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "status",
+            "idx": 3,
+            "width": 204,
+            "hidden": false,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "id",
+            "idx": 4,
+            "width": 160,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "customId",
+            "idx": 5,
+            "width": 160,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "dateCreated",
+            "idx": 6,
+            "width": 160,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "dateDone",
+            "idx": 7,
+            "width": 160,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "dateUpdated",
+            "idx": 8,
+            "width": 160,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "startDate",
+            "idx": 9,
+            "width": 160,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "duration",
+            "idx": 10,
+            "width": 160,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "sprints",
+            "idx": 11,
+            "width": 185,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "dateClosed",
+            "idx": 12,
+            "width": 160,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "createdBy",
+            "idx": 13,
+            "width": 160,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "latestComment",
+            "idx": 14,
+            "width": 160,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "commentCount",
+            "idx": 15,
+            "width": 160,
+            "hidden": false,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "lists",
+            "idx": 16,
+            "width": 185,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "pullRequests",
+            "idx": 17,
+            "width": 160,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "incompleteCommentCount",
+            "idx": 18,
+            "width": 160,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "linked",
+            "idx": 19,
+            "width": 160,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "dependencies",
+            "idx": 20,
+            "width": 160,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "pages",
+            "idx": 21,
+            "width": 160,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "timeLogged",
+            "idx": 22,
+            "width": 160,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "timeEstimate",
+            "idx": 23,
+            "width": 160,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "pointsEstimate",
+            "idx": 24,
+            "width": 160,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "priority",
+            "idx": 25,
+            "width": 160,
+            "hidden": true,
+            "name": null,
+            "display": null
+          },
+          {
+            "field": "timeInStatus",
+            "idx": 26,
+            "width": 160,
+            "hidden": true,
+            "name": null,
+            "display": null
+          }
+        ]
+      },
+      "team_sidebar": {
+        "assignees": [],
+        "group_assignees": [],
+        "assigned_comments": false,
+        "unassigned_tasks": false
+      },
+      "settings": {
+        "show_task_locations": false,
+        "show_subtasks": 3,
+        "show_subtask_parent_names": false,
+        "show_closed_subtasks": false,
+        "show_assignees": false,
+        "show_images": false,
+        "show_timer": false,
+        "collapse_empty_columns": false,
+        "me_comments": true,
+        "me_subtasks": true,
+        "me_checklists": true,
+        "show_empty_statuses": false,
+        "auto_wrap": false,
+        "time_in_status_view": 1,
+        "is_description_pinned": false,
+        "override_parent_hierarchy_filter": false,
+        "fast_load_mode": false,
+        "show_task_properties": true,
+        "show_sprint_cards": {
+          "show_add_tasks": true,
+          "show_add_assignees": true,
+          "show_add_estimates": true
+        }
+      },
+      "date_created": "1736748765028",
+      "creator": 120182095,
+      "visibility": "public",
+      "protected": false,
+      "protected_note": null,
+      "protected_by": null,
+      "date_protected": null,
+      "orderindex": 8
+    },
+    "calendar": null,
+    "gantt_type": null,
+    "box": null,
+    "activity": null,
+    "timeline": null,
+    "workload": null,
+    "mind_map": null,
+    "table": null,
+    "map": null,
+    "dashboard": null
+  },
+  "default_view": null
+}

@@ -2,220 +2,259 @@
 
 ## System Architecture
 
-The Current Media Project Management System follows a modern web application architecture with clear separation of concerns and a focus on maintainability and extensibility.
+The Current Media Project Management System follows a clean, efficient architecture focused on three core components with a simple dashboard interface.
 
 ```mermaid
 flowchart TD
-    subgraph Frontend
-        UI[User Interface]
-        State[State Management]
-        API_Client[API Client]
+    subgraph Dashboard
+        Login[Login]
+        Notifications[Notifications]
+        Navigation[Section Navigation]
     end
     
-    subgraph Backend
-        API[API Layer]
-        Services[Business Logic]
-        Integration[Integration Layer]
+    subgraph Core Components
+        PCS[Project Creation System]
+        PT[Project Tracking]
+        FM[Financial Management]
     end
     
     subgraph External
-        ClickUp[ClickUp API]
+        ClickUp[ClickUp]
         Email[Email Service]
-        Calendar[Google Calendar]
     end
     
-    UI --> State
-    State --> API_Client
-    API_Client --> API
-    API --> Services
-    Services --> Integration
-    Integration --> ClickUp
-    Integration --> Email
-    Integration --> Calendar
+    Login --> Navigation
+    Navigation --> PCS
+    Navigation --> PT
+    Navigation --> FM
+    
+    Notifications --> |Check Status| PCS
+    Notifications --> |Check Status| PT
+    Notifications --> |Check Status| FM
+    
+    PCS --> Email
+    PT --> ClickUp
+    FM --> ClickUp
 ```
 
-### Key Components
+## Component Structure
 
-1. **Frontend Layer**
-   - User Interface: Responsive web interface for user interaction
-   - State Management: Handles application state and UI updates
-   - API Client: Manages communication with the backend API
+### 1. Project Creation System
 
-2. **Backend Layer**
-   - API Layer: Exposes endpoints for frontend consumption
-   - Business Logic: Implements core application functionality
-   - Integration Layer: Manages communication with external services
+The project creation system follows a feature-based organization with clear separation of concerns:
 
-3. **External Services**
-   - ClickUp API: Source of project data (managed by Jake)
-   - Email Service: For sending project forms and notifications
-   - Google Calendar: For integration with shoot day scheduling
+```mermaid
+flowchart TD
+    subgraph Project Creation Flow
+        Initial[Initial Project Info] --> Scope[Scope Definition]
+        Scope --> Budget[Smart Budget System]
+        Budget --> Team[Contractor Management]
+        Team --> Overview[Production Overview]
+    end
+
+    subgraph Components by Feature
+        Initial --> |Contains| BasicInfo[Basic Project Details]
+        Initial --> |Contains| Timeline[Timeline Setup]
+        
+        Scope --> |Contains| Requirements[Project Requirements]
+        Scope --> |Contains| Deliverables[Deliverables]
+        Scope --> |Contains| TechSpecs[Technical Specifications]
+        
+        Budget --> |Contains| Scenarios[Budget Scenarios]
+        Budget --> |Contains| CostBreakdown[Cost Analysis]
+        Budget --> |Contains| ProfitCalc[Profit Calculator]
+        
+        Team --> |Contains| TeamComp[Team Composition]
+        Team --> |Contains| Emails[Assignment Emails]
+        Team --> |Contains| Tracking[Response Tracking]
+        
+        Overview --> |Contains| Timeline[Production Timeline]
+        Overview --> |Contains| TeamView[Team Overview]
+        Overview --> |Contains| Requirements[Requirements Review]
+    end
+```
+
+#### Component Structure
+
+1. **Initial Project Info (`InitialProjectInfo.tsx`)**
+   - Project title and client details
+   - Timeline configuration
+   - Initial budget estimation
+   - Basic project parameters
+
+2. **Scope Definition (`ScopeDefinition.tsx`)**
+   - Project requirements list
+   - Deliverables management
+   - Technical requirements
+   - Priority settings
+   - Additional notes
+
+3. **Smart Budget System (`SmartBudgetSystem.tsx`)**
+   - Multiple budget scenarios
+   - Cost breakdown analysis
+   - Profit margin calculator
+   - Risk assessment
+   - Contingency planning
+
+4. **Contractor Management (`ContractorManagement.tsx`)**
+   - Team composition
+   - Email assignment system
+   - Response tracking
+   - Rate management
+   - Availability confirmation
+
+5. **Production Overview (`ProductionOverview.tsx`)**
+   - Timeline visualization
+   - Team overview
+   - Requirements summary
+   - Budget overview
+   - Production readiness check
+
+### 2. Project Tracking
+```mermaid
+flowchart LR
+    New[New - Not Sort] --> Pending[Pending ClickUp Entry]
+    Pending --> Active[Active in ClickUp]
+    Active --> Completed[Completed - Pending Invoices]
+    Completed --> Archived[Archived]
+```
+
+### 3. Financial Management
+```mermaid
+flowchart TD
+    Analytics[Smart Analytics] --> Estimate[Estimate vs Actual]
+    Analytics --> Performance[Team Performance]
+    
+    Payments[Payment Tracking] --> Client[Client Payments]
+    Payments --> Contractor[Contractor Payments]
+    
+    Client --> Profit[Profit Analysis]
+    Contractor --> Profit
+```
 
 ## Key Technical Decisions
 
-### Frontend Framework
-The frontend will be built using a modern JavaScript framework that supports:
-- Component-based architecture
-- Reactive state management
-- Efficient rendering
-- Strong typing support
+### Frontend Design
+- Clean, efficient dashboard layout
+- Simple navigation between sections
+- Status-based notification system
+- Minimal, focused UI components
 
-Potential options include:
-- React with TypeScript
-- Vue.js with TypeScript
-- Angular
+### Backend Structure
+- Basic API endpoints for core functionality
+- Simple data synchronization with ClickUp
+- Efficient email service integration
+- Straightforward data storage
 
-### Backend Technology
-The backend will be implemented using a technology stack that provides:
-- RESTful API capabilities
-- Strong integration capabilities
-- Efficient data processing
-- Secure authentication
-
-Potential options include:
-- Node.js with Express
-- Python with FastAPI or Django
-- .NET Core
-
-### Data Storage
-The system will require data storage for:
-- User authentication and preferences
-- Local cache of ClickUp data
-- System-specific data not stored in ClickUp
-
-Potential options include:
-- MongoDB for flexible document storage
-- PostgreSQL for relational data with JSON support
-- Firebase for real-time capabilities and authentication
+### Data Management
+- Focus on essential project data
+- Simple, efficient data structures
+- Basic data validation
+- Practical error handling
 
 ### Authentication
-The system will implement secure authentication to ensure only authorized users can access the application:
-- JWT-based authentication
-- Role-based access control
-- Secure password storage
-- Potential integration with existing authentication systems
+- Basic single-user login
+- Simple session management
+- No complex user roles needed
 
 ## Design Patterns
 
 ### Frontend Patterns
 
 1. **Component Pattern**
-   - Reusable UI components with clear interfaces
-   - Composition over inheritance
-   - Container/Presentational component separation
+   - Clean, focused components
+   - Clear component hierarchy
+   - Simple state management
 
-2. **Flux/Redux Pattern**
-   - Unidirectional data flow
-   - Centralized state management
-   - Predictable state updates
+2. **Dashboard Pattern**
+   - Central navigation hub
+   - Status notifications
+   - Quick access to core functions
 
-3. **Observer Pattern**
-   - Event-based communication between components
-   - Reactive updates based on state changes
-   - Subscription to external data sources
+3. **Form Pattern**
+   - Step-by-step project creation
+   - Clear validation feedback
+   - Progress saving
 
 ### Backend Patterns
 
-1. **Repository Pattern**
-   - Abstraction over data sources
-   - Consistent interface for data access
-   - Separation of data access logic from business logic
+1. **Service Pattern**
+   - Focused service responsibilities
+   - Clear data flow
+   - Simple error handling
 
-2. **Service Pattern**
-   - Encapsulation of business logic
-   - Reusable services with clear responsibilities
-   - Dependency injection for service composition
-
-3. **Adapter Pattern**
-   - Consistent interface for external services
-   - Isolation of integration code
-   - Easier testing and maintenance
-
-4. **Command Pattern**
-   - Encapsulation of operations as objects
-   - Support for operation queueing and scheduling
-   - Easier implementation of undo/redo functionality
+2. **Integration Pattern**
+   - Direct ClickUp synchronization
+   - Simple email notifications
+   - Basic data mapping
 
 ## Component Relationships
 
-### Project Management Flow
+### Project Flow
 
 ```mermaid
 flowchart TD
-    ProjectForm[Project Form Component] --> ProjectValidator[Project Validator]
-    ProjectValidator --> ProjectService[Project Service]
-    ProjectService --> ClickUpAdapter[ClickUp Adapter]
-    ProjectService --> EmailService[Email Service]
+    Dashboard[Dashboard] --> Create[Create Project]
+    Dashboard --> Track[Track Projects]
+    Dashboard --> Manage[Manage Finances]
     
-    ClickUpAdapter --> ProjectRepository[Project Repository]
+    Create --> Form[Project Form]
+    Form --> Budget[Budget Calculator]
+    Budget --> Contractors[Contractor Assignment]
     
-    ProjectDashboard[Project Dashboard] --> ProjectRepository
-    ProjectDetails[Project Details] --> ProjectRepository
+    Track --> Status[Status Updates]
+    Track --> Sync[ClickUp Sync]
     
-    BudgetForm[Budget Form] --> BudgetService[Budget Service]
-    BudgetService --> ProjectRepository
-    
-    Timeline[Timeline Component] --> ProjectRepository
-    Reminders[Reminder Service] --> NotificationService[Notification Service]
+    Manage --> Analytics[Financial Analytics]
+    Manage --> Payments[Payment Tracking]
 ```
 
 ### Data Flow
 
 ```mermaid
 flowchart TD
-    ClickUp[ClickUp API] --> DataSync[Data Synchronization Service]
-    DataSync --> LocalDB[Local Database]
+    ClickUp[ClickUp API] --> Sync[Data Sync]
+    Sync --> Local[Local Storage]
     
-    LocalDB --> ProjectRepo[Project Repository]
-    LocalDB --> UserRepo[User Repository]
-    LocalDB --> SettingsRepo[Settings Repository]
+    Local --> Projects[Project Data]
+    Local --> Financial[Financial Data]
     
-    ProjectRepo --> ProjectService[Project Service]
-    UserRepo --> AuthService[Authentication Service]
-    SettingsRepo --> SettingsService[Settings Service]
-    
-    ProjectService --> UI[User Interface]
-    AuthService --> UI
-    SettingsService --> UI
+    Projects --> UI[User Interface]
+    Financial --> UI
 ```
 
 ## Technical Constraints
 
-1. **ClickUp Integration**
-   - Limited by ClickUp API capabilities
-   - Need to handle synchronization and potential conflicts
-   - Must adapt to any changes in ClickUp's API
+1. **Simplicity First**
+   - Keep implementation straightforward
+   - Focus on core functionality
+   - Avoid unnecessary complexity
 
-2. **Hosting Environment**
-   - Potential integration with currentmedia.ca (Wix-based)
-   - Alternative hosting on render.com
-   - Need to consider deployment and CI/CD pipeline
+2. **Practical Integration**
+   - Basic ClickUp data sync
+   - Simple email notifications
+   - Essential data storage
 
-3. **Authentication**
-   - Need to implement secure authentication
-   - Consider integration with existing authentication systems
-   - Balance security with usability
-
-4. **Offline Capabilities**
-   - Determine requirements for offline functionality
-   - Consider local storage and synchronization strategies
-   - Handle potential conflicts during synchronization
+3. **Single User Focus**
+   - Basic authentication
+   - Simple session management
+   - No multi-user complexity
 
 ## Evolution Strategy
 
-The system architecture is designed to evolve over time:
+The system is designed to evolve based on practical needs:
 
-1. **Modular Design**
-   - Components with clear interfaces
-   - Loose coupling between modules
-   - Ability to replace individual components
+1. **Core First**
+   - Build essential features
+   - Ensure solid foundation
+   - Test thoroughly
 
-2. **Incremental Development**
-   - Start with core functionality
-   - Add features incrementally
-   - Continuous integration and deployment
+2. **Practical Improvements**
+   - Discuss enhancements first
+   - Focus on workflow benefits
+   - Avoid feature bloat
 
-3. **Feedback Loop**
-   - Regular user feedback
-   - Usage analytics
-   - Iterative improvements based on real-world usage
+3. **User-Driven Updates**
+   - Regular feedback
+   - Focus on efficiency
+   - Practical solutions

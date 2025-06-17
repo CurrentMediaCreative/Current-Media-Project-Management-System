@@ -14,6 +14,8 @@ The Current Media Project Management System is a web-based application that stre
 - Project timeline visualization and milestone tracking
 - Automated reminders for project follow-ups
 - Project completion and review workflow
+- Secure authentication with Google OAuth integration
+- Role-based access control for team members
 
 ## Project Structure
 

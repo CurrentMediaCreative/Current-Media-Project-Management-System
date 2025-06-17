@@ -1,0 +1,29 @@
+{
+  "teams": [
+    {
+      "id": "9011918830",
+      "name": "Jake’s Space",
+      "color": "#40BC86",
+      "avatar": null,
+      "members": [
+        {
+          "user": {
+            "id": 120182095,
+            "username": "Jake Bauer",
+            "email": "jake@currentmedia.ca",
+            "color": "",
+            "profilePicture": null,
+            "initials": "JB",
+            "role": 1,
+            "role_subtype": 0,
+            "role_key": "owner",
+            "custom_role": null,
+            "last_active": "1750094365343",
+            "date_joined": "1736723637870",
+            "date_invited": "1736723637870"
+          }
+        }
+      ]
+    }
+  ]
+}
