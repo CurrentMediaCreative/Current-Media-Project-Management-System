@@ -155,3 +155,18 @@ export const deleteProject = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Error deleting project' });
   }
 };
+
+/**
+ * Check if project exists by ClickUp ID
+ */
+export const checkProjectExists = async (req: Request, res: Response) => {
+  try {
+    const { clickUpId } = req.params;
+    const projects = await storage.read<Project[]>('projects.json');
+    const exists = projects.some(project => project.clickUpId === clickUpId);
+    res.json({ exists });
+  } catch (error) {
+    console.error('Error checking project existence:', error);
+    res.status(500).json({ message: 'Error checking project existence' });
+  }
+};

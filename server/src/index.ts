@@ -9,6 +9,7 @@ import projectRoutes from './api/projects/projectRoutes';
 import contractorRoutes from './api/contractors/contractorRateRoutes';
 // import emailRoutes from './api/email/emailRoutes';  // TODO: Implement email functionality later
 import dashboardRoutes from './api/dashboard/dashboardRoutes';
+import clickupRoutes from './api/clickup/clickupRoutes';
 import { storage } from './services/storageService';
 
 // Load environment variables
@@ -84,6 +85,7 @@ apiRouter.use('/projects', projectRoutes);
 apiRouter.use('/contractors', contractorRoutes);
 // apiRouter.use('/email', emailRoutes);  // TODO: Implement email functionality later
 apiRouter.use('/dashboard', dashboardRoutes);
+apiRouter.use('/clickup', clickupRoutes);
 
 // Mount API routes with proper base path
 app.use('/projects/management/api', apiRouter);

@@ -36,6 +36,8 @@ import { dashboardService } from '../../services/dashboardService';
 import { notificationService } from '../../services/notificationService';
 import { DashboardData, NotificationItem } from './types';
 import { MappedProject } from '@shared/types/clickup';
+import ProjectDetailsDialog from '../projects/tracking/ProjectDetailsDialog';
+import { projectService } from '../../services/projectService';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -43,7 +45,9 @@ const Dashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [selectedProject, setSelectedProject] = useState<MappedProject | null>(null);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [projectInSystem, setProjectInSystem] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -63,15 +67,16 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, projectId: string) => {
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, project: MappedProject) => {
     event.stopPropagation();
-    setSelectedProject(projectId);
+    setSelectedProject(project);
     setMenuAnchorEl(event.currentTarget);
   };
 
   const handleMenuClose = () => {
     setMenuAnchorEl(null);
     setSelectedProject(null);
+    setDetailsDialogOpen(false);
   };
 
   const handleProjectAction = (action: string) => {
@@ -79,15 +84,18 @@ const Dashboard: React.FC = () => {
     
     switch (action) {
       case 'view':
-        window.open(dashboardData?.projects.newProjects.find(p => p.id === selectedProject)?.clickUpUrl, '_blank');
+        window.open(selectedProject.clickUpUrl, '_blank');
         break;
       case 'edit':
-        navigate(`/projects/edit/${selectedProject}`);
+        navigate(`/projects/edit/${selectedProject.id}`);
+        break;
+      case 'details':
+        setDetailsDialogOpen(true);
+        setMenuAnchorEl(null);
         break;
       default:
         console.log(`Action ${action} not implemented`);
     }
-    handleMenuClose();
   };
 
   const handleNotificationClear = async (id: string) => {
@@ -140,11 +148,20 @@ const Dashboard: React.FC = () => {
     return null;
   }
 
+  const handleProjectClick = async (project: MappedProject) => {
+    setSelectedProject(project);
+    setDetailsDialogOpen(true);
+    const exists = await projectService.checkProjectExists(project.id);
+    setProjectInSystem(exists);
+  };
+
   const renderProjectCard = (project: MappedProject) => (
     <Card 
       key={project.id}
+      onClick={() => handleProjectClick(project)}
       sx={{ 
         mb: 2,
+        cursor: 'pointer',
         '&:hover': {
           boxShadow: 6,
           transform: 'translateY(-2px)',
@@ -159,7 +176,7 @@ const Dashboard: React.FC = () => {
           </Typography>
           <IconButton 
             size="small"
-            onClick={(e) => handleMenuOpen(e, project.id)}
+            onClick={(e) => handleMenuOpen(e, project)}
           >
             <MoreVertIcon />
           </IconButton>
@@ -213,8 +230,9 @@ const Dashboard: React.FC = () => {
   );
 
   return (
-    <Box p={3}>
-      <Grid container spacing={3}>
+    <>
+      <Box p={3}>
+        <Grid container spacing={3}>
         {/* Quick Stats */}
         <Grid item xs={12}>
           <Paper sx={{ p: 2, mb: 3 }}>
@@ -411,7 +429,18 @@ const Dashboard: React.FC = () => {
           </Paper>
         </Grid>
       </Grid>
-    </Box>
+      </Box>
+
+      {/* Project Details Dialog */}
+      {selectedProject && (
+        <ProjectDetailsDialog
+          open={detailsDialogOpen}
+          onClose={() => setDetailsDialogOpen(false)}
+          project={selectedProject}
+          isInSystem={projectInSystem}
+        />
+      )}
+    </>
   );
 };
 

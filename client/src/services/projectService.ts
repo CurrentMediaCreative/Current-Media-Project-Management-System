@@ -1,131 +1,38 @@
-import { Project, ProjectFormData, ApiError } from '../shared/types';
+import { Project } from '@shared/types';
+import api from '../shared/utils/api';
 
 class ProjectService {
-  private baseUrl = '/api/projects';
-
-  async createProject(data: ProjectFormData): Promise<Project> {
-    try {
-      const response = await fetch(this.baseUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(data)
-      });
-
-      if (!response.ok) {
-        const error: ApiError = await response.json();
-        throw new Error(error.message || 'Failed to create project');
-      }
-
-      return response.json();
-    } catch (error) {
-      console.error('Error creating project:', error);
-      throw error;
-    }
+  async getProjects(): Promise<Project[]> {
+    const response = await api.get('/api/projects');
+    return response.data;
   }
 
   async getProject(id: string): Promise<Project> {
-    try {
-      const response = await fetch(`${this.baseUrl}/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
-
-      if (!response.ok) {
-        const error: ApiError = await response.json();
-        throw new Error(error.message || 'Failed to fetch project');
-      }
-
-      return response.json();
-    } catch (error) {
-      console.error('Error fetching project:', error);
-      throw error;
-    }
+    const response = await api.get(`/api/projects/${id}`);
+    return response.data;
   }
 
-  async updateProject(id: string, data: Partial<Project>): Promise<Project> {
-    try {
-      const response = await fetch(`${this.baseUrl}/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(data)
-      });
+  async createProject(project: Partial<Project>): Promise<Project> {
+    const response = await api.post('/api/projects', project);
+    return response.data;
+  }
 
-      if (!response.ok) {
-        const error: ApiError = await response.json();
-        throw new Error(error.message || 'Failed to update project');
-      }
-
-      return response.json();
-    } catch (error) {
-      console.error('Error updating project:', error);
-      throw error;
-    }
+  async updateProject(id: string, project: Partial<Project>): Promise<Project> {
+    const response = await api.patch(`/api/projects/${id}`, project);
+    return response.data;
   }
 
   async deleteProject(id: string): Promise<void> {
-    try {
-      const response = await fetch(`${this.baseUrl}/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
-
-      if (!response.ok) {
-        const error: ApiError = await response.json();
-        throw new Error(error.message || 'Failed to delete project');
-      }
-    } catch (error) {
-      console.error('Error deleting project:', error);
-      throw error;
-    }
+    await api.delete(`/api/projects/${id}`);
   }
 
-  async getProjects(): Promise<Project[]> {
+  async checkProjectExists(clickUpId: string): Promise<boolean> {
     try {
-      const response = await fetch(this.baseUrl, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-      });
-
-      if (!response.ok) {
-        const error: ApiError = await response.json();
-        throw new Error(error.message || 'Failed to fetch projects');
-      }
-
-      return response.json();
+      const response = await api.get(`/api/projects/check/${clickUpId}`);
+      return response.data.exists;
     } catch (error) {
-      console.error('Error fetching projects:', error);
-      throw error;
-    }
-  }
-
-  async saveProgress(data: ProjectFormData): Promise<void> {
-    try {
-      const response = await fetch(`${this.baseUrl}/progress`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify(data)
-      });
-
-      if (!response.ok) {
-        const error: ApiError = await response.json();
-        throw new Error(error.message || 'Failed to save progress');
-      }
-    } catch (error) {
-      console.error('Error saving progress:', error);
-      throw error;
+      console.error('Error checking project existence:', error);
+      return false;
     }
   }
 }

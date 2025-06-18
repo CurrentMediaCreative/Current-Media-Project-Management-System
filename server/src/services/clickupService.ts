@@ -178,6 +178,32 @@ class ClickUpService {
   }
 
   /**
+   * Get subtasks for a task
+   */
+  async getSubTasks(taskId: string): Promise<ClickUpTask[]> {
+    try {
+      const response = await this.api.get<ClickUpTasksResponse>(`/task/${taskId}/subtask`);
+      return response.data.tasks;
+    } catch (error) {
+      console.error('Error fetching ClickUp subtasks:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update a task
+   */
+  async updateTask(taskId: string, data: Partial<ClickUpTask>): Promise<ClickUpTask> {
+    try {
+      const response = await this.api.put<ClickUpTask>(`/task/${taskId}`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating ClickUp task:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Get custom fields for a list
    */
   async getCustomFields(listId: string): Promise<any> {
