@@ -51,7 +51,6 @@ const findOrCreateGoogleUser = async (googleData) => {
                     where: { id: user.id },
                     data: {
                         googleId: googleData.googleId,
-                        picture: googleData.picture || user.picture,
                     },
                 });
             }
@@ -62,8 +61,7 @@ const findOrCreateGoogleUser = async (googleData) => {
                         name: googleData.name,
                         email: googleData.email,
                         googleId: googleData.googleId,
-                        picture: googleData.picture,
-                        role: 'VIEWER', // Default role for new users
+                        role: 'user', // Default role for new users
                     },
                 });
             }
@@ -76,7 +74,6 @@ const findOrCreateGoogleUser = async (googleData) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                picture: user.picture,
             },
             ...tokens,
         };

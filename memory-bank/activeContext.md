@@ -2,173 +2,152 @@
 
 ## Current Work Focus
 
-The project is focused on building a streamlined project management system following the exact structure outlined in our reference flowchart. The system consists of three main components with a clean, efficient dashboard interface.
+The project has completed the initial phase of website integration configuration, setting up the build process and routing for deployment to currentmedia.ca/projects/management/. This foundation enables secure document storage and proper production deployment.
 
-### Core Components
+### Current Priority: Website Integration
 
-1. **Project Creation System**
-   - Initial Project Info
-   - Scope Definition
-   - Smart Budget System
-     * Analyze Scope
-     * Team Suggestions
-     * Multiple Scenarios
-     * Profit Margin Calculator
-   - Contractor Management
-     * Send Assignment Emails
-     * Track Confirmations
-     * Handle Declines
-   - Production Overview/Shotlist
-   - Send to Jake
+1. **Website Deployment**
+   - ✓ Configured Vite build for subdirectory deployment
+   - ✓ Set up client-side routing with base path support
+   - ✓ Configured server for subdirectory hosting
+   - ✓ Implemented production security measures
+   
+   Next steps:
+   - Configure SSL certificates and HTTPS
+   - Set up document storage system
+   - Implement backup procedures
+   - Test core features in production
 
-2. **Project Tracking**
-   - New - Not Sort
-   - Pending ClickUp Entry
-   - Active in ClickUp
-   - Completed - Pending Invoices
-   - Archived
+2. **Document Management Infrastructure**
+   - Implement clean URL structure (currentmedia.ca/projects/{projectId}/{documentType})
+   - Set up secure file upload/download system
+   - Configure backup procedures
+   - Implement access controls
 
-3. **Financial Management**
-   - Smart Analytics
-     * Estimate vs Actual
-     * Team Performance
-   - Client Payment Tracking
-   - Contractor Payment Tracking
-   - Profit Analysis
+### Pending UI/UX Improvements
 
-### Dashboard Interface
+These improvements are planned but temporarily paused while we focus on website integration:
 
-1. **Simple Login**
-   - Basic authentication for single-user access
-   - No complex user management needed
+1. **Navigation Updates**
+   - Fix hamburger menu routing
+   - Implement proper project card interactions
+   - Update navigation patterns
 
-2. **Main Dashboard**
-   - Clean, efficient overview of all components
-   - Quick-access notification area showing:
-     * Pending Contractor Confirmations
-     * Outstanding Invoices
-     * New Projects Prompt
-     * ClickUp Updates
-   - Easy navigation to main sections
+2. **Project Management Interface**
+   - Enhanced project card interactions
+   - Detailed project popup dialog
+   - Full project edit view
+   - Document management UI
 
 ## Recent Changes
 
-- Implemented feature-based organization for project creation components
-- Created comprehensive project creation flow with five main steps:
-  1. Initial Project Info (basic details, timeline, budget)
-  2. Scope Definition (requirements, deliverables, technical specs)
-  3. Smart Budget System (scenarios, cost analysis, profit calculation)
-  4. Contractor Management (team composition, assignments, tracking)
-  5. Production Overview (timeline, team, requirements review)
-- Added type definitions for project creation data structures
-- Implemented form validation and error handling
-- Created reusable UI components for consistent user experience
+- Configured Vite build process for currentmedia.ca subdirectory
+- Updated API utilities to handle production paths
+- Implemented proper CORS and security headers
+- Set up server-side routing for subdirectory
+- Configured static file serving for production
+
+## Strategic Decisions
+
+### Website Integration Priority
+Decision made to prioritize website integration before expanding features because:
+- Helps identify hosting-related issues early
+- Ensures proper security measures from the start
+- Provides professional document URLs (currentmedia.ca/projects/...)
+- Creates solid foundation for future features
+
+### Document Storage Approach
+Decided to use currentmedia.ca for document storage instead of external services:
+- Provides branded, professional URLs
+- Better control over access and security
+- Seamless integration with existing systems
+- Simplified management and backup procedures
 
 ## Next Steps
 
-Following our mandatory task management process:
+1. **SSL Configuration**
+   - Set up SSL certificates
+   - Configure HTTPS redirects
+   - Test secure connections
+   - Verify certificate validity
 
-1. **Production Overview Component Enhancement**
-   Current task status: Ready for implementation
-   Implementation steps:
-   - Implement Card/CardContent for better visual organization
-   - Add section navigation using Tabs and activeSection state
-   - Add visual separators between sections using Divider
-   - Enhance timeline visualization
-   - Improve team overview layout
+2. **Document Storage**
+   - Design storage directory structure
+   - Implement secure file operations
+   - Set up backup system
+   - Configure access controls
 
-   Context window usage: 51%
-   Recommendation: Continue with current instance
+2. **Document System**
+   - Design URL structure
+   - Implement storage system
+   - Set up access controls
+   - Configure backup procedures
 
-2. **Subsequent Tasks** (in priority order):
-   - Enhance Contractor Management
-   - Improve Payment Tracking System
-   - Complete Project Creation Flow
-   - Implement Project Tracking
-   - Create Financial Management
-   - Develop Dashboard
-   - Integration and Testing
-
-All tasks are properly tracked in progress.md under "Next Steps"
-
-2. **Project Tracking Implementation**
-   - Build tracking interface components
-   - Implement ClickUp synchronization
-   - Create status management system
-   - Add filtering and sorting capabilities
-
-3. **Financial Management Development**
-   - Implement analytics components
-   - Create payment tracking interface
-   - Build profit analysis tools
-   - Add reporting capabilities
+3. **Post-Integration Tasks**
+   - Resume UI/UX improvements
+   - Implement project card interactions
+   - Create document management interface
+   - Enhance navigation system
 
 ## Development Approach
 
-- Focus on simplicity and efficiency
-- Build exactly what's shown in the flowchart
-- Discuss any potential enhancements before implementation
-- Keep the system focused on maximizing productivity
+- Focus on production readiness
+- Ensure secure document handling
+- Maintain simple, efficient workflow
+- Build for long-term maintainability
 
 ## Active Considerations
 
-### Core Requirements
-- System should be simple to use and maintain
-- Focus on efficient project management workflow
-- Minimize complexity while maximizing utility
-- Build for single-user operation
+### Integration Requirements
+- Proper build configuration
+- Secure file handling
+- Clean URL structure
+- Backup procedures
 
-### Integration Points
-- ClickUp data synchronization
-- Email notifications for contractors
-- Budget calculations and tracking
-- Project status management
+### Security Measures
+- SSL configuration
+- Access control implementation
+- Secure file upload/download
+- Data protection
 
-### Enhancement Process
-- Any proposed features must be discussed first
-- Enhancements should directly improve workflow
-- Avoid unnecessary complexity
-- Focus on practical improvements
+### Performance Optimization
+- Build process efficiency
+- Resource optimization
+- Load time improvement
+- Caching strategy
 
 ## Open Questions
 
-1. **Project Creation Flow**
-   - How should we handle partial progress saving?
-   - What validation should be required before proceeding to next step?
-   - How to handle back navigation without losing data?
+1. **SSL Configuration**
+   - What SSL provider to use?
+   - How to handle certificate renewals?
+   - What SSL configuration is optimal?
 
-2. **ClickUp Integration**
-   - What is the optimal data sync strategy?
-   - How to handle offline/failed sync scenarios?
-   - What ClickUp fields map to our project structure?
+2. **Document Management**
+   - How to structure document storage?
+   - What backup strategy to implement?
+   - How to handle large file uploads?
 
-3. **Contractor System**
-   - How to handle multiple declined assignments?
-   - What fallback options for unresponsive contractors?
-   - How to optimize team composition suggestions?
-
-4. **Budget Analysis**
-   - What factors should influence risk assessment?
-   - How to calculate optimal profit margins?
-   - What metrics are most important for scenario comparison?
+3. **Security**
+   - What access control levels are needed?
+   - How to secure document access?
+   - What SSL configuration is required?
 
 ## Implementation Progress
 
-### Completed Components
-- Initial project information form with validation
-- Scope definition interface with requirements management
-- Smart budget system with scenario analysis
-- Contractor management with email integration
-- Production overview with timeline visualization
+### Completed
+- ClickUp integration and synchronization
+- Build process configuration for production
+- Subdirectory routing and hosting setup
+- Security headers and CORS configuration
 
 ### In Progress
-- Step navigation and progress tracking
-- Data persistence between steps
-- Form validation improvements
-- Error handling enhancements
+- SSL certificate setup
+- Document storage system implementation
+- Production environment testing
 
-### Upcoming Work
-- Integration testing of full creation flow
-- User feedback implementation
-- Performance optimization
-- Documentation updates
+### Upcoming
+- Security implementation
+- Document management system
+- UI/UX improvements
+- Enhanced project interactions

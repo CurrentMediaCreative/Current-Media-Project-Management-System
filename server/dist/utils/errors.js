@@ -1,41 +1,31 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NotFoundError = exports.AuthorizationError = exports.AuthenticationError = exports.ValidationError = exports.ApiError = void 0;
+exports.ApiError = void 0;
 class ApiError extends Error {
-    constructor(statusCode, message) {
+    constructor(statusCode, message, details) {
         super(message);
         this.statusCode = statusCode;
+        this.details = details;
         this.name = 'ApiError';
+    }
+    static badRequest(message, details) {
+        return new ApiError(400, message, details);
+    }
+    static unauthorized(message = 'Unauthorized') {
+        return new ApiError(401, message);
+    }
+    static forbidden(message = 'Forbidden') {
+        return new ApiError(403, message);
+    }
+    static notFound(message = 'Not found') {
+        return new ApiError(404, message);
+    }
+    static conflict(message, details) {
+        return new ApiError(409, message, details);
+    }
+    static internal(message = 'Internal server error') {
+        return new ApiError(500, message);
     }
 }
 exports.ApiError = ApiError;
-class ValidationError extends ApiError {
-    constructor(message, errors) {
-        super(400, message);
-        this.name = 'ValidationError';
-        this.errors = errors;
-    }
-}
-exports.ValidationError = ValidationError;
-class AuthenticationError extends ApiError {
-    constructor(message) {
-        super(401, message);
-        this.name = 'AuthenticationError';
-    }
-}
-exports.AuthenticationError = AuthenticationError;
-class AuthorizationError extends ApiError {
-    constructor(message) {
-        super(403, message);
-        this.name = 'AuthorizationError';
-    }
-}
-exports.AuthorizationError = AuthorizationError;
-class NotFoundError extends ApiError {
-    constructor(message) {
-        super(404, message);
-        this.name = 'NotFoundError';
-    }
-}
-exports.NotFoundError = NotFoundError;
 //# sourceMappingURL=errors.js.map

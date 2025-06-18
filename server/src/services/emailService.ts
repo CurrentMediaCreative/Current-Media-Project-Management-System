@@ -1,122 +1,122 @@
 import nodemailer from 'nodemailer';
-import { ProjectContractor } from '../models/Project';
-import { ContractorRole } from '@shared/types';
+import { EmailData } from '../types';
 
-// Configure email transporter
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+class EmailService {
+  private transporter: nodemailer.Transporter;
 
-interface EmailOptions {
-  to: string;
-  subject: string;
-  html: string;
-  attachments?: any[];
-}
+  constructor() {
+    this.transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+      }
+    });
+  }
 
-export const EmailService = {
   /**
-   * Send contractor assignment email
+   * Send project creation notification to Jake
    */
-  sendContractorAssignment: async (
-    projectName: string,
-    contractor: ProjectContractor,
-    contactEmail: string
-  ) => {
-    const emailOptions: EmailOptions = {
-      to: contactEmail,
-      subject: `Project Assignment: ${projectName}`,
+  async sendProjectCreationNotification(data: {
+    to: string;
+    projectTitle: string;
+    projectDetails: any;
+  }): Promise<void> {
+    const emailData: EmailData = {
+      to: data.to,
+      subject: `New Project Created: ${data.projectTitle}`,
+      text: `A new project "${data.projectTitle}" has been created.\n\nProject Details:\n${JSON.stringify(data.projectDetails, null, 2)}`,
       html: `
-        <h1>Project Assignment: ${projectName}</h1>
-        <p>You have been assigned to the following role:</p>
-        <ul>
-          <li>Role: ${contractor.role}</li>
-          <li>Rate: $${contractor.rate}/hour</li>
-          ${contractor.estimatedHours ? `<li>Estimated Hours: ${contractor.estimatedHours}</li>` : ''}
-          ${contractor.estimatedDays ? `<li>Estimated Days: ${contractor.estimatedDays}</li>` : ''}
-        </ul>
+        <h1>New Project Created: ${data.projectTitle}</h1>
+        <p>A new project has been created with the following details:</p>
+        <pre>${JSON.stringify(data.projectDetails, null, 2)}</pre>
+      `
+    };
+
+    await this.sendEmail(emailData);
+  }
+
+  /**
+   * Send contractor assignment notification
+   */
+  async sendContractorAssignment(data: {
+    to: string;
+    projectTitle: string;
+    role: string;
+    startDate: string;
+    endDate: string;
+  }): Promise<void> {
+    const emailData: EmailData = {
+      to: data.to,
+      subject: `Project Assignment: ${data.projectTitle}`,
+      text: `
+        You have been assigned to the project "${data.projectTitle}" as ${data.role}.
+        Project Duration: ${data.startDate} to ${data.endDate}
+        
+        Please confirm your availability for this project.
+      `,
+      html: `
+        <h1>Project Assignment: ${data.projectTitle}</h1>
+        <p>You have been assigned to the project "${data.projectTitle}" as <strong>${data.role}</strong>.</p>
+        <p>Project Duration: ${data.startDate} to ${data.endDate}</p>
         <p>Please confirm your availability for this project.</p>
-      `,
+      `
     };
 
-    return transporter.sendMail(emailOptions);
-  },
-
-  /**
-   * Send invoice reminder email
-   */
-  sendInvoiceReminder: async (
-    invoiceNumber: string,
-    dueDate: Date,
-    amount: number,
-    recipientEmail: string
-  ) => {
-    const emailOptions: EmailOptions = {
-      to: recipientEmail,
-      subject: `Invoice Reminder: ${invoiceNumber}`,
-      html: `
-        <h1>Invoice Payment Reminder</h1>
-        <p>This is a reminder that invoice ${invoiceNumber} is due on ${dueDate.toLocaleDateString()}.</p>
-        <p>Amount due: $${amount.toFixed(2)}</p>
-        <p>Please ensure payment is made by the due date.</p>
-      `,
-    };
-
-    return transporter.sendMail(emailOptions);
-  },
-
-  /**
-   * Send invoice to client
-   */
-  sendInvoice: async (
-    invoiceNumber: string,
-    clientEmail: string,
-    amount: number,
-    dueDate: Date,
-    attachments: any[]
-  ) => {
-    const emailOptions: EmailOptions = {
-      to: clientEmail,
-      subject: `Invoice ${invoiceNumber}`,
-      html: `
-        <h1>Invoice ${invoiceNumber}</h1>
-        <p>Please find attached invoice ${invoiceNumber} for the amount of $${amount.toFixed(2)}.</p>
-        <p>Due date: ${dueDate.toLocaleDateString()}</p>
-        <p>Thank you for your business!</p>
-      `,
-      attachments,
-    };
-
-    return transporter.sendMail(emailOptions);
-  },
+    await this.sendEmail(emailData);
+  }
 
   /**
    * Send project status update
    */
-  sendProjectUpdate: async (
-    projectName: string,
-    status: string,
-    recipientEmail: string,
-    details: string
-  ) => {
-    const emailOptions: EmailOptions = {
-      to: recipientEmail,
-      subject: `Project Update: ${projectName}`,
-      html: `
-        <h1>Project Update: ${projectName}</h1>
-        <p>Status: ${status}</p>
-        <p>${details}</p>
+  async sendProjectStatusUpdate(data: {
+    to: string;
+    projectTitle: string;
+    status: string;
+    updates: string[];
+  }): Promise<void> {
+    const emailData: EmailData = {
+      to: data.to,
+      subject: `Project Status Update: ${data.projectTitle}`,
+      text: `
+        Project Status Update for "${data.projectTitle}"
+        Current Status: ${data.status}
+        
+        Updates:
+        ${data.updates.join('\n')}
       `,
+      html: `
+        <h1>Project Status Update: ${data.projectTitle}</h1>
+        <p>Current Status: <strong>${data.status}</strong></p>
+        <h2>Updates:</h2>
+        <ul>
+          ${data.updates.map(update => `<li>${update}</li>`).join('')}
+        </ul>
+      `
     };
 
-    return transporter.sendMail(emailOptions);
-  },
-};
+    await this.sendEmail(emailData);
+  }
 
-export default EmailService;
+  /**
+   * Send generic email
+   */
+  private async sendEmail(data: EmailData): Promise<void> {
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_FROM,
+        to: data.to,
+        subject: data.subject,
+        text: data.text,
+        html: data.html
+      });
+    } catch (error) {
+      console.error('Failed to send email:', error);
+      throw error;
+    }
+  }
+}
+
+export default new EmailService();

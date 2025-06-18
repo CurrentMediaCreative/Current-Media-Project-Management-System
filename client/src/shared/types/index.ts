@@ -1,9 +1,24 @@
 // Project Types
+export enum ProjectStatus {
+  NEW_NOT_SENT = 'new_not_sent',
+  NEW_SENT = 'new_sent',
+  PENDING_CLICKUP = 'pending_clickup',
+  ACTIVE = 'active',
+  COMPLETED = 'completed',
+  ARCHIVED = 'archived',
+}
+
+export interface ProjectMetadata {
+  category?: string;
+  notes?: string;
+  [key: string]: any;
+}
+
 export interface Project {
   id: string;
   title: string;
   client: string;
-  status: string;
+  status: ProjectStatus;
   timeframe: {
     startDate: string;
     endDate: string;
@@ -13,6 +28,7 @@ export interface Project {
     actual: number;
   };
   contractors: Contractor[];
+  metadata?: ProjectMetadata;
 }
 
 export interface Deliverable {
@@ -92,7 +108,7 @@ export interface PaginatedResponse<T> {
 
 // Filter and Sort Types
 export interface ProjectFilters {
-  status?: string;
+  status?: ProjectStatus;
   search?: string;
   startDate?: Date;
   endDate?: Date;

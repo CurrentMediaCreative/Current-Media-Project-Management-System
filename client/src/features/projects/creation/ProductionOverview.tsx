@@ -15,7 +15,10 @@ import {
   CardContent,
   Divider,
   Tabs,
-  Tab
+  Tab,
+  Alert,
+  CircularProgress,
+  Snackbar
 } from '@mui/material';
 import {
   Assignment as AssignmentIcon,
@@ -23,9 +26,11 @@ import {
   AttachMoney as MoneyIcon,
   Schedule as ScheduleIcon,
   CheckCircle as CheckCircleIcon,
-  Warning as WarningIcon
+  Warning as WarningIcon,
+  Send as SendIcon
 } from '@mui/icons-material';
 import { ProjectScope, Contractor } from '../../../shared/types';
+import { emailService } from '../../../services/emailService';
 
 interface ProductionOverviewProps {
   onComplete: () => void;
@@ -43,10 +48,57 @@ interface ProductionOverviewProps {
     scope?: ProjectScope;
     contractors: Contractor[];
   };
+  errors?: Record<string, string>;
+  loading?: boolean;
+  onNext?: () => void;
+  onBack?: () => void;
 }
 
-const ProductionOverview: React.FC<ProductionOverviewProps> = ({ onComplete, projectData }) => {
+const ProductionOverview: React.FC<ProductionOverviewProps> = ({ 
+  onComplete, 
+  projectData,
+  errors,
+  loading,
+  onBack
+}) => {
   const [activeSection, setActiveSection] = useState('timeline');
+  const [sendingToJake, setSendingToJake] = useState(false);
+
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error';
+  }>({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
+
+  const handleSendToJake = async () => {
+    try {
+      setSendingToJake(true);
+      await emailService.sendProjectToJake(projectData);
+      setSnackbar({
+        open: true,
+        message: 'Project successfully sent to Jake!',
+        severity: 'success'
+      });
+      onComplete();
+    } catch (error) {
+      console.error('Error sending to Jake:', error);
+      setSnackbar({
+        open: true,
+        message: 'Failed to send project to Jake. Please try again.',
+        severity: 'error'
+      });
+    } finally {
+      setSendingToJake(false);
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
+  };
 
   const handleSectionChange = (_event: React.SyntheticEvent, newValue: string) => {
     setActiveSection(newValue);
@@ -246,19 +298,52 @@ const ProductionOverview: React.FC<ProductionOverviewProps> = ({ onComplete, pro
           </Grid>
         )}
 
+        {/* Error Display */}
+        {errors && Object.keys(errors).length > 0 && (
+          <Grid item xs={12}>
+            <Alert severity="error">
+              <Typography variant="subtitle2" gutterBottom>
+                Please fix the following errors:
+              </Typography>
+              <ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
+                {Object.entries(errors).map(([field, error]) => (
+                  <li key={field}>{error}</li>
+                ))}
+              </ul>
+            </Alert>
+          </Grid>
+        )}
+
         {/* Action Buttons */}
         <Grid item xs={12}>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
             <Button
-              variant="contained"
-              color="primary"
-              onClick={onComplete}
+              variant="outlined"
+              onClick={onBack}
+              disabled={loading}
             >
-              Start Production
+              Back
             </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSendToJake}
+                disabled={loading || sendingToJake || (errors && Object.keys(errors).length > 0)}
+                startIcon={sendingToJake ? <CircularProgress size={20} color="inherit" /> : <SendIcon />}
+              >
+                {sendingToJake ? 'Sending to Jake...' : 'Send to Jake'}
+              </Button>
           </Box>
         </Grid>
       </Grid>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        message={snackbar.message}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      />
     </Box>
   );
 };

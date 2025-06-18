@@ -1,7 +1,16 @@
 import axios from 'axios';
 
+// Get base path for the application
+const getBasePath = () => {
+  if (import.meta.env.DEV) {
+    return '';
+  }
+  return '/projects/management';
+};
+
+// Configure API base URL
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
+  baseURL: `${getBasePath()}/api`,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -23,10 +32,14 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Handle unauthorized access
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      // Redirect to login with correct base path
+      window.location.href = `${getBasePath()}/login`;
     }
     return Promise.reject(error);
   }
 );
+
+// Export base path for use in other components
+export const basePath = getBasePath();
 
 export default api;

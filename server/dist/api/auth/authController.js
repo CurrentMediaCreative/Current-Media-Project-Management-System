@@ -176,9 +176,6 @@ exports.refreshToken = refreshToken;
  */
 const getProfile = async (req, res) => {
     try {
-        if (!req.user) {
-            return res.status(401).json({ message: 'Authentication required' });
-        }
         const user = await prisma.user.findUnique({
             where: { id: req.user.userId },
         });
@@ -230,7 +227,6 @@ const googleLogin = async (req, res) => {
             googleId: googlePayload.sub,
             email: googlePayload.email,
             name: googlePayload.name || googlePayload.email.split('@')[0],
-            picture: googlePayload.picture,
         });
         // Return user info and tokens
         res.status(200).json({

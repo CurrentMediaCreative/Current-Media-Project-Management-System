@@ -5,12 +5,13 @@ const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 exports.ContractorRateModel = {
     async create(data) {
-        const createData = {
-            role: data.role,
-            rate: data.rate
-        };
         return prisma.contractorRate.create({
-            data: createData
+            data: {
+                role: data.role,
+                baseRate: data.baseRate,
+                chargeOutRate: data.chargeOutRate ?? data.baseRate * 1.5,
+                isFixed: data.isFixed ?? false
+            }
         });
     },
     async findById(id) {
@@ -29,17 +30,35 @@ exports.ContractorRateModel = {
         });
     },
     async update(id, data) {
-        const updateData = { ...data };
+        const updateData = {};
+        if (data.role) {
+            updateData.role = data.role;
+        }
+        if (typeof data.baseRate === 'number') {
+            updateData.baseRate = data.baseRate;
+            // Update chargeOutRate if not fixed and not explicitly provided
+            if (!data.isFixed && typeof data.chargeOutRate !== 'number') {
+                updateData.chargeOutRate = data.baseRate * 1.5;
+            }
+        }
+        if (typeof data.chargeOutRate === 'number') {
+            updateData.chargeOutRate = data.chargeOutRate;
+        }
+        if (typeof data.isFixed === 'boolean') {
+            updateData.isFixed = data.isFixed;
+        }
         return prisma.contractorRate.update({
             where: { id },
             data: updateData
         });
     },
-    async updateRate(role, rate) {
-        const updateData = { rate };
+    async updateRate(role, baseRate, chargeOutRate) {
         return prisma.contractorRate.update({
             where: { role },
-            data: updateData
+            data: {
+                baseRate,
+                chargeOutRate: chargeOutRate ?? baseRate * 1.5
+            }
         });
     },
     async delete(id) {

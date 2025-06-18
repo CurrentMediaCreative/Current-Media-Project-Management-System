@@ -6,36 +6,35 @@ import { store } from './store';
 import theme from './theme';
 import { AuthProvider, useAuth } from './features/auth/contexts/AuthContext';
 
-// Layout & Pages
+// Layout & Features
 import MainLayout from './components/layout/MainLayout';
-import LoginPage from './pages/auth/LoginPage';
-import DashboardPage from './pages/dashboard/DashboardPage';
-import { ProjectTracking as ProjectTrackingPage } from './features/projects/tracking';
-import { ProjectCreationFlow as ProjectCreationPage } from './features/projects/creation';
+import { LoginFlow } from './features/auth';
+import { ProjectTracking } from './features/projects/tracking';
+import { ProjectCreationFlow } from './features/projects/creation';
+import { Dashboard } from './features/dashboard';
 
 // Auth Guard Component
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+  const { user } = useAuth();
+  return user ? <>{children}</> : <Navigate to="/login" />;
 };
 
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/login" element={<LoginPage />} />
+      <Route path="/login" element={<LoginFlow />} />
 
       {/* Protected Routes */}
       <Route
-        path="/"
+        path="/*"
         element={
           <PrivateRoute>
             <MainLayout>
               <Routes>
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/projects" element={<ProjectTrackingPage />} />
-                <Route path="/projects/new" element={<ProjectCreationPage />} />
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/projects" element={<ProjectTracking />} />
+                <Route path="/projects/new" element={<ProjectCreationFlow />} />
               </Routes>
             </MainLayout>
           </PrivateRoute>

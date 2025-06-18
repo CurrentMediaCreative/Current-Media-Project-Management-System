@@ -1,44 +1,6 @@
 {
   "fields": [
     {
-      "id": "047652d9-831f-4da0-9112-c9f5286df5c3",
-      "name": "Task Type",
-      "type": "drop_down",
-      "type_config": {
-        "sorting": "manual",
-        "new_drop_down": true,
-        "options": [
-          {
-            "id": "04e7f4e4-8880-4511-bf87-446a108a06fc",
-            "name": "Project",
-            "color": "#7C4DFF",
-            "orderindex": 0
-          },
-          {
-            "id": "bdfec6fb-a646-4e21-bce8-64c90834bfcd",
-            "name": "Edit",
-            "color": "#3397dd",
-            "orderindex": 1
-          },
-          {
-            "id": "bb59e35e-419b-427b-88a3-c4dc8ad91734",
-            "name": "Shoot",
-            "color": "#FF7FAB",
-            "orderindex": 2
-          },
-          {
-            "id": "2577a6d7-74b6-4b69-b6e2-0f017f3e6e8e",
-            "name": "Invoice",
-            "color": "#E65100",
-            "orderindex": 3
-          }
-        ]
-      },
-      "date_created": "1738697873838",
-      "hide_from_guests": false,
-      "required": false
-    },
-    {
       "id": "08cd5c39-b63b-4038-82f7-44d6bfde8365",
       "name": "INV NUM",
       "type": "short_text",
@@ -48,36 +10,77 @@
       "required": false
     },
     {
-      "id": "3ad7468c-1043-43d8-aa5b-cf8461276cff",
-      "name": "Budget",
-      "type": "url",
-      "type_config": {},
-      "date_created": "1743463971594",
+      "id": "1104ba84-6729-4c30-86e0-54ab33860187",
+      "name": "Amount (Pre-HST)",
+      "type": "currency",
+      "type_config": {
+        "precision": 2,
+        "currency_type": "CAD"
+      },
+      "date_created": "1741204451906",
       "hide_from_guests": false,
       "required": false
     },
     {
-      "id": "5bf11608-01b9-4630-bb9a-15dd4d22cfe6",
-      "name": "Priority",
+      "id": "17574177-633a-42a7-b388-691a909efa30",
+      "name": "Selection",
+      "type": "checkbox",
+      "type_config": {},
+      "date_created": "1741712306715",
+      "hide_from_guests": false,
+      "required": false
+    },
+    {
+      "id": "2336b7d8-55dd-4e1b-9085-13682c5a33f2",
+      "name": "Project",
+      "type": "tasks",
+      "type_config": {
+        "fields": []
+      },
+      "date_created": "1741373538322",
+      "hide_from_guests": false,
+      "required": false
+    },
+    {
+      "id": "2ad4690f-9229-4491-bf9f-a7d07436c78d",
+      "name": "Project Payment",
       "type": "drop_down",
       "type_config": {
         "sorting": "manual",
         "options": [
           {
-            "id": "00d07822-28d1-4a6f-90cd-c644f3a8047f",
-            "name": "High",
-            "color": "#e50000",
+            "id": "66f3aa3c-d4e1-49cb-960c-43644b2e0a12",
+            "name": "Paid",
+            "color": "#2ecd6f",
             "orderindex": 0
           },
           {
-            "id": "82f0b464-7653-4c82-b691-c31554ebaebf",
-            "name": "Med",
+            "id": "15020003-e2c6-485f-b7f8-bab602c6f68d",
+            "name": "Partial",
             "color": "#f9d900",
             "orderindex": 1
           }
         ]
       },
-      "date_created": "1738961382424",
+      "date_created": "1741204413112",
+      "hide_from_guests": false,
+      "required": false
+    },
+    {
+      "id": "4c474801-b3de-43c4-84ef-394959214507",
+      "name": "Invoice Received",
+      "type": "date",
+      "type_config": {},
+      "date_created": "1741204719539",
+      "hide_from_guests": false,
+      "required": false
+    },
+    {
+      "id": "658b7e4c-91d2-45dd-9d4e-fb5656441f82",
+      "name": "Paid Date",
+      "type": "date",
+      "type_config": {},
+      "date_created": "1741205076970",
       "hide_from_guests": false,
       "required": false
     },
@@ -107,80 +110,14 @@
       "required": false
     },
     {
-      "id": "66a1d299-6002-44b3-a186-d91e2fb3d3e2",
-      "name": "Start Date",
-      "type": "date",
-      "type_config": {},
-      "date_created": "1738790775665",
-      "hide_from_guests": false,
-      "required": false
-    },
-    {
-      "id": "67b16232-45cc-43bc-98dd-693d32f9c2f1",
-      "name": "Invoice",
-      "type": "drop_down",
+      "id": "8856b588-7815-4b2d-849b-ced69b35fa8f",
+      "name": "Estimate",
+      "type": "currency",
       "type_config": {
-        "sorting": "manual",
-        "new_drop_down": true,
-        "options": [
-          {
-            "id": "aa2f3410-8107-4c22-8291-ea55f6eb9ad3",
-            "name": "Sent",
-            "color": "#f9d900",
-            "orderindex": 0
-          },
-          {
-            "id": "2bce3e85-85a6-498e-8b28-0126ba364fb7",
-            "name": "Paid",
-            "color": "#2ecd6f",
-            "orderindex": 1
-          },
-          {
-            "id": "45ebed98-c68c-4e46-b804-a1ee7f253263",
-            "name": "Partial",
-            "color": "#AF7E2E",
-            "orderindex": 2
-          }
-        ]
+        "precision": 2,
+        "currency_type": "CAD"
       },
-      "date_created": "1738807101198",
-      "hide_from_guests": false,
-      "required": false
-    },
-    {
-      "id": "690b7568-5eea-42e5-8094-c05960913cba",
-      "name": "Editor",
-      "type": "labels",
-      "type_config": {
-        "sorting": "manual",
-        "options": [
-          {
-            "id": "b2441468-bc24-40b9-b2f0-552655d05765",
-            "label": "Jake",
-            "color": null
-          },
-          {
-            "id": "92dd89af-bfb9-474c-8c51-786a9d818435",
-            "label": "Dimitri",
-            "color": null
-          },
-          {
-            "id": "3c2775ca-1a51-4dd8-88ba-fec4fc1a1931",
-            "label": "Robyn",
-            "color": null
-          }
-        ]
-      },
-      "date_created": "1738699550311",
-      "hide_from_guests": false,
-      "required": false
-    },
-    {
-      "id": "928439f5-aac1-48bb-a5c4-34ab994f6baf",
-      "name": "Selects",
-      "type": "checkbox",
-      "type_config": {},
-      "date_created": "1742832015597",
+      "date_created": "1741721369935",
       "hide_from_guests": false,
       "required": false
     },
@@ -209,237 +146,6 @@
         ]
       },
       "date_created": "1741204181527",
-      "hide_from_guests": false,
-      "required": false
-    },
-    {
-      "id": "ad0f2e9d-0976-4945-ad23-f4b03ef33b60",
-      "name": "Note",
-      "type": "short_text",
-      "type_config": {},
-      "date_created": "1738788243165",
-      "hide_from_guests": false,
-      "required": false
-    },
-    {
-      "id": "c490e201-9705-4165-9b4b-071115e02fb4",
-      "name": "Budget",
-      "type": "currency",
-      "type_config": {
-        "precision": 2,
-        "currency_type": "CAD"
-      },
-      "date_created": "1738697659503",
-      "hide_from_guests": false,
-      "required": false
-    },
-    {
-      "id": "c9770967-f70a-4f85-af2f-deae8a0ed5e2",
-      "name": "Editing Deadline",
-      "type": "date",
-      "type_config": {},
-      "date_created": "1738696916034",
-      "hide_from_guests": false,
-      "required": false
-    },
-    {
-      "id": "ecef0920-97d6-4e96-a41f-a690ae938bce",
-      "name": "Doc",
-      "type": "url",
-      "type_config": {},
-      "date_created": "1738881022150",
-      "hide_from_guests": false,
-      "required": false
-    },
-    {
-      "id": "f2eee625-b58a-4d54-a236-a10abfe34dab",
-      "name": "Year",
-      "type": "labels",
-      "type_config": {
-        "sorting": "manual",
-        "options": [
-          {
-            "id": "7ee1822e-b5c8-46e6-9be0-953e8693e8dc",
-            "label": "2025",
-            "color": "#800000"
-          },
-          {
-            "id": "f6f93ee0-ead8-4e05-bfae-b7aa2f42a3bb",
-            "label": "2024",
-            "color": "#0231E8"
-          },
-          {
-            "id": "948260fd-307c-419c-932d-34a905b39710",
-            "label": "0000",
-            "color": "#fff"
-          }
-        ]
-      },
-      "date_created": "1740192803287",
-      "hide_from_guests": false,
-      "required": false
-    },
-    {
-      "id": "fdab03c4-bf5a-4269-a957-faa9bd58b4fb",
-      "name": "Client",
-      "type": "drop_down",
-      "type_config": {
-        "sorting": "manual",
-        "new_drop_down": true,
-        "options": [
-          {
-            "id": "7fa056ae-8361-455f-9b6c-bc26ea5dfdf8",
-            "name": "CES",
-            "color": null,
-            "orderindex": 0
-          },
-          {
-            "id": "aee198f8-8d17-4eb7-9ac8-12a6a2b2fcf8",
-            "name": "CFA",
-            "color": null,
-            "orderindex": 1
-          },
-          {
-            "id": "66896cb4-49b0-4b5f-81b1-b8cc525192d9",
-            "name": "PPI",
-            "color": null,
-            "orderindex": 2
-          },
-          {
-            "id": "d6c9067e-3679-4e27-9d12-ac809d195257",
-            "name": "Aaron",
-            "color": null,
-            "orderindex": 3
-          },
-          {
-            "id": "bc8214ed-4027-42af-8752-33e075df4cd8",
-            "name": "OBOA",
-            "color": null,
-            "orderindex": 4
-          },
-          {
-            "id": "96238543-d614-4ecd-94a8-a0cd5e587ef3",
-            "name": "RSM",
-            "color": null,
-            "orderindex": 5
-          },
-          {
-            "id": "c03f958a-f4ac-4e4e-988d-4b42157b0cca",
-            "name": "WWFC",
-            "color": null,
-            "orderindex": 6
-          },
-          {
-            "id": "485e5571-b582-400a-92fb-d87153e66f8f",
-            "name": "WEHBA",
-            "color": null,
-            "orderindex": 7
-          },
-          {
-            "id": "04799756-6b78-433d-a1b3-4e1ffc9a012c",
-            "name": "HCRA",
-            "color": null,
-            "orderindex": 8
-          },
-          {
-            "id": "87d7c0bb-eea2-42b8-817a-fc712bd6b7df",
-            "name": "LHBA",
-            "color": null,
-            "orderindex": 9
-          },
-          {
-            "id": "fb411f5f-4462-40dd-a186-303383286578",
-            "name": "PHBA",
-            "color": null,
-            "orderindex": 10
-          },
-          {
-            "id": "309288d0-45a8-4585-b36e-71b88ab94117",
-            "name": "Feeney",
-            "color": null,
-            "orderindex": 11
-          },
-          {
-            "id": "bc5a71dc-78ca-40b4-92c4-f14a2e60516c",
-            "name": "Sports Wall",
-            "color": null,
-            "orderindex": 12
-          },
-          {
-            "id": "9c893a32-fac7-4537-a0f4-9e6426cd4db3",
-            "name": "Uptown Windows",
-            "color": null,
-            "orderindex": 13
-          },
-          {
-            "id": "1f45bf30-419e-409a-b153-d0c145a64362",
-            "name": "Jon/Frontline",
-            "color": null,
-            "orderindex": 14
-          },
-          {
-            "id": "097e20fa-80c2-486c-b682-e4d50c9e9e37",
-            "name": "CHBA",
-            "color": null,
-            "orderindex": 15
-          },
-          {
-            "id": "7aad4c37-9ef6-4737-af26-f9b00d6a2299",
-            "name": "Cutting Edge",
-            "color": null,
-            "orderindex": 16
-          },
-          {
-            "id": "d01a6a8d-e010-409f-aaae-115cf273a627",
-            "name": "Credence & Co.",
-            "color": null,
-            "orderindex": 17
-          },
-          {
-            "id": "0983117a-5843-45be-991e-f10a21aae8a3",
-            "name": "CFBD",
-            "color": null,
-            "orderindex": 18
-          },
-          {
-            "id": "aab47fa5-27fc-45d8-b318-58968565fbdd",
-            "name": "Bentley's",
-            "color": null,
-            "orderindex": 19
-          },
-          {
-            "id": "c08695c9-d64a-4ad4-b06f-20206e887e62",
-            "name": "Stratford Home Show",
-            "color": null,
-            "orderindex": 20
-          },
-          {
-            "id": "497ea868-60e5-4869-b430-22389e50ad0a",
-            "name": "CKHBA",
-            "color": null,
-            "orderindex": 21
-          },
-          {
-            "id": "a94475aa-9adf-4b82-91a7-4a50b4a6493c",
-            "name": "OCBA",
-            "color": null,
-            "orderindex": 22
-          },
-          {
-            "id": "efeba358-d377-42a5-97ac-6af32e4095a2",
-            "name": "Anstett",
-            "color": null,
-            "orderindex": 23
-          },
-          {
-            "id": "94ef7e3b-60a6-48ef-bf23-d0c555569b6e",
-            "name": "Ethos",
-            "color": null,
-            "orderindex": 24
-          }
-        ]
-      },
-      "date_created": "1741379594881",
       "hide_from_guests": false,
       "required": false
     }

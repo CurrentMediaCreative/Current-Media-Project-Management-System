@@ -9,15 +9,10 @@ import {
   Paper, 
   Typography,
   Alert,
-  CircularProgress,
-  Snackbar
-} from '@mui/material';
-import { projectService } from '../../services/projectService';
+  CircularProgress} from '@mui/material';
+import { projectService } from '../../../services/projectService';
 import { 
-  Project,
-  ProjectScope,
-  Contractor
-} from '../../../shared/types';
+  ProjectScope} from '../../../shared/types';
 import {
   ProjectFormData,
   Budget,
@@ -63,9 +58,30 @@ const ProjectCreationFlow: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (validateStep()) {
+      const currentStep = PROJECT_CREATION_STEPS[activeStep].id;
+      
+      // Save progress for initial-info and scope-definition steps
+      if (currentStep === 'initial-info' || currentStep === 'scope-definition') {
+        setLoading(true);
+        try {
+          // Save progress to backend
+          await projectService.saveProgress(formData);
+          // Show success message
+          setSuccessMessage('Progress saved successfully');
+          setApiError(null);
+        } catch (error) {
+          setApiError(error instanceof Error ? error.message : 'Failed to save progress');
+          console.error('Error saving progress:', error);
+          return; // Don't proceed if save failed
+        } finally {
+          setLoading(false);
+        }
+      }
+      
       setActiveStep((prevStep) => prevStep + 1);
     }
   };
@@ -281,6 +297,12 @@ const ProjectCreationFlow: React.FC = () => {
           {renderStepContent(PROJECT_CREATION_STEPS[activeStep].id)}
         </Box>
 
+        {successMessage && (
+          <Alert severity="success" sx={{ mb: 3 }} onClose={() => setSuccessMessage(null)}>
+            {successMessage}
+          </Alert>
+        )}
+
         {apiError && (
           <Alert severity="error" sx={{ mb: 3 }}>
             {apiError}
@@ -323,14 +345,17 @@ const ProjectCreationFlow: React.FC = () => {
               Save & Exit
             </Button>
             
-            <Button
-              variant="contained"
-              onClick={activeStep === PROJECT_CREATION_STEPS.length - 1 ? handleSubmit : handleNext}
-              disabled={loading || Object.keys(errors).length > 0}
-              startIcon={loading ? <CircularProgress size={20} /> : undefined}
-            >
-              {activeStep === PROJECT_CREATION_STEPS.length - 1 ? 'Create Project' : 'Next'}
-            </Button>
+          <Button
+            variant="contained"
+            onClick={activeStep === PROJECT_CREATION_STEPS.length - 1 ? handleSubmit : handleNext}
+            disabled={loading || Object.keys(errors).length > 0}
+            startIcon={loading ? <CircularProgress size={20} /> : undefined}
+          >
+            {activeStep === PROJECT_CREATION_STEPS.length - 1 ? 'Create Project' : 
+             (PROJECT_CREATION_STEPS[activeStep].id === 'initial-info' || 
+              PROJECT_CREATION_STEPS[activeStep].id === 'scope-definition') ? 
+              'Save & Continue' : 'Next'}
+          </Button>
           </Box>
         </Box>
       </Paper>

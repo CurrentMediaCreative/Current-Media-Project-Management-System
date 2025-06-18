@@ -1,13 +1,13 @@
 {
-  "id": "868e9pafy",
-  "name": "OCBA Parade of Homes",
-  "status": "1. active",
-  "statusColor": "#f8ae00",
-  "client": "OCBA",
-  "taskType": "Project",
-  "invoiceStatus": "Sent",
-  "invoiceNumber": "1337",
-  "createdAt": "2025-06-09T14:59:10.957Z",
-  "updatedAt": "2025-06-09T15:02:12.343Z",
-  "clickUpUrl": "https://app.clickup.com/t/868e9pafy"
+  "id": "868dbkej3",
+  "name": "Full Day HCRA Radon St Thomas",
+  "status": "Open",
+  "statusColor": "#87909e",
+  "client": null,
+  "taskType": null,
+  "invoiceStatus": null,
+  "invoiceNumber": "46",
+  "createdAt": "2025-04-02T17:32:37.395Z",
+  "updatedAt": "2025-04-02T17:33:05.839Z",
+  "clickUpUrl": "https://app.clickup.com/t/868dbkej3"
 }

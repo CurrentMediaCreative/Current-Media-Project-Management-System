@@ -1,14 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteRate = exports.createRate = exports.validateRateForRole = exports.initializeDefaultRates = exports.updateRate = exports.getVariableRates = exports.getFixedRates = exports.getAllRates = exports.getRateByRole = void 0;
-const client_1 = require("@prisma/client");
+const ContractorRate_1 = require("../models/ContractorRate");
 const utils_1 = require("../utils");
-const prisma = new client_1.PrismaClient();
 /**
  * Get rate by role
  */
 const getRateByRole = async (role) => {
-    const rate = await ContractorRate_1.ContractorRate.findByRole(role);
+    const rate = await ContractorRate_1.ContractorRateModel.findByRole(role);
     if (!rate) {
         throw new utils_1.ApiError(404, `Rate not found for role: ${role}`);
     }
@@ -19,21 +18,23 @@ exports.getRateByRole = getRateByRole;
  * Get all rates
  */
 const getAllRates = async () => {
-    return ContractorRate_1.ContractorRate.list();
+    return ContractorRate_1.ContractorRateModel.findAll();
 };
 exports.getAllRates = getAllRates;
 /**
  * Get fixed rates only
  */
 const getFixedRates = async () => {
-    return ContractorRate_1.ContractorRate.listFixedRates();
+    const rates = await ContractorRate_1.ContractorRateModel.findAll();
+    return rates.filter(rate => rate.isFixed);
 };
 exports.getFixedRates = getFixedRates;
 /**
  * Get variable rates only
  */
 const getVariableRates = async () => {
-    return ContractorRate_1.ContractorRate.listVariableRates();
+    const rates = await ContractorRate_1.ContractorRateModel.findAll();
+    return rates.filter(rate => !rate.isFixed);
 };
 exports.getVariableRates = getVariableRates;
 /**
@@ -41,7 +42,7 @@ exports.getVariableRates = getVariableRates;
  */
 const updateRate = async (role, data) => {
     // Validate rate exists
-    const existingRate = await ContractorRate_1.ContractorRate.findByRole(role);
+    const existingRate = await ContractorRate_1.ContractorRateModel.findByRole(role);
     if (!existingRate) {
         throw new utils_1.ApiError(404, `Rate not found for role: ${role}`);
     }
@@ -52,21 +53,39 @@ const updateRate = async (role, data) => {
     if (data.chargeOutRate !== undefined && data.chargeOutRate < 0) {
         throw new utils_1.ApiError(400, 'Charge out rate cannot be negative');
     }
-    return ContractorRate_1.ContractorRate.update(role, data);
+    // Get the existing rate to get its ID
+    const rate = await ContractorRate_1.ContractorRateModel.findByRole(role);
+    if (!rate) {
+        throw new utils_1.ApiError(404, `Rate not found for role: ${role}`);
+    }
+    return ContractorRate_1.ContractorRateModel.update(rate.id, data);
 };
 exports.updateRate = updateRate;
 /**
  * Initialize default contractor rates
  */
 const initializeDefaultRates = async () => {
-    await ContractorRate_1.ContractorRate.initializeDefaultRates();
+    const defaultRates = [
+        { role: 'PRODUCER', baseRate: 75, chargeOutRate: 112.5, isFixed: true },
+        { role: 'SHOOTER', baseRate: 65, chargeOutRate: 97.5, isFixed: true },
+        { role: 'PHOTOGRAPHER', baseRate: 60, chargeOutRate: 90, isFixed: true },
+        { role: 'SOUND_ENGINEER', baseRate: 55, chargeOutRate: 82.5, isFixed: true },
+        { role: 'SENIOR_EDITOR', baseRate: 70, chargeOutRate: 105, isFixed: true },
+        { role: 'JUNIOR_EDITOR', baseRate: 45, chargeOutRate: 67.5, isFixed: true }
+    ];
+    for (const rate of defaultRates) {
+        const existing = await ContractorRate_1.ContractorRateModel.findByRole(rate.role);
+        if (!existing) {
+            await ContractorRate_1.ContractorRateModel.create(rate);
+        }
+    }
 };
 exports.initializeDefaultRates = initializeDefaultRates;
 /**
  * Validate rate for a given role
  */
 const validateRateForRole = async (role, rate) => {
-    const rateConfig = await ContractorRate_1.ContractorRate.findByRole(role);
+    const rateConfig = await ContractorRate_1.ContractorRateModel.findByRole(role);
     if (!rateConfig) {
         throw new utils_1.ApiError(404, `Rate configuration not found for role: ${role}`);
     }
@@ -84,7 +103,7 @@ exports.validateRateForRole = validateRateForRole;
  */
 const createRate = async (data) => {
     // Validate role is unique
-    const existingRate = await ContractorRate_1.ContractorRate.findByRole(data.role);
+    const existingRate = await ContractorRate_1.ContractorRateModel.findByRole(data.role);
     if (existingRate) {
         throw new utils_1.ApiError(400, `Rate already exists for role: ${data.role}`);
     }
@@ -95,7 +114,7 @@ const createRate = async (data) => {
     if (data.chargeOutRate < 0) {
         throw new utils_1.ApiError(400, 'Charge out rate cannot be negative');
     }
-    return ContractorRate_1.ContractorRate.create(data);
+    return ContractorRate_1.ContractorRateModel.create(data);
 };
 exports.createRate = createRate;
 /**
@@ -103,11 +122,11 @@ exports.createRate = createRate;
  */
 const deleteRate = async (role) => {
     // Validate rate exists
-    const existingRate = await ContractorRate_1.ContractorRate.findByRole(role);
+    const existingRate = await ContractorRate_1.ContractorRateModel.findByRole(role);
     if (!existingRate) {
         throw new utils_1.ApiError(404, `Rate not found for role: ${role}`);
     }
-    return ContractorRate_1.ContractorRate.delete(role);
+    return ContractorRate_1.ContractorRateModel.delete(existingRate.id);
 };
 exports.deleteRate = deleteRate;
 exports.default = {

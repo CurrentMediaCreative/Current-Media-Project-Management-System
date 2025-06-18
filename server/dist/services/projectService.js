@@ -1,35 +1,31 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
 const utils_1 = require("../utils");
-const contractorRateService_1 = __importDefault(require("./contractorRateService"));
 const prisma = new client_1.PrismaClient();
 class ProjectService {
     /**
      * Create a new project
      */
-    async createProject(data) {
+    async createProject(input) {
         // Validate timeframe
-        if (data.timeframe.endDate < data.timeframe.startDate) {
+        if (input.endDate < input.startDate) {
             throw new utils_1.ApiError(400, 'End date must be after start date');
         }
-        // Validate contractors if provided
-        if (data.contractors) {
-            for (const contractor of data.contractors) {
-                // Validate rate for role
-                await contractorRateService_1.default.validateRateForRole(contractor.role, contractor.rate);
+        return prisma.project.create({
+            data: {
+                ...input,
+                status: client_1.ProjectStatus.NEW_NOT_SENT
             }
-        }
-        return Project_1.Project.create(data);
+        });
     }
     /**
      * Get project by ID
      */
     async getProjectById(id) {
-        const project = await Project_1.Project.findById(id);
+        const project = await prisma.project.findUnique({
+            where: { id }
+        });
         if (!project) {
             throw new utils_1.ApiError(404, `Project not found: ${id}`);
         }
@@ -39,47 +35,32 @@ class ProjectService {
      * List projects with optional filtering
      */
     async listProjects(params = {}) {
-        return Project_1.Project.list(params);
+        const where = params.status ? { status: params.status } : {};
+        return prisma.project.findMany({
+            skip: params.skip,
+            take: params.take,
+            where,
+            orderBy: { createdAt: 'desc' }
+        });
     }
     /**
      * Update project details
      */
-    async updateProject(id, data) {
+    async updateProject(id, input) {
         // Validate project exists
-        const project = await this.getProjectById(id);
-        // Validate timeframe if updating
-        if (data.timeframe) {
-            if (data.timeframe.endDate < data.timeframe.startDate) {
+        await this.getProjectById(id);
+        // Validate timeframe if updating both dates
+        if (input.startDate && input.endDate) {
+            if (input.endDate < input.startDate) {
                 throw new utils_1.ApiError(400, 'End date must be after start date');
             }
         }
-        // Validate contractors if updating
-        if (data.contractors) {
-            for (const contractor of data.contractors) {
-                // Validate rate for role
-                await contractorRateService_1.default.validateRateForRole(contractor.role, contractor.rate);
+        return prisma.project.update({
+            where: { id },
+            data: {
+                ...input
             }
-        }
-        return Project_1.Project.update(id, data);
-    }
-    /**
-     * Update project costs
-     */
-    async updateProjectCosts(projectId, estimatedCosts, actualCosts) {
-        // Validate project exists
-        await this.getProjectById(projectId);
-        // Validate contractor rates if updating
-        if (estimatedCosts) {
-            for (const contractor of estimatedCosts.contractors) {
-                await contractorRateService_1.default.validateRateForRole(contractor.role, contractor.rate);
-            }
-        }
-        if (actualCosts) {
-            for (const contractor of actualCosts.contractors) {
-                await contractorRateService_1.default.validateRateForRole(contractor.role, contractor.rate);
-            }
-        }
-        return Project_1.Project.updateCosts(projectId, estimatedCosts, actualCosts);
+        });
     }
     /**
      * Update project status
@@ -87,15 +68,10 @@ class ProjectService {
     async updateProjectStatus(id, status) {
         // Validate project exists
         await this.getProjectById(id);
-        return Project_1.Project.update(id, { status });
-    }
-    /**
-     * Update ClickUp sync status
-     */
-    async updateClickUpStatus(id, clickUpStatus) {
-        // Validate project exists
-        await this.getProjectById(id);
-        return Project_1.Project.update(id, { clickUpStatus });
+        return prisma.project.update({
+            where: { id },
+            data: { status }
+        });
     }
     /**
      * Delete project
@@ -103,7 +79,9 @@ class ProjectService {
     async deleteProject(id) {
         // Validate project exists
         await this.getProjectById(id);
-        return Project_1.Project.delete(id);
+        return prisma.project.delete({
+            where: { id }
+        });
     }
 }
 exports.default = new ProjectService();

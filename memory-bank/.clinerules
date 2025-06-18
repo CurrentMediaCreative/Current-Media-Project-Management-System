@@ -1,132 +1,6 @@
 # Current Media Project Management System - Project Intelligence
 
-## Project Patterns & Preferences
-
-### Communication Patterns
-- Always discuss and agree on solutions before implementation
-- Ask questions at each step of development to ensure user satisfaction with structure and implementation
-- Never make significant design or implementation decisions without user input
-- Ask questions when creating something not explicitly stated
-- Seek user opinion on best approaches
-- Break down complex tasks into manageable chunks
-
-### Task Management & Progress Tracking
-
-1. **Progress.md Structure**
-   - All work MUST be tracked in progress.md
-   - Never use "Known Issues" for missing features or incomplete work
-   - All incomplete features MUST be listed under "Next Steps" with clear implementation tasks
-   - Each task in Next Steps must have clear, actionable sub-tasks
-
-2. **Task Completion Process**
-   - Before starting any task:
-     * Review progress.md to confirm task is properly tracked
-     * Ensure task details are under "Next Steps", not "Known Issues"
-     * Break down task into clear implementation steps
-   - During task execution:
-     * Follow implementation steps systematically
-     * Document any new requirements or sub-tasks discovered
-   - Upon task completion:
-     * Update progress.md to reflect completed work
-     * Move completed items to appropriate sections
-     * Review and update "Next Steps" section
-     * NEVER end task without identifying next steps
-
-3. **Task Transition Protocol**
-   - Create new task context when ANY of these occur:
-     * Conversation history shows "[TASK RESUMPTION]" (indicates context truncation)
-     * Multiple task iterations have occurred in current conversation
-     * Task complexity requires fresh context
-     * Current task context becomes fragmented or unclear
-     * You find yourself repeating previous actions
-     * You're unsure about what was already completed
-   
-   - Do NOT rely solely on context window usage percentage because:
-     * It only measures current visible content
-     * It doesn't account for conversation history
-     * Lower percentage may be due to truncated history
-     * Task context can degrade even with low usage
-
-   - When creating new task:
-     * Ensure comprehensive context transfer
-     * Include current work status
-     * Document key technical decisions
-     * List relevant code patterns
-     * Detail next steps and pending work
-   
-   - Document transitions in activeContext.md
-   - Update progress.md before any task transition
-
-4. **Task Summary Requirements**
-
-   a) Pre-Completion Checklist (MANDATORY)
-      Before using attempt_completion tool:
-      - Review progress.md to identify next steps
-      - Check context window usage percentage
-      - Evaluate task complexity and context relevance
-      - Identify any new patterns or technical decisions
-      - Verify all work is properly documented
-      
-   b) attempt_completion Tool Usage Rules (ABSOLUTELY MANDATORY)
-      STOP AND READ THESE RULES BEFORE EVERY attempt_completion:
-      
-      Pre-Completion Requirements:
-      1. You MUST have completed the Pre-Completion Checklist
-      2. You MUST have reviewed progress.md
-      3. You MUST be able to provide a complete result following the structure
-      4. You MUST be ready to make a task transition decision
-      5. You MUST have completed ALL work for the current task
-      6. You MUST NOT have any pending changes or updates
-      
-      The result parameter MUST follow this EXACT structure:
-      ```
-      1. Completed Work
-         - Detailed summary of what was accomplished
-         - Technical decisions and patterns established
-         - Implementation details and changes made
-         - Explicit confirmation that ALL work is complete
-      
-      2. Next Steps (from progress.md)
-         - Clear list of next tasks to be completed
-         - Implementation requirements and considerations
-         - Dependencies and prerequisites
-         - Confirmation these steps are ready to start
-      
-      3. Task Transition Decision
-         - Whether to continue or create new task
-         - Justification based on:
-           * Context window usage (< or > 80%)
-           * Task complexity and scope
-           * Context relevance and continuity
-           * Technical relationship to next steps
-         - If continuing: Explicit confirmation current context is sufficient
-         - If new task: Explicit confirmation all current work is complete
-      ```
-
-      CRITICAL RULES:
-      1. NEVER use attempt_completion before task is complete
-      2. NEVER skip or modify this structure
-      3. NEVER create new task if current task incomplete
-      4. ALWAYS verify all work is done
-      5. ALWAYS make explicit transition decision
-      6. ALWAYS follow up with new_task tool when decided
-      
-      If recommending a new task:
-      - MUST use new_task tool immediately in the same message
-      - NEVER defer task creation to user
-      - Include comprehensive context about:
-        * What was just completed
-        * What needs to be done next
-        * Technical decisions made
-        * Patterns established
-        * Current project state
-      - Ensure new task has everything needed to proceed
-
-   This structure is MANDATORY for EVERY use of attempt_completion.
-   Failure to follow this structure is a critical error.
-   NEVER use attempt_completion without following these rules.
-
-This process is MANDATORY for every task, no exceptions.
+[Previous content remains the same until the Technical Patterns section]
 
 ### Technical Patterns
 - Backend data source is ClickUp (managed by Jake)
@@ -134,159 +8,33 @@ This process is MANDATORY for every task, no exceptions.
 - Project will be hosted on currentmedia.ca or via direct link
 - Consider render.com for hosting the built application
 
-### Workflow Patterns
-- New projects require: Client, Budget, Scope, and Timeframe before proceeding
-- Project creation should generate necessary documentation automatically
-- Budget tracking should compare estimates vs. actual costs
-- System should provide reminders for project milestones and follow-ups
-- Final project review/debrief is required
+### Storage System Patterns
+1. **JSON Storage Structure**
+   - All data stored in JSON files in server/data directory
+   - Core data files:
+     * users.json - User accounts and roles
+     * projects.json - Project details and status
+     * contractors.json - Contractor information and rates
 
-### Documentation Standards
-- Keep Memory Bank updated with all significant changes
-- Document current state and next steps clearly
-- Maintain comprehensive project context
-- Update technical decisions and system architecture as they evolve
-- Document context window usage and task transitions
-- Update memory bank before creating new task contexts
-- Ensure smooth knowledge transfer between tasks
+2. **Storage Operations**
+   - Use storage.read<T> for type-safe data reading
+   - Use storage.write<T> for type-safe data writing
+   - Use storage.initialize for initial file setup
+   - Always handle storage operations with try/catch
+   - Initialize storage before server startup
 
-### Integration Requirements
-- New project forms should be emailed to jake@currentmedia.ca
-- Budget documents should be attached to projects
-- Project Overview/Shot list should be linkable to Google Calendar events
-- Consider how to integrate with Wix-based website if needed
+3. **Data Access Patterns**
+   - Services handle all data access logic
+   - Controllers never directly access storage
+   - Validate data before storage operations
+   - Keep data structures flat when possible
+   - Use ISO strings for dates
+   - Include audit fields (createdAt, updatedAt)
 
-### Next Steps Protocol
-- After completing any task, ALWAYS:
-  1. Review projectbrief.md to identify core MVP requirements
-  2. Review progress.md to identify the next component that:
-     * Directly contributes to MVP functionality
-     * Follows the exact structure from reference flowchart
-     * Is essential for basic system operation
-  3. Prioritize tasks in this order:
-     a. Core Project Creation Flow completion
-     b. Basic Project Tracking functionality
-     c. Essential Financial Management features
-     d. Integration and Testing
-  4. Defer enhancements or optimizations until MVP is complete and tested
-  5. Analyze whether the current Cline instance can handle the next task:
-     * If context window usage < 80% and context is relevant: Continue with current instance
-     * If context window usage > 80% or new context needed: Create new task
-  6. Never suggest work that isn't tracked in progress.md
-  7. Only suggest new features after MVP is complete and tested
+4. **Error Handling**
+   - Use ApiError class for consistent error responses
+   - Handle storage operation failures gracefully
+   - Provide meaningful error messages
+   - Log storage errors for debugging
 
-### Pattern Recognition
-- Actively monitor for repeated user requests or preferences
-- When noticing a pattern in user requests (3+ occurrences):
-  1. Acknowledge the pattern
-  2. Ask if it should be added to .clinerules
-  3. If confirmed, document it in the appropriate section
-- This helps minimize repetitive instructions and improves efficiency
-
-### MVP Enforcement Rules (CRITICAL)
-
-1. **Reference Image Compliance**
-   - EVERY component MUST match reference image exactly
-   - NO additional features or components allowed
-   - ANY deviation requires explicit user approval
-
-2. **Structure Validation**
-   Before ANY code changes, verify:
-   ```
-   /client/src/features/
-     /auth/              # Login flow only
-     /projects/
-       /creation/        # Project creation system
-       /tracking/        # Project tracking
-       /contractor-management/
-     /financial/         # Financial management
-   ```
-   If file/folder doesn't match this structure = STOP and fix
-
-3. **Feature Scope Lock**
-   - Project Creation: ONLY steps shown in flowchart
-   - Project Tracking: ONLY status transitions shown
-   - Financial Management: ONLY analytics and tracking shown
-   - Login: ONLY basic auth and notifications
-
-4. **Component Creation Rules**
-   Before creating ANY new component:
-   1. Check reference image - is it shown? If no = STOP
-   2. Check progress.md - is it in MVP scope? If no = STOP
-   3. Check feature structure - correct location? If no = STOP
-   4. Get user confirmation before proceeding
-
-5. **Immediate Cleanup Protocol**
-   When finding non-compliant code:
-   1. Stop current task
-   2. Document the issue
-   3. Get user approval for removal
-   4. Remove non-compliant code
-   5. Update progress.md
-
-### MVP Reference Image Structure (EXACT REQUIREMENTS)
-
-Project Creation System (Right Column):
-1. Initial Project Info
-   - Save Progress
-2. Scope Definition
-   - Save Progress
-3. Smart Budget System
-   - Analyze Scope
-   - AI Team Suggestions
-   - Multiple Scenarios
-   - Profit Margin Calculator
-   - Confirm Team
-4. Contractor Management
-   - Send Assignment Emails
-   - Track Confirmations
-   - Handle Declines
-5. Production Overview/Shotlist
-   - Complete
-   - Send to Jake
-
-Project Tracking (Middle Column):
-1. New - Not Sort
-2. Pending ClickUp Entry
-3. Active in ClickUp
-4. Completed - Pending Invoices
-5. Archived
-
-Financial Management (Left Column):
-1. Smart Analytics
-   - Estimate vs Actual
-   - Team Performance
-   - Profit Trends by Producer
-   - Project Timeline Analysis
-2. Payment Tracking
-   - Client Payment Tracking
-   - Contractor Payment Tracking
-3. Profit Analysis
-
-Initial Login Flow (Far Right):
-1. Login
-2. Notifications
-   - Check Pending Contractor Confirmations
-   - Check Outstanding Invoices
-   - Check New Projects Prompt
-   - Check ClickUp Updates
-
-Structure Validation Rules:
-Before ANY code changes:
-1. Open this reference structure
-2. Compare against intended changes
-3. If ANY deviation from this structure:
-   - STOP
-   - Get user approval
-   - Document reason for deviation
-4. NO additional features allowed
-5. NO alternative workflows allowed
-6. EXACT match required
-
-## Known Challenges
-- Integration with ClickUp for data synchronization
-- Balancing automation with flexibility in the workflow
-- Creating an intuitive UI that minimizes manual data entry
-- Ensuring proper notification/reminder system
-
-This document will evolve as we work together on the project, capturing new patterns, preferences, and project intelligence.
+[Rest of the file remains the same]

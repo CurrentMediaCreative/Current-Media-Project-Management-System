@@ -13,16 +13,14 @@ export declare const findOrCreateGoogleUser: (googleData: {
     googleId: string;
     email: string;
     name: string;
-    picture?: string;
 }) => Promise<{
     accessToken: string;
     refreshToken: string;
     expiresIn: number;
     user: {
         id: string;
-        name: any;
+        name: string;
         email: string;
-        role: any;
-        picture: any;
+        role: string;
     };
 }>;

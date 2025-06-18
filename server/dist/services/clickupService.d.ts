@@ -14,6 +14,10 @@ declare class ClickUpService {
      */
     getLists(spaceId: string): Promise<any>;
     /**
+     * Get all tasks across all lists
+     */
+    getAllTasks(): Promise<import("../../../shared/src/types/clickup").MappedProject[]>;
+    /**
      * Get all tasks in a list
      */
     getTasks(listId: string): Promise<import("../../../shared/src/types/clickup").MappedProject[]>;

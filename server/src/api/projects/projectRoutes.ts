@@ -1,40 +1,32 @@
 import express from 'express';
-import {
-  createProject,
-  getProjects,
-  getProjectById,
-  updateProject,
-  deleteProject,
-} from './projectController';
-import {
-  validateCreateProject,
-  validateUpdateProject,
-  validateProjectId,
-} from './projectValidation';
-import { authenticate, authorize } from '../../middleware/authMiddleware';
-import { UserRole } from '@shared/types';
+import * as projectController from './projectController';
+import { validateProjectId } from './projectValidation';
 
 const router = express.Router();
 
-// Create a new project
-router.post('/', authenticate, validateCreateProject, createProject);
+/**
+ * Get all projects
+ */
+router.get('/', projectController.getProjects);
 
-// Get all projects
-router.get('/', authenticate, getProjects);
+/**
+ * Get project by ID
+ */
+router.get('/:id', validateProjectId, projectController.getProjectById);
 
-// Get project by ID
-router.get('/:id', authenticate, validateProjectId, getProjectById);
+/**
+ * Create new project
+ */
+router.post('/', projectController.createProject);
 
-// Update project
-router.put('/:id', authenticate, validateUpdateProject, updateProject);
+/**
+ * Update project
+ */
+router.put('/:id', validateProjectId, projectController.updateProject);
 
-// Delete project (admin only)
-router.delete(
-  '/:id',
-  authenticate,
-  authorize([UserRole.ADMIN]),
-  validateProjectId,
-  deleteProject
-);
+/**
+ * Delete project
+ */
+router.delete('/:id', validateProjectId, projectController.deleteProject);
 
 export default router;

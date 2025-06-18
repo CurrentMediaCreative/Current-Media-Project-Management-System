@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography, Paper, Stack, Divider } from '@mui/material';
-import { Project } from '../../../../shared/types';
+import { Project } from '../../../shared/types';
 
 interface TimelineProps {
   project: Project;

@@ -1,87 +1,51 @@
-import { PrismaClient, ProjectStatus, ClickUpStatus, Prisma } from '@prisma/client';
-import { Project } from '../models/Project';
+import { v4 as uuidv4 } from 'uuid';
 import { ApiError } from '../utils';
-import contractorRateService from './contractorRateService';
+import { storage } from './storageService';
+import { Project, ProjectStatus, CreateProjectInput, UpdateProjectInput } from '../types/project';
 
-const prisma = new PrismaClient();
-
-interface ProjectTimeframe {
-  startDate: Date;
-  endDate: Date;
-}
-
-interface ProjectContractor {
-  role: string;
-  rate: number;
-  estimatedHours?: number;
-  estimatedDays?: number;
-  confirmed: boolean;
-  confirmationDate?: Date;
-  declineReason?: string;
-  emailSent: boolean;
-  emailSentDate?: Date;
-}
-
-interface CostItem {
-  type: string;
-  description: string;
-  amount: number;
-}
-
-interface ProjectCosts {
-  contractors: {
-    role: string;
-    hours?: number;
-    days?: number;
-    rate: number;
-    total: number;
-  }[];
-  equipment: CostItem[];
-  travel: CostItem[];
-  other: CostItem[];
-  totalAmount: number;
-  hstAmount: number;
-}
+const PROJECTS_FILE = 'projects.json';
 
 class ProjectService {
   /**
    * Create a new project
    */
-  async createProject(data: {
-    name: string;
-    client: string;
-    producer: string;
-    budget: number;
-    scope: string;
-    timeframe: ProjectTimeframe;
-    contractors?: ProjectContractor[];
-    estimatedCosts?: ProjectCosts;
-    createdById: string;
-  }) {
+  async createProject(input: CreateProjectInput): Promise<Project> {
     // Validate timeframe
-    if (data.timeframe.endDate < data.timeframe.startDate) {
+    if (input.endDate < input.startDate) {
       throw new ApiError(400, 'End date must be after start date');
     }
 
-    // Validate contractors if provided
-    if (data.contractors) {
-      for (const contractor of data.contractors) {
-        // Validate rate for role
-        await contractorRateService.validateRateForRole(contractor.role, contractor.rate);
-      }
-    }
+    const projects = await storage.read<Project[]>(PROJECTS_FILE);
+    
+    const newProject: Project = {
+      id: uuidv4(),
+      title: input.title,
+      client: input.client,
+      budget: input.budget,
+      startDate: input.startDate.toISOString(),
+      endDate: input.endDate.toISOString(),
+      status: ProjectStatus.NEW_NOT_SENT,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
 
-    return Project.create(data);
+    projects.push(newProject);
+    await storage.write(PROJECTS_FILE, projects);
+
+    return newProject;
   }
 
   /**
    * Get project by ID
    */
-  async getProjectById(id: string) {
-    const project = await Project.findById(id);
+  async getProjectById(id: string): Promise<Project> {
+    const projects = await storage.read<Project[]>(PROJECTS_FILE);
+    const project = projects.find(p => p.id === id);
+    
     if (!project) {
       throw new ApiError(404, `Project not found: ${id}`);
     }
+    
     return project;
   }
 
@@ -92,98 +56,79 @@ class ProjectService {
     skip?: number;
     take?: number;
     status?: ProjectStatus;
-    createdById?: string;
-  } = {}) {
-    return Project.list(params);
+  } = {}): Promise<Project[]> {
+    let projects = await storage.read<Project[]>(PROJECTS_FILE);
+
+    // Apply filters
+    if (params.status) {
+      projects = projects.filter(p => p.status === params.status);
+    }
+
+    // Sort by createdAt desc
+    projects.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    // Apply pagination
+    if (params.skip || params.take) {
+      const start = params.skip || 0;
+      const end = params.take ? start + params.take : undefined;
+      projects = projects.slice(start, end);
+    }
+
+    return projects;
   }
 
   /**
    * Update project details
    */
-  async updateProject(id: string, data: {
-    name?: string;
-    client?: string;
-    producer?: string;
-    budget?: number;
-    scope?: string;
-    timeframe?: ProjectTimeframe;
-    status?: ProjectStatus;
-    clickUpStatus?: ClickUpStatus;
-    contractors?: ProjectContractor[];
-    estimatedCosts?: ProjectCosts;
-    actualCosts?: ProjectCosts;
-  }) {
-    // Validate project exists
-    const project = await this.getProjectById(id);
+  async updateProject(id: string, input: UpdateProjectInput): Promise<Project> {
+    const projects = await storage.read<Project[]>(PROJECTS_FILE);
+    const index = projects.findIndex(p => p.id === id);
+    
+    if (index === -1) {
+      throw new ApiError(404, `Project not found: ${id}`);
+    }
 
-    // Validate timeframe if updating
-    if (data.timeframe) {
-      if (data.timeframe.endDate < data.timeframe.startDate) {
+    // Validate timeframe if updating both dates
+    if (input.startDate && input.endDate) {
+      if (input.endDate < input.startDate) {
         throw new ApiError(400, 'End date must be after start date');
       }
     }
 
-    // Validate contractors if updating
-    if (data.contractors) {
-      for (const contractor of data.contractors) {
-        // Validate rate for role
-        await contractorRateService.validateRateForRole(contractor.role, contractor.rate);
-      }
-    }
+    const updatedProject = {
+      ...projects[index],
+      ...input,
+      startDate: input.startDate ? input.startDate.toISOString() : projects[index].startDate,
+      endDate: input.endDate ? input.endDate.toISOString() : projects[index].endDate,
+      updatedAt: new Date().toISOString()
+    };
 
-    return Project.update(id, data);
-  }
+    projects[index] = updatedProject;
+    await storage.write(PROJECTS_FILE, projects);
 
-  /**
-   * Update project costs
-   */
-  async updateProjectCosts(projectId: string, estimatedCosts?: ProjectCosts, actualCosts?: ProjectCosts) {
-    // Validate project exists
-    await this.getProjectById(projectId);
-
-    // Validate contractor rates if updating
-    if (estimatedCosts) {
-      for (const contractor of estimatedCosts.contractors) {
-        await contractorRateService.validateRateForRole(contractor.role, contractor.rate);
-      }
-    }
-    if (actualCosts) {
-      for (const contractor of actualCosts.contractors) {
-        await contractorRateService.validateRateForRole(contractor.role, contractor.rate);
-      }
-    }
-
-    return Project.updateCosts(projectId, estimatedCosts, actualCosts);
+    return updatedProject;
   }
 
   /**
    * Update project status
    */
-  async updateProjectStatus(id: string, status: ProjectStatus) {
-    // Validate project exists
-    await this.getProjectById(id);
-
-    return Project.update(id, { status });
-  }
-
-  /**
-   * Update ClickUp sync status
-   */
-  async updateClickUpStatus(id: string, clickUpStatus: ClickUpStatus) {
-    // Validate project exists
-    await this.getProjectById(id);
-
-    return Project.update(id, { clickUpStatus });
+  async updateProjectStatus(id: string, status: ProjectStatus): Promise<Project> {
+    return this.updateProject(id, { status });
   }
 
   /**
    * Delete project
    */
-  async deleteProject(id: string) {
-    // Validate project exists
-    await this.getProjectById(id);
+  async deleteProject(id: string): Promise<void> {
+    const projects = await storage.read<Project[]>(PROJECTS_FILE);
+    const index = projects.findIndex(p => p.id === id);
+    
+    if (index === -1) {
+      throw new ApiError(404, `Project not found: ${id}`);
+    }
 
-    return Project.delete(id);
+    projects.splice(index, 1);
+    await storage.write(PROJECTS_FILE, projects);
   }
 }
 

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Project, ProjectScope, Contractor } from '../../shared/types';
+import { Project, ProjectScope, Contractor, ProjectStatus } from '../../shared/types';
 
 interface ProjectState {
   projects: Project[];
@@ -7,7 +7,7 @@ interface ProjectState {
   loading: boolean;
   error: string | null;
   filters: {
-    status: string[];
+    status: ProjectStatus[];
     dateRange: {
       start: string | null;
       end: string | null;
@@ -51,22 +51,13 @@ const projectSlice = createSlice({
     clearCurrentProject: (state) => {
       state.currentProject = null;
     },
-    updateProjectStatus: (state, action: PayloadAction<{ projectId: string; status: string }>) => {
+    updateProjectStatus: (state, action: PayloadAction<{ projectId: string; status: ProjectStatus }>) => {
       const project = state.projects.find(p => p.id === action.payload.projectId);
       if (project) {
         project.status = action.payload.status;
       }
       if (state.currentProject?.id === action.payload.projectId) {
         state.currentProject.status = action.payload.status;
-      }
-    },
-    updateProjectScope: (state, action: PayloadAction<{ projectId: string; scope: ProjectScope }>) => {
-      const project = state.projects.find(p => p.id === action.payload.projectId);
-      if (project) {
-        project.scope = action.payload.scope;
-      }
-      if (state.currentProject?.id === action.payload.projectId) {
-        state.currentProject.scope = action.payload.scope;
       }
     },
     updateProjectContractors: (state, action: PayloadAction<{ projectId: string; contractors: Contractor[] }>) => {
@@ -79,7 +70,7 @@ const projectSlice = createSlice({
       }
     },
     setFilters: (state, action: PayloadAction<{
-      status?: string[];
+      status?: ProjectStatus[];
       dateRange?: { start: string | null; end: string | null };
     }>) => {
       if (action.payload.status !== undefined) {
@@ -105,7 +96,6 @@ export const {
   setCurrentProject,
   clearCurrentProject,
   updateProjectStatus,
-  updateProjectScope,
   updateProjectContractors,
   setFilters,
   clearFilters,

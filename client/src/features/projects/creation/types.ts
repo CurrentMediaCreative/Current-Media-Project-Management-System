@@ -106,6 +106,7 @@ export interface ContractorManagementProps {
   initialData?: {
     contractors?: Contractor[];
     budget?: Budget;
+    projectTitle?: string;
   };
   errors?: Record<string, string>;
   loading?: boolean;

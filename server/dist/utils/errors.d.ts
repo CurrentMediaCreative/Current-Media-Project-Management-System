@@ -1,17 +1,11 @@
 export declare class ApiError extends Error {
     statusCode: number;
-    constructor(statusCode: number, message: string);
-}
-export declare class ValidationError extends ApiError {
-    errors: Record<string, string>;
-    constructor(message: string, errors: Record<string, string>);
-}
-export declare class AuthenticationError extends ApiError {
-    constructor(message: string);
-}
-export declare class AuthorizationError extends ApiError {
-    constructor(message: string);
-}
-export declare class NotFoundError extends ApiError {
-    constructor(message: string);
+    details?: any | undefined;
+    constructor(statusCode: number, message: string, details?: any | undefined);
+    static badRequest(message: string, details?: any): ApiError;
+    static unauthorized(message?: string): ApiError;
+    static forbidden(message?: string): ApiError;
+    static notFound(message?: string): ApiError;
+    static conflict(message: string, details?: any): ApiError;
+    static internal(message?: string): ApiError;
 }

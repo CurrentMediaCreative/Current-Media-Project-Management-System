@@ -13,12 +13,12 @@ const validateRequest = (req, res, next) => {
 exports.validateRequest = validateRequest;
 // Validation rules for creating a project
 exports.validateCreateProject = [
-    (0, express_validator_1.body)('name')
+    (0, express_validator_1.body)('title')
         .trim()
         .notEmpty()
-        .withMessage('Project name is required')
+        .withMessage('Project title is required')
         .isLength({ max: 100 })
-        .withMessage('Project name must be at most 100 characters'),
+        .withMessage('Project title must be at most 100 characters'),
     (0, express_validator_1.body)('client')
         .trim()
         .notEmpty()
@@ -30,24 +30,16 @@ exports.validateCreateProject = [
         .withMessage('Budget must be a number')
         .custom((value) => value >= 0)
         .withMessage('Budget must be a positive number'),
-    (0, express_validator_1.body)('scope')
-        .trim()
-        .notEmpty()
-        .withMessage('Project scope is required'),
-    (0, express_validator_1.body)('deliverables')
-        .trim()
-        .notEmpty()
-        .withMessage('Project deliverables are required'),
-    (0, express_validator_1.body)('timeframe.startDate')
+    (0, express_validator_1.body)('startDate')
         .isISO8601()
         .withMessage('Start date must be a valid date')
         .toDate(),
-    (0, express_validator_1.body)('timeframe.endDate')
+    (0, express_validator_1.body)('endDate')
         .isISO8601()
         .withMessage('End date must be a valid date')
         .toDate()
         .custom((endDate, { req }) => {
-        const startDate = req.body.timeframe.startDate;
+        const startDate = req.body.startDate;
         return new Date(endDate) >= new Date(startDate);
     })
         .withMessage('End date must be after or equal to start date'),
@@ -55,14 +47,14 @@ exports.validateCreateProject = [
 ];
 // Validation rules for updating a project
 exports.validateUpdateProject = [
-    (0, express_validator_1.param)('id').isMongoId().withMessage('Invalid project ID'),
-    (0, express_validator_1.body)('name')
+    (0, express_validator_1.param)('id').isUUID().withMessage('Invalid project ID'),
+    (0, express_validator_1.body)('title')
         .optional()
         .trim()
         .notEmpty()
-        .withMessage('Project name cannot be empty')
+        .withMessage('Project title cannot be empty')
         .isLength({ max: 100 })
-        .withMessage('Project name must be at most 100 characters'),
+        .withMessage('Project title must be at most 100 characters'),
     (0, express_validator_1.body)('client')
         .optional()
         .trim()
@@ -76,39 +68,36 @@ exports.validateUpdateProject = [
         .withMessage('Budget must be a number')
         .custom((value) => value >= 0)
         .withMessage('Budget must be a positive number'),
-    (0, express_validator_1.body)('scope')
-        .optional()
-        .trim()
-        .notEmpty()
-        .withMessage('Project scope cannot be empty'),
-    (0, express_validator_1.body)('deliverables')
-        .optional()
-        .trim()
-        .notEmpty()
-        .withMessage('Project deliverables cannot be empty'),
-    (0, express_validator_1.body)('timeframe.startDate')
+    (0, express_validator_1.body)('startDate')
         .optional()
         .isISO8601()
         .withMessage('Start date must be a valid date')
         .toDate(),
-    (0, express_validator_1.body)('timeframe.endDate')
+    (0, express_validator_1.body)('endDate')
         .optional()
         .isISO8601()
         .withMessage('End date must be a valid date')
         .toDate()
         .custom((endDate, { req }) => {
-        if (!req.body.timeframe || !req.body.timeframe.startDate) {
+        if (!req.body.startDate) {
             return true; // Skip validation if start date is not provided
         }
-        const startDate = req.body.timeframe.startDate;
-        return new Date(endDate) >= new Date(startDate);
+        return new Date(endDate) >= new Date(req.body.startDate);
     })
         .withMessage('End date must be after or equal to start date'),
+    (0, express_validator_1.body)('status')
+        .optional()
+        .isIn(['NEW_NOT_SENT', 'NEW_SENT', 'PENDING_CLICKUP', 'ACTIVE', 'COMPLETED', 'ARCHIVED'])
+        .withMessage('Invalid project status'),
+    (0, express_validator_1.body)('clickupId')
+        .optional()
+        .isString()
+        .withMessage('ClickUp ID must be a string'),
     exports.validateRequest,
 ];
 // Validation rules for getting a project by ID
 exports.validateProjectId = [
-    (0, express_validator_1.param)('id').isMongoId().withMessage('Invalid project ID'),
+    (0, express_validator_1.param)('id').isUUID().withMessage('Invalid project ID'),
     exports.validateRequest,
 ];
 //# sourceMappingURL=projectValidation.js.map

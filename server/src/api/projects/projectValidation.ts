@@ -12,12 +12,12 @@ export const validateRequest = (req: Request, res: Response, next: NextFunction)
 
 // Validation rules for creating a project
 export const validateCreateProject = [
-  body('name')
+  body('title')
     .trim()
     .notEmpty()
-    .withMessage('Project name is required')
+    .withMessage('Project title is required')
     .isLength({ max: 100 })
-    .withMessage('Project name must be at most 100 characters'),
+    .withMessage('Project title must be at most 100 characters'),
   
   body('client')
     .trim()
@@ -32,27 +32,17 @@ export const validateCreateProject = [
     .custom((value) => value >= 0)
     .withMessage('Budget must be a positive number'),
   
-  body('scope')
-    .trim()
-    .notEmpty()
-    .withMessage('Project scope is required'),
-  
-  body('deliverables')
-    .trim()
-    .notEmpty()
-    .withMessage('Project deliverables are required'),
-  
-  body('timeframe.startDate')
+  body('startDate')
     .isISO8601()
     .withMessage('Start date must be a valid date')
     .toDate(),
   
-  body('timeframe.endDate')
+  body('endDate')
     .isISO8601()
     .withMessage('End date must be a valid date')
     .toDate()
     .custom((endDate, { req }) => {
-      const startDate = req.body.timeframe.startDate;
+      const startDate = req.body.startDate;
       return new Date(endDate) >= new Date(startDate);
     })
     .withMessage('End date must be after or equal to start date'),
@@ -62,15 +52,15 @@ export const validateCreateProject = [
 
 // Validation rules for updating a project
 export const validateUpdateProject = [
-  param('id').isMongoId().withMessage('Invalid project ID'),
+  param('id').isUUID().withMessage('Invalid project ID'),
   
-  body('name')
+  body('title')
     .optional()
     .trim()
     .notEmpty()
-    .withMessage('Project name cannot be empty')
+    .withMessage('Project title cannot be empty')
     .isLength({ max: 100 })
-    .withMessage('Project name must be at most 100 characters'),
+    .withMessage('Project title must be at most 100 characters'),
   
   body('client')
     .optional()
@@ -87,43 +77,40 @@ export const validateUpdateProject = [
     .custom((value) => value >= 0)
     .withMessage('Budget must be a positive number'),
   
-  body('scope')
-    .optional()
-    .trim()
-    .notEmpty()
-    .withMessage('Project scope cannot be empty'),
-  
-  body('deliverables')
-    .optional()
-    .trim()
-    .notEmpty()
-    .withMessage('Project deliverables cannot be empty'),
-  
-  body('timeframe.startDate')
+  body('startDate')
     .optional()
     .isISO8601()
     .withMessage('Start date must be a valid date')
     .toDate(),
   
-  body('timeframe.endDate')
+  body('endDate')
     .optional()
     .isISO8601()
     .withMessage('End date must be a valid date')
     .toDate()
     .custom((endDate, { req }) => {
-      if (!req.body.timeframe || !req.body.timeframe.startDate) {
+      if (!req.body.startDate) {
         return true; // Skip validation if start date is not provided
       }
-      const startDate = req.body.timeframe.startDate;
-      return new Date(endDate) >= new Date(startDate);
+      return new Date(endDate) >= new Date(req.body.startDate);
     })
     .withMessage('End date must be after or equal to start date'),
+  
+  body('status')
+    .optional()
+    .isIn(['NEW_NOT_SENT', 'NEW_SENT', 'PENDING_CLICKUP', 'ACTIVE', 'COMPLETED', 'ARCHIVED'])
+    .withMessage('Invalid project status'),
+
+  body('clickupId')
+    .optional()
+    .isString()
+    .withMessage('ClickUp ID must be a string'),
   
   validateRequest,
 ];
 
 // Validation rules for getting a project by ID
 export const validateProjectId = [
-  param('id').isMongoId().withMessage('Invalid project ID'),
+  param('id').isUUID().withMessage('Invalid project ID'),
   validateRequest,
 ];

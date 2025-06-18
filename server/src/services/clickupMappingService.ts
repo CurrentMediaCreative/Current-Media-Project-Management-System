@@ -1,11 +1,43 @@
-import { ClickUpTask, CLICKUP_FIELD_MAPPING, MappedProject } from '../../../shared/src/types/clickup';
+import { ClickUpTask, CLICKUP_FIELD_MAPPING, MappedProject, ProjectStatus } from '../../../shared/src/types/clickup';
 
 export class ClickUpMappingService {
   static mapTaskToProject(task: ClickUpTask): MappedProject {
+    // Map ClickUp status to our system status
+    const mapStatus = (status: string): ProjectStatus => {
+      const lowerStatus = status.toLowerCase();
+      
+      // Active statuses
+      if (['to do', 'media needed', 'in progress', 'revision'].includes(lowerStatus)) {
+        return 'ACTIVE_IN_CLICKUP';
+      }
+      
+      // Completed status
+      if (lowerStatus === 'done') {
+        return 'COMPLETED';
+      }
+
+      // For local statuses, validate and return if they match our ProjectStatus type
+      if (
+        status === 'NEW_NOT_SENT' || 
+        status === 'NEW_SENT' || 
+        status === 'ARCHIVED'
+      ) {
+        return status as ProjectStatus;
+      }
+
+      // Default to ACTIVE_IN_CLICKUP if we don't recognize the status
+      return 'ACTIVE_IN_CLICKUP';
+    };
+
+    const rawStatus = task.status?.status || '';
+    console.log('Raw ClickUp status:', rawStatus);
+    const mappedStatus = mapStatus(rawStatus);
+    console.log('Mapped status:', mappedStatus);
+
     return {
       id: task.id || '',
       name: task.name || '',
-      status: task.status?.status || '',
+      status: mappedStatus,
       statusColor: task.status?.color || '',
       client: this.extractCustomFieldValue(task, 'CLIENT'),
       taskType: this.extractCustomFieldValue(task, 'TASK_TYPE'),
@@ -21,7 +53,7 @@ export class ClickUpMappingService {
     const fieldId = CLICKUP_FIELD_MAPPING[fieldKey];
     if (!task.custom_fields) return null;
     
-    const field = task.custom_fields.find((f: any) => f.id === fieldId);
+    const field = task.custom_fields.find((f) => f.id === fieldId);
     if (!field || field.value === undefined || field.value === null) return null;
 
     console.log(`Extracting ${fieldKey}:`, {
@@ -42,7 +74,7 @@ export class ClickUpMappingService {
             return optionByIndex.name || null;
           }
           // If no match by index, try finding by orderindex
-          const optionByOrderIndex = field.type_config.options.find(opt => opt.orderindex === field.value);
+          const optionByOrderIndex = field.type_config.options.find((opt) => opt.orderindex === field.value);
           if (optionByOrderIndex) {
             console.log(`Found option by orderindex:`, optionByOrderIndex);
             return optionByOrderIndex.name || null;

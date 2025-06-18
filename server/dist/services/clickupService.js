@@ -60,6 +60,32 @@ class ClickUpService {
         }
     }
     /**
+     * Get all tasks across all lists
+     */
+    async getAllTasks() {
+        try {
+            // Get all workspaces
+            const workspaceResponse = await this.getWorkspaces();
+            const workspaceId = workspaceResponse.teams[0].id;
+            // Get all spaces
+            const spacesResponse = await this.getSpaces(workspaceId);
+            const spaces = spacesResponse.spaces;
+            // Get all lists from all spaces
+            const listsPromises = spaces.map(space => this.getLists(space.id));
+            const listsResponses = await Promise.all(listsPromises);
+            const lists = listsResponses.flatMap(response => response.lists);
+            // Get all tasks from all lists
+            const tasksPromises = lists.map(list => this.getTasks(list.id));
+            const tasksResponses = await Promise.all(tasksPromises);
+            const tasks = tasksResponses.flat();
+            return tasks;
+        }
+        catch (error) {
+            console.error('Error fetching all ClickUp tasks:', error);
+            throw error;
+        }
+    }
+    /**
      * Get all tasks in a list
      */
     async getTasks(listId) {

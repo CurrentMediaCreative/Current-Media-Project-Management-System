@@ -15,7 +15,8 @@ const client_1 = require("@prisma/client");
 const authRoutes_1 = __importDefault(require("./api/auth/authRoutes"));
 const projectRoutes_1 = __importDefault(require("./api/projects/projectRoutes"));
 const contractorRateRoutes_1 = __importDefault(require("./api/contractors/contractorRateRoutes"));
-const invoiceRoutes_1 = __importDefault(require("./api/invoices/invoiceRoutes"));
+const emailRoutes_1 = __importDefault(require("./api/email/emailRoutes"));
+const dashboardRoutes_1 = __importDefault(require("./api/dashboard/dashboardRoutes"));
 // Load environment variables
 dotenv_1.default.config();
 // Create Express server
@@ -57,7 +58,8 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes_1.default);
 app.use('/api/projects', projectRoutes_1.default);
 app.use('/api/contractors', contractorRateRoutes_1.default);
-app.use('/api/invoices', invoiceRoutes_1.default);
+app.use('/api/email', emailRoutes_1.default);
+app.use('/api/dashboard', dashboardRoutes_1.default);
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);

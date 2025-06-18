@@ -1,40 +1,34 @@
 export class ApiError extends Error {
-  statusCode: number;
-
-  constructor(statusCode: number, message: string) {
+  constructor(
+    public statusCode: number,
+    message: string,
+    public details?: any
+  ) {
     super(message);
-    this.statusCode = statusCode;
     this.name = 'ApiError';
   }
-}
 
-export class ValidationError extends ApiError {
-  errors: Record<string, string>;
-
-  constructor(message: string, errors: Record<string, string>) {
-    super(400, message);
-    this.name = 'ValidationError';
-    this.errors = errors;
+  static badRequest(message: string, details?: any) {
+    return new ApiError(400, message, details);
   }
-}
 
-export class AuthenticationError extends ApiError {
-  constructor(message: string) {
-    super(401, message);
-    this.name = 'AuthenticationError';
+  static unauthorized(message: string = 'Unauthorized') {
+    return new ApiError(401, message);
   }
-}
 
-export class AuthorizationError extends ApiError {
-  constructor(message: string) {
-    super(403, message);
-    this.name = 'AuthorizationError';
+  static forbidden(message: string = 'Forbidden') {
+    return new ApiError(403, message);
   }
-}
 
-export class NotFoundError extends ApiError {
-  constructor(message: string) {
-    super(404, message);
-    this.name = 'NotFoundError';
+  static notFound(message: string = 'Not found') {
+    return new ApiError(404, message);
+  }
+
+  static conflict(message: string, details?: any) {
+    return new ApiError(409, message, details);
+  }
+
+  static internal(message: string = 'Internal server error') {
+    return new ApiError(500, message);
   }
 }

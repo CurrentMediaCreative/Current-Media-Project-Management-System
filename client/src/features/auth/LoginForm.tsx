@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Box, TextField, Button, Typography, CircularProgress, Alert } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { LoginCredentials, User } from '../../../shared/types';
-import { useAuth } from '../contexts/AuthContext';
+import { LoginCredentials, User } from '../../shared/types';
+import { useAuth } from './contexts/AuthContext';
 
 interface LoginFormProps {
   onSubmit: (user: User) => void;
@@ -56,6 +56,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
           id="email"
           name="email"
           label="Email"
+          autoComplete="email"
           value={formik.values.email}
           onChange={formik.handleChange}
           error={Boolean(formik.touched.email && formik.errors.email)}
@@ -70,6 +71,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
           name="password"
           label="Password"
           type="password"
+          autoComplete="current-password"
           value={formik.values.password}
           onChange={formik.handleChange}
           error={Boolean(formik.touched.password && formik.errors.password)}

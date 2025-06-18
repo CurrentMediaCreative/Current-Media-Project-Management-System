@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Grid, Stepper, Step, StepLabel, CircularProgress } from '@mui/material';
-import { Project } from '../../../shared/types';
-import { projectService } from '../services/projectService';
-import StatusDetails from './components/StatusDetails';
-import ActionItems from './components/ActionItems';
-import Timeline from './components/Timeline';
+import { Project, ProjectStatus } from '../../../shared/types';
+import { projectService } from '../../../services/projectService';
+import StatusDetails from './StatusDetails';
+import ActionItems from './ActionItems';
+import Timeline from './Timeline';
 
 interface ProjectTrackingProps {
   projectId?: string;
@@ -16,11 +16,12 @@ const ProjectTracking: React.FC<ProjectTrackingProps> = ({ projectId }) => {
   const [error, setError] = useState<string | null>(null);
 
   const steps = [
-    { label: 'New - Not Sort', value: 'new' },
-    { label: 'Pending ClickUp Entry', value: 'pending' },
-    { label: 'Active in ClickUp', value: 'active' },
-    { label: 'Completed - Pending Invoices', value: 'completed' },
-    { label: 'Archived', value: 'archived' }
+    { label: 'New - Not Sent', value: ProjectStatus.NEW_NOT_SENT },
+    { label: 'New - Sent', value: ProjectStatus.NEW_SENT },
+    { label: 'Pending ClickUp', value: ProjectStatus.PENDING_CLICKUP },
+    { label: 'Active', value: ProjectStatus.ACTIVE },
+    { label: 'Completed', value: ProjectStatus.COMPLETED },
+    { label: 'Archived', value: ProjectStatus.ARCHIVED }
   ];
 
   useEffect(() => {
@@ -43,11 +44,11 @@ const ProjectTracking: React.FC<ProjectTrackingProps> = ({ projectId }) => {
     loadProject();
   }, [projectId]);
 
-  const handleStatusUpdate = async (newStatus: string) => {
+  const handleStatusUpdate = async (newStatus: ProjectStatus) => {
     if (!project) return;
 
     try {
-      const updatedProject = await projectService.updateProjectStatus(project.id, newStatus);
+      const updatedProject = await projectService.updateProject(project.id, { status: newStatus });
       setProject(updatedProject);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update status');

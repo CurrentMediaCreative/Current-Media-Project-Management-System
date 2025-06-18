@@ -1,192 +1,157 @@
 import { Request, Response } from 'express';
-import Project, { IProject } from '../../models/Project';
-import User from '../../models/User';
-import { ProjectStatus } from '@shared/types';
-import { sendProjectFormEmail } from '../../services/emailService';
+import { storage } from '../../services/storageService';
 
-/**
- * Create a new project
- * @route POST /api/projects
- */
-export const createProject = async (req: Request, res: Response) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ message: 'Authentication required' });
-    }
-
-    const { name, client, budget, scope, deliverables, timeframe } = req.body;
-
-    // Create new project
-    const project = new Project({
-      name,
-      client,
-      budget,
-      scope,
-      deliverables,
-      timeframe,
-      status: ProjectStatus.PENDING,
-      createdBy: req.user.userId,
-    });
-
-    // Save project to database
-    const savedProject = await project.save();
-
-    // Get user name for email
-    const user = await User.findById(req.user.userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Send email notification to Jake
-    const emailSent = await sendProjectFormEmail(savedProject, user.name);
-
-    return res.status(201).json({
-      success: true,
-      data: savedProject,
-      message: 'Project created successfully',
-      emailSent,
-    });
-  } catch (error) {
-    console.error('Error creating project:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Error creating project',
-      error: process.env.NODE_ENV === 'development' ? error : undefined,
-    });
-  }
-};
+interface Project {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  [key: string]: any;
+}
 
 /**
  * Get all projects
- * @route GET /api/projects
  */
 export const getProjects = async (req: Request, res: Response) => {
   try {
-    const projects = await Project.find().sort({ createdAt: -1 });
-    return res.status(200).json({
-      success: true,
-      data: projects,
-    });
+    const projects = await storage.read<Project[]>('projects.json');
+    res.json(projects);
   } catch (error) {
     console.error('Error getting projects:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Error getting projects',
-      error: process.env.NODE_ENV === 'development' ? error : undefined,
-    });
+    res.status(500).json({ message: 'Error getting projects' });
   }
 };
 
 /**
  * Get project by ID
- * @route GET /api/projects/:id
  */
 export const getProjectById = async (req: Request, res: Response) => {
   try {
-    const project = await Project.findById(req.params.id);
+    const { id } = req.params;
+    const projects = await storage.read<Project[]>('projects.json');
+    const project = projects.find(p => p.id === id);
+
     if (!project) {
-      return res.status(404).json({
-        success: false,
-        message: 'Project not found',
-      });
+      return res.status(404).json({ message: 'Project not found' });
     }
 
-    return res.status(200).json({
-      success: true,
-      data: project,
-    });
+    res.json(project);
   } catch (error) {
     console.error('Error getting project:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Error getting project',
-      error: process.env.NODE_ENV === 'development' ? error : undefined,
+    res.status(500).json({ message: 'Error getting project' });
+  }
+};
+
+/**
+ * Create new project
+ */
+export const createProject = async (req: Request, res: Response) => {
+  try {
+    const projects = await storage.read<Project[]>('projects.json');
+    
+    const newProject = {
+      id: Date.now().toString(),
+      ...req.body,
+      createdAt: new Date().toISOString()
+    };
+
+    projects.push(newProject);
+    await storage.write('projects.json', projects);
+
+    // Create notification
+    const notifications = await storage.read<any[]>('notifications.json');
+    notifications.push({
+      id: Date.now().toString(),
+      type: 'project_created',
+      read: false,
+      timestamp: new Date().toISOString(),
+      details: {
+        projectId: newProject.id,
+        projectTitle: newProject.title
+      }
     });
+    await storage.write('notifications.json', notifications);
+
+    res.status(201).json(newProject);
+  } catch (error) {
+    console.error('Error creating project:', error);
+    res.status(500).json({ message: 'Error creating project' });
   }
 };
 
 /**
  * Update project
- * @route PUT /api/projects/:id
  */
 export const updateProject = async (req: Request, res: Response) => {
   try {
-    if (!req.user) {
-      return res.status(401).json({ message: 'Authentication required' });
+    const { id } = req.params;
+    const projects = await storage.read<Project[]>('projects.json');
+    
+    const updatedProjects = projects.map(project => 
+      project.id === id ? { ...project, ...req.body, updatedAt: new Date().toISOString() } : project
+    );
+
+    const updatedProject = updatedProjects.find(p => p.id === id);
+    if (!updatedProject) {
+      return res.status(404).json({ message: 'Project not found' });
     }
 
-    const { name, client, budget, scope, deliverables, timeframe, status } = req.body;
+    await storage.write('projects.json', updatedProjects);
 
-    // Find project
-    const project = await Project.findById(req.params.id);
-    if (!project) {
-      return res.status(404).json({
-        success: false,
-        message: 'Project not found',
-      });
-    }
-
-    // Update project fields
-    if (name) project.name = name;
-    if (client) project.client = client;
-    if (budget !== undefined) project.budget = budget;
-    if (scope) project.scope = scope;
-    if (deliverables) project.deliverables = deliverables;
-    if (timeframe) {
-      if (timeframe.startDate) project.timeframe.startDate = timeframe.startDate;
-      if (timeframe.endDate) project.timeframe.endDate = timeframe.endDate;
-    }
-    if (status && Object.values(ProjectStatus).includes(status as ProjectStatus)) {
-      project.status = status as ProjectStatus;
-    }
-
-    // Save updated project
-    const updatedProject = await project.save();
-
-    return res.status(200).json({
-      success: true,
-      data: updatedProject,
-      message: 'Project updated successfully',
+    // Create notification
+    const notifications = await storage.read<any[]>('notifications.json');
+    notifications.push({
+      id: Date.now().toString(),
+      type: 'project_updated',
+      read: false,
+      timestamp: new Date().toISOString(),
+      details: {
+        projectId: updatedProject.id,
+        projectTitle: updatedProject.title
+      }
     });
+    await storage.write('notifications.json', notifications);
+
+    res.json(updatedProject);
   } catch (error) {
     console.error('Error updating project:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Error updating project',
-      error: process.env.NODE_ENV === 'development' ? error : undefined,
-    });
+    res.status(500).json({ message: 'Error updating project' });
   }
 };
 
 /**
  * Delete project
- * @route DELETE /api/projects/:id
  */
 export const deleteProject = async (req: Request, res: Response) => {
   try {
-    if (!req.user) {
-      return res.status(401).json({ message: 'Authentication required' });
+    const { id } = req.params;
+    const projects = await storage.read<Project[]>('projects.json');
+    
+    const projectToDelete = projects.find(p => p.id === id);
+    if (!projectToDelete) {
+      return res.status(404).json({ message: 'Project not found' });
     }
 
-    // Find and delete project
-    const project = await Project.findByIdAndDelete(req.params.id);
-    if (!project) {
-      return res.status(404).json({
-        success: false,
-        message: 'Project not found',
-      });
-    }
+    const updatedProjects = projects.filter(project => project.id !== id);
+    await storage.write('projects.json', updatedProjects);
 
-    return res.status(200).json({
-      success: true,
-      message: 'Project deleted successfully',
+    // Create notification
+    const notifications = await storage.read<any[]>('notifications.json');
+    notifications.push({
+      id: Date.now().toString(),
+      type: 'project_deleted',
+      read: false,
+      timestamp: new Date().toISOString(),
+      details: {
+        projectId: id,
+        projectTitle: projectToDelete.title
+      }
     });
+    await storage.write('notifications.json', notifications);
+
+    res.json({ message: 'Project deleted successfully' });
   } catch (error) {
     console.error('Error deleting project:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Error deleting project',
-      error: process.env.NODE_ENV === 'development' ? error : undefined,
-    });
+    res.status(500).json({ message: 'Error deleting project' });
   }
 };

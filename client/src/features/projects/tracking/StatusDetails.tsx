@@ -1,8 +1,6 @@
 import React from 'react';
 import { Box, Typography, Paper, Grid } from '@mui/material';
-import { Project } from '../../../../shared/types';
-
-type ProjectStatus = 'new' | 'pending' | 'active' | 'completed' | 'archived';
+import { Project, ProjectStatus } from '../../../shared/types';
 
 interface StatusDetailsProps {
   project: Project;
@@ -11,10 +9,10 @@ interface StatusDetailsProps {
 const StatusDetails: React.FC<StatusDetailsProps> = ({ project }) => {
   const renderStatusSpecificDetails = () => {
     switch (project.status) {
-      case 'new':
+      case ProjectStatus.NEW_NOT_SENT:
         return (
           <>
-            <Typography variant="subtitle1" color="primary">Initial Project Details</Typography>
+            <Typography variant="subtitle1" color="primary">New Project - Not Sent</Typography>
             <Grid container spacing={2}>
               <Grid item xs={12} md={6}>
                 <Typography variant="body1"><strong>Client:</strong> {project.client}</Typography>
@@ -29,10 +27,41 @@ const StatusDetails: React.FC<StatusDetailsProps> = ({ project }) => {
                 </Typography>
               </Grid>
             </Grid>
+            <Box mt={2}>
+              <Typography variant="body2" color="text.secondary">
+                Project details ready to be sent to the team
+              </Typography>
+            </Box>
           </>
         );
 
-      case 'pending':
+      case ProjectStatus.NEW_SENT:
+        return (
+          <>
+            <Typography variant="subtitle1" color="primary">New Project - Sent to Team</Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6}>
+                <Typography variant="body1"><strong>Client:</strong> {project.client}</Typography>
+                <Typography variant="body1"><strong>Title:</strong> {project.title}</Typography>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Typography variant="body1">
+                  <strong>Start Date:</strong> {new Date(project.timeframe.startDate).toLocaleDateString()}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Estimated Budget:</strong> ${project.budget.estimated}
+                </Typography>
+              </Grid>
+            </Grid>
+            <Box mt={2}>
+              <Typography variant="body2" color="text.secondary">
+                Awaiting team confirmation before ClickUp setup
+              </Typography>
+            </Box>
+          </>
+        );
+
+      case ProjectStatus.PENDING_CLICKUP:
         return (
           <>
             <Typography variant="subtitle1" color="primary">ClickUp Entry Requirements</Typography>
@@ -50,7 +79,7 @@ const StatusDetails: React.FC<StatusDetailsProps> = ({ project }) => {
           </>
         );
 
-      case 'active':
+      case ProjectStatus.ACTIVE:
         return (
           <>
             <Typography variant="subtitle1" color="primary">Current Progress</Typography>
@@ -78,7 +107,7 @@ const StatusDetails: React.FC<StatusDetailsProps> = ({ project }) => {
           </>
         );
 
-      case 'completed':
+      case ProjectStatus.COMPLETED:
         return (
           <>
             <Typography variant="subtitle1" color="primary">Invoice Status</Typography>
@@ -95,7 +124,7 @@ const StatusDetails: React.FC<StatusDetailsProps> = ({ project }) => {
           </>
         );
 
-      case 'archived':
+      case ProjectStatus.ARCHIVED:
         return (
           <>
             <Typography variant="subtitle1" color="primary">Project Summary</Typography>

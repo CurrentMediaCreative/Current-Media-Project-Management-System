@@ -1,28 +1,37 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import path from 'path';
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [react()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@shared': path.resolve(__dirname, '../shared/src'),
-    },
-  },
+  base: command === 'serve' ? '/' : '/projects/management/',
   server: {
     port: 3000,
     proxy: {
       '/api': {
         target: 'http://localhost:5000',
-        changeOrigin: true,
-        secure: false,
-      },
-    },
+        changeOrigin: true
+      }
+    }
   },
   build: {
-    outDir: 'build',
-    sourcemap: true,
-  },
-});
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: false,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true
+      }
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['@mui/material', '@emotion/react', '@emotion/styled']
+        }
+      }
+    }
+  }
+}));

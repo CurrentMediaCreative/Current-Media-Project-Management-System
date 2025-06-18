@@ -4,19 +4,22 @@ export enum UserRole {
   VIEWER = 'VIEWER',
 }
 
+export enum ContractorRole {
+  PRODUCER = 'PRODUCER',
+  SHOOTER = 'SHOOTER',
+  PHOTOGRAPHER = 'PHOTOGRAPHER',
+  SOUND_ENGINEER = 'SOUND_ENGINEER',
+  SENIOR_EDITOR = 'SENIOR_EDITOR',
+  JUNIOR_EDITOR = 'JUNIOR_EDITOR'
+}
+
 export enum ProjectStatus {
-  NEW = 'new',
-  PENDING = 'pending',
+  NEW_NOT_SENT = 'new_not_sent',
+  NEW_SENT = 'new_sent',
+  PENDING_CLICKUP = 'pending_clickup',
   ACTIVE = 'active',
   COMPLETED = 'completed',
   ARCHIVED = 'archived',
-}
-
-export enum InvoiceStatus {
-  PENDING = 'PENDING',
-  SENT = 'SENT',
-  PAID = 'PAID',
-  OVERDUE = 'OVERDUE',
 }
 
 export interface User {
@@ -73,7 +76,6 @@ export interface TechnicalRequirement {
   priority: 'low' | 'medium' | 'high';
 }
 
-
 export interface ContractorAssignment {
   contractor: Contractor;
   status: 'pending' | 'confirmed' | 'declined';
@@ -95,6 +97,12 @@ export interface Contractor {
   isFixed: boolean;
 }
 
+export interface ProjectMetadata {
+  category?: string;
+  notes?: string;
+  [key: string]: any;
+}
+
 export interface Project {
   id: string;
   title: string;
@@ -104,6 +112,7 @@ export interface Project {
   budget: Budget;
   contractors: Contractor[];
   scope?: ProjectScope;
+  metadata?: ProjectMetadata;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -114,18 +123,6 @@ export interface ContractorRate {
   baseRate: number;
   chargeOutRate: number;
   isFixed: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface Invoice {
-  id: string;
-  projectId: string;
-  amount: number;
-  status: InvoiceStatus;
-  issueDate: Date;
-  dueDate: Date;
-  paidDate?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -177,11 +174,4 @@ export interface ProjectFormData {
   contractors: Contractor[];
   scope?: ProjectScope;
   selectedScenario?: BudgetScenario;
-}
-
-export interface InvoiceFormData {
-  projectId: string;
-  amount: number;
-  issueDate: Date;
-  dueDate: Date;
 }

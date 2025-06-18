@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { AuthenticatedRequest } from '../../middleware/authMiddleware';
 /**
  * Register a new user
  * @route POST /api/auth/register
@@ -18,7 +19,7 @@ export declare const refreshToken: (req: Request, res: Response) => Promise<Resp
  * Get current user profile
  * @route GET /api/auth/me
  */
-export declare const getProfile: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
+export declare const getProfile: (req: AuthenticatedRequest, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
 /**
  * Logout user (client-side only)
  * @route POST /api/auth/logout
