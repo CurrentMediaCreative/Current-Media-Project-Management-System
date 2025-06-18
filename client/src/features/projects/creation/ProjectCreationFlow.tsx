@@ -17,7 +17,6 @@ import {
 } from '../../../shared/types';
 import {
   ProjectFormData,
-  Budget,
   BudgetScenario,
   ContractorAssignment,
   ProjectCreationStep
@@ -31,6 +30,7 @@ import {
   PROJECT_CREATION_STEPS
 } from './';
 
+// Preserved for planned financial tracking features - see productContext.md
 const initialFormData: ProjectFormData = {
   title: '',
   client: '',

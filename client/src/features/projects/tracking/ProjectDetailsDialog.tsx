@@ -1,3 +1,4 @@
+// Component to be renamed post-integration - see activeContext.md
 import React, { useState, useEffect } from 'react';
 import {
   Dialog,

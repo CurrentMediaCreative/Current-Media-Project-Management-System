@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Box, TextField, Button, Typography, CircularProgress, Alert } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { LoginCredentials, User } from '../../shared/types';
+import { LoginCredentials, User } from '@shared/types';
 import { useAuth } from './contexts/AuthContext';
 
 interface LoginFormProps {
@@ -34,7 +34,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
       try {
         setError(null);
         setIsLoading(true);
-        const user = await login(values.email, values.password);
+        const user = await login(values.email);
         onSubmit(user);
       } catch (err) {
         setError('Invalid credentials');
