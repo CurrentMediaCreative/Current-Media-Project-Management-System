@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Box,
   Typography,
@@ -7,18 +7,13 @@ import {
   Grid,
   Paper,
   IconButton,
-  MenuItem,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
-  Divider
+  MenuItem
 } from '@mui/material';
 import { useFormik, FieldArray, FormikProvider } from 'formik';
 import * as Yup from 'yup';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { ProjectScope, Deliverable, TechnicalRequirement } from '../../../shared/types';
+import { ProjectScope } from '../../../shared/types';
 
 interface ScopeDefinitionProps {
   onSave: (scope: ProjectScope) => void;

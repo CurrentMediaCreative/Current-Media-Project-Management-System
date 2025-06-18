@@ -11,10 +11,8 @@ interface LoginFlowProps {
 
 const LoginFlow: React.FC<LoginFlowProps> = ({ onLogin, redirectTo = '/' }) => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (user: User) => {
-    setIsLoading(true);
     try {
       if (onLogin) {
         onLogin(user);
@@ -23,8 +21,6 @@ const LoginFlow: React.FC<LoginFlowProps> = ({ onLogin, redirectTo = '/' }) => {
       }
     } catch (error) {
       console.error('Error during login:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
 

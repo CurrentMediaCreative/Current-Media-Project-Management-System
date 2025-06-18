@@ -4,13 +4,8 @@ import {
   Typography,
   Grid,
   Paper,
-  TextField,
   Button,
   Slider,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Table,
   TableBody,
   TableCell,
@@ -43,14 +38,13 @@ const SmartBudgetSystem: React.FC<SmartBudgetSystemProps> = ({
   initialData,
   errors,
   loading,
-  onNext,
   onBack
 }) => {
   const [activeStep, setActiveStep] = useState<number>(0);
   const [selectedScenario, setSelectedScenario] = useState<BudgetScenario | null>(null);
   const [analyzedScope, setAnalyzedScope] = useState<string | null>(null);
   const [teamSuggestions, setTeamSuggestions] = useState<Array<{ role: string, reason: string }>>([]);
-  const [scenarios, setScenarios] = useState<BudgetScenario[]>([
+  const [scenarios] = useState<BudgetScenario[]>([
     {
       name: 'Basic Package',
       totalCost: initialData?.estimatedBudget ? initialData.estimatedBudget * 0.8 : 10000,

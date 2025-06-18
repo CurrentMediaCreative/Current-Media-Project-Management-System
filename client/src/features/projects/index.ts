@@ -11,4 +11,4 @@ export { default as ContractorManagement } from './contractor-management/Contrac
 export { default as ProjectTracking } from './tracking/ProjectTracking';
 
 // Services
-export { projectService } from './services/projectService';
+export { projectService } from '../../services/projectService';
