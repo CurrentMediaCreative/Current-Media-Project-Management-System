@@ -7,7 +7,7 @@ import path from 'path';
 import { MulterError } from 'multer';
 import projectRoutes from './api/projects/projectRoutes';
 import contractorRoutes from './api/contractors/contractorRateRoutes';
-import emailRoutes from './api/email/emailRoutes';
+// import emailRoutes from './api/email/emailRoutes';  // TODO: Implement email functionality later
 import dashboardRoutes from './api/dashboard/dashboardRoutes';
 import { storage } from './services/storageService';
 
@@ -82,7 +82,7 @@ apiRouter.get('/', (_req, res) => {
 });
 apiRouter.use('/projects', projectRoutes);
 apiRouter.use('/contractors', contractorRoutes);
-apiRouter.use('/email', emailRoutes);
+// apiRouter.use('/email', emailRoutes);  // TODO: Implement email functionality later
 apiRouter.use('/dashboard', dashboardRoutes);
 
 // Mount API routes with proper base path

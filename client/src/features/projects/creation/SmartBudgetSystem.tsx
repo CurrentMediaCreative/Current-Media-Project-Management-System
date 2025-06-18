@@ -344,8 +344,8 @@ const SmartBudgetSystem: React.FC<SmartBudgetSystemProps> = ({
           <Paper sx={{ p: 3, mb: 3 }}>
             <Typography variant="h6" gutterBottom>Team Confirmation</Typography>
             <Grid container spacing={2}>
-              {teamSuggestions.map((suggestion, index) => (
-                <Grid item xs={12} sm={6} key={index}>
+              {teamSuggestions.map((suggestion) => (
+                <Grid item xs={12} sm={6} key={suggestion.role}>
                   <Paper sx={{ p: 2 }}>
                     <Typography variant="subtitle1" color="primary">{suggestion.role}</Typography>
                     <Typography variant="body2" gutterBottom>{suggestion.reason}</Typography>
