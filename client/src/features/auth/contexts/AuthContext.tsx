@@ -4,7 +4,7 @@ import { User } from '../../../shared/types';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<User>;
+  login: (email: string) => Promise<User>;
   logout: () => Promise<void>;
 }
 
@@ -47,7 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkAuth();
   }, []);
 
-  const login = async (email: string, password: string): Promise<User> => {
+  const login = async (email: string): Promise<User> => {
     try {
       setLoading(true);
       // TODO: Implement actual login logic

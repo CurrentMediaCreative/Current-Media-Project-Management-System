@@ -18,8 +18,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
-  Alert
+  DialogActions
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -99,7 +98,7 @@ const ContractorManagement: React.FC<ContractorManagementProps> = ({ onComplete,
       message: Yup.string().required('Message is required'),
       rate: Yup.number().min(0, 'Rate cannot be negative').required('Rate is required')
     }),
-    onSubmit: (values) => {
+    onSubmit: () => {
       if (selectedContractor) {
         const updatedAssignments = assignments.map(assignment =>
           assignment.contractor.email === selectedContractor.contractor.email

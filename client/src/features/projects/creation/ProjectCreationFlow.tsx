@@ -12,7 +12,9 @@ import {
   CircularProgress} from '@mui/material';
 import { projectService } from '../../../services/projectService';
 import { 
-  ProjectScope} from '../../../shared/types';
+  ProjectScope,
+  ProjectStatus
+} from '../../../shared/types';
 import {
   ProjectFormData,
   Budget,
@@ -41,7 +43,7 @@ const initialFormData: ProjectFormData = {
     actual: 0,
     profitTarget: 20,
     contingencyPercentage: 10
-  } as Budget,
+  },
   contractors: [],
   selectedScenario: undefined
 };
@@ -69,7 +71,9 @@ const ProjectCreationFlow: React.FC = () => {
         setLoading(true);
         try {
           // Save progress to backend
-          await projectService.saveProgress(formData);
+          // Generate a temporary ID for saving progress
+          const tempId = 'temp_' + Date.now();
+          await projectService.saveProgress(tempId, formData);
           // Show success message
           setSuccessMessage('Progress saved successfully');
           setApiError(null);
@@ -148,7 +152,7 @@ const ProjectCreationFlow: React.FC = () => {
       try {
         const projectData = {
           ...formData,
-          status: 'new' as const
+          status: ProjectStatus.NEW_NOT_SENT
         };
         const newProject = await projectService.createProject(projectData);
         localStorage.removeItem(STORAGE_KEY);

@@ -16,15 +16,10 @@ export interface Timeframe {
   endDate: string;
 }
 
-export interface ProjectFormData {
-  title: string;
-  client: string;
-  timeframe: Timeframe;
+export interface ProjectFormData extends Omit<Pick<Project, 'title' | 'client' | 'timeframe' | 'contractors'>, 'budget'> {
   budget: Budget;
-  contractors: Contractor[];
   scope?: ProjectScope;
   selectedScenario?: BudgetScenario;
-  status?: 'new' | 'pending' | 'active' | 'completed' | 'archived';
 }
 
 export interface BudgetScenario {

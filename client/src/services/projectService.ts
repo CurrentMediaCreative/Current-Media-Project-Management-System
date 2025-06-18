@@ -35,6 +35,11 @@ class ProjectService {
       return false;
     }
   }
+
+  async saveProgress(id: string, data: Partial<Project>): Promise<Project> {
+    const response = await api.patch(`/api/projects/${id}/progress`, data);
+    return response.data;
+  }
 }
 
 export const projectService = new ProjectService();
