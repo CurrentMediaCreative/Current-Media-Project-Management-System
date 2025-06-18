@@ -369,7 +369,7 @@ const SmartBudgetSystem: React.FC<SmartBudgetSystemProps> = ({
       <Typography variant="h5" gutterBottom>Smart Budget System</Typography>
 
       <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
-        {steps.map((step, index) => (
+        {steps.map((step) => (
           <Step key={step.label}>
             <StepLabel>{step.label}</StepLabel>
           </Step>
