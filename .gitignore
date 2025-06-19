@@ -49,3 +49,8 @@ client/coverage/
 *.pid
 *.seed
 *.pid.lock
+
+# Cline specific
+Cline/
+memory-bank/
+Reference Images/

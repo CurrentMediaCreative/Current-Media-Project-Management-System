@@ -6,7 +6,7 @@ import { LoginCredentials, User } from '@shared/types';
 import { useAuth } from './contexts/AuthContext';
 
 interface LoginFormProps {
-  onSubmit: (user: User) => void;
+  onSubmit: (user: User) => void | Promise<void>;
 }
 
 const validationSchema = Yup.object({

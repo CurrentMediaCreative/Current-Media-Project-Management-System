@@ -25,6 +25,8 @@ export enum ProjectStatus {
 export interface User {
   id: string;
   email: string;
+  name: string;
+  role: string;
   password?: string;
 }
 
