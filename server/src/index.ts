@@ -29,8 +29,7 @@ const corsOptions = {
   credentials: true
 };
 
-// Middleware
-app.use(cors(corsOptions));
+// Security middleware first
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -50,6 +49,9 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "same-site" },
   referrerPolicy: { policy: "strict-origin-when-cross-origin" }
 }));
+app.use(cors(corsOptions));
+
+// Logging and parsing middleware
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(express.json());
 
