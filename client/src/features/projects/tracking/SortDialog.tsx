@@ -14,7 +14,7 @@ import {
   Typography,
   Grid
 } from '@mui/material';
-import { Project, ProjectMetadata } from '../../../shared/types';
+import { Project } from '../../../shared/types';
 
 interface SortDialogProps {
   open: boolean;
