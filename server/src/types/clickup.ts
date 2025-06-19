@@ -18,8 +18,13 @@ export interface ClickUpCustomField {
   name: string;
   type: string;
   type_config: {
+    precision?: number;
+    currency_type?: string;
     options?: ClickUpCustomFieldOption[];
   };
+  date_created: string;
+  hide_from_guests: boolean;
+  required?: boolean;
   value: string | number | null;
 }
 
