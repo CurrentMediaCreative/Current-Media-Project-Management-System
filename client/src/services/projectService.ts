@@ -72,14 +72,49 @@ class ProjectService {
 
   async checkProjectExists(clickUpId: string): Promise<boolean> {
     try {
+      if (!clickUpId) {
+        throw new Error('ClickUp ID is required');
+      }
+
       const response = await api.get(`/projects/check/${clickUpId}`);
       return response.data.exists;
     } catch (error: any) {
+      // Handle specific error cases
+      if (error.response?.status === 401) {
+        console.error('Authentication failed during project check:', {
+          clickUpId,
+          status: error.response.status,
+          message: error.response.data?.message
+        });
+        throw new Error('Authentication failed. Please log in again.');
+      }
+
       if (error.response?.status === 404) {
+        console.warn(`No project found with ClickUp ID: ${clickUpId}`);
         return false;
       }
-      console.error('Error checking project existence:', error);
-      throw new Error('Failed to check project existence');
+
+      if (error.response?.status === 503) {
+        console.error('Storage service unavailable:', {
+          clickUpId,
+          status: error.response.status,
+          code: error.response.data?.code,
+          message: error.response.data?.message
+        });
+        throw new Error('Service temporarily unavailable. Please try again later.');
+      }
+
+      // Log detailed error information
+      console.error('Project check failed:', {
+        clickUpId,
+        status: error.response?.status,
+        code: error.response?.data?.code,
+        message: error.message,
+        requestId: error.response?.data?.requestId
+      });
+
+      // Throw error with specific message if available
+      throw new Error(error.response?.data?.message || 'Failed to check project existence');
     }
   }
 

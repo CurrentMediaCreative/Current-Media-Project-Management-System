@@ -14,7 +14,8 @@ import {
   Typography,
   Grid
 } from '@mui/material';
-import { Project, ProjectMetadata } from '../../../shared/types';
+import { Project, ProjectMetadata } from '@shared/types';
+import { getClientName } from '@shared/utils/projectHelpers';
 
 interface SortDialogProps {
   open: boolean;
@@ -55,7 +56,7 @@ const SortDialog: React.FC<SortDialogProps> = ({
                 Project Details
               </Typography>
               <Typography variant="body2">
-                <strong>Client:</strong> {project.client}
+                <strong>Client:</strong> {getClientName(project)}
               </Typography>
               <Typography variant="body2">
                 <strong>Title:</strong> {project.title}

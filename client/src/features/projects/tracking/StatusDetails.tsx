@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, Paper, Grid } from '@mui/material';
-import { Project, ProjectStatus } from '../../../shared/types';
+import { Project, ProjectStatus } from '@shared/types';
+import { getClientName, getTaskType, getInvoiceStatus, getInvoiceNumber } from '@shared/utils/projectHelpers';
 
 interface StatusDetailsProps {
   project: Project;
@@ -15,7 +16,7 @@ const StatusDetails: React.FC<StatusDetailsProps> = ({ project }) => {
             <Typography variant="subtitle1" color="primary">New Project - Not Sent</Typography>
             <Grid container spacing={2}>
               <Grid item xs={12} md={6}>
-                <Typography variant="body1"><strong>Client:</strong> {project.client}</Typography>
+                <Typography variant="body1"><strong>Client:</strong> {getClientName(project)}</Typography>
                 <Typography variant="body1"><strong>Title:</strong> {project.title}</Typography>
               </Grid>
               <Grid item xs={12} md={6}>
@@ -41,7 +42,7 @@ const StatusDetails: React.FC<StatusDetailsProps> = ({ project }) => {
             <Typography variant="subtitle1" color="primary">New Project - Sent to Team</Typography>
             <Grid container spacing={2}>
               <Grid item xs={12} md={6}>
-                <Typography variant="body1"><strong>Client:</strong> {project.client}</Typography>
+                <Typography variant="body1"><strong>Client:</strong> {getClientName(project)}</Typography>
                 <Typography variant="body1"><strong>Title:</strong> {project.title}</Typography>
               </Grid>
               <Grid item xs={12} md={6}>

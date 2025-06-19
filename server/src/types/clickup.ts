@@ -66,19 +66,10 @@ export interface MappedProject {
   name: string;
   status: ProjectStatus;
   statusColor: string;
-  client: string | null;
-  taskType: string | null;
-  invoiceStatus: string | null;
-  invoiceNumber: string | null;
   createdAt: Date;
   updatedAt: Date;
   clickUpUrl: string;
+  customFields: {
+    [key: string]: string | number | null;
+  };
 }
-
-// ClickUp field mapping constants
-export const CLICKUP_FIELD_MAPPING = {
-  CLIENT: 'custom_field_client_id',
-  TASK_TYPE: 'custom_field_type_id',
-  INVOICE_STATUS: 'custom_field_invoice_status_id',
-  INVOICE_NUMBER: 'custom_field_invoice_number_id'
-} as const;

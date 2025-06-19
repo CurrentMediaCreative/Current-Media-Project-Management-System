@@ -1,6 +1,5 @@
 import { 
   ClickUpTask, 
-  CLICKUP_FIELD_MAPPING, 
   MappedProject,
   ClickUpCustomField,
   ClickUpCustomFieldOption 
@@ -43,30 +42,33 @@ export class ClickUpMappingService {
     const mappedStatus = mapStatus(rawStatus);
     console.log('Mapped status:', mappedStatus);
 
+    // Map all custom fields
+    const customFields: { [key: string]: string | number | null } = {};
+    if (task.custom_fields) {
+      task.custom_fields.forEach(field => {
+        const fieldValue = this.extractCustomFieldValue(field);
+        if (fieldValue !== null) {
+          customFields[field.name] = fieldValue;
+        }
+      });
+    }
+
     return {
       id: task.id || '',
       name: task.name || '',
       status: mappedStatus,
       statusColor: task.status?.color || '',
-      client: this.extractCustomFieldValue(task, 'CLIENT'),
-      taskType: this.extractCustomFieldValue(task, 'TASK_TYPE'),
-      invoiceStatus: this.extractCustomFieldValue(task, 'INVOICE_STATUS'),
-      invoiceNumber: this.extractCustomFieldValue(task, 'INVOICE_NUMBER'),
       createdAt: task.date_created ? new Date(parseInt(task.date_created)) : new Date(),
       updatedAt: task.date_updated ? new Date(parseInt(task.date_updated)) : new Date(),
-      clickUpUrl: task.url || ''
+      clickUpUrl: task.url || '',
+      customFields
     };
   }
 
-  private static extractCustomFieldValue(task: ClickUpTask, fieldKey: keyof typeof CLICKUP_FIELD_MAPPING): string | null {
-    const fieldId = CLICKUP_FIELD_MAPPING[fieldKey];
-    if (!task.custom_fields) return null;
-    
-    const field = task.custom_fields.find((f: ClickUpCustomField) => f.id === fieldId);
-    if (!field || field.value === undefined || field.value === null) return null;
+  private static extractCustomFieldValue(field: ClickUpCustomField): string | number | null {
+    if (field.value === undefined || field.value === null) return null;
 
-    console.log(`Extracting ${fieldKey}:`, {
-      fieldId: String(fieldId),
+    console.log(`Extracting ${field.name}:`, {
       fieldType: field.type,
       fieldValue: field.value,
       options: field.type_config.options
@@ -94,14 +96,11 @@ export class ClickUpMappingService {
       case 'short_text':
       case 'text':
       case 'url':
+        return String(field.value);
       case 'currency':
-        const stringValue = typeof field.value === 'string' ? field.value : String(field.value);
-        console.log(`Extracted string value:`, stringValue);
-        return stringValue;
+        return typeof field.value === 'number' ? field.value : parseFloat(String(field.value));
       default:
-        const defaultValue = String(field.value);
-        console.log(`Extracted default value:`, defaultValue);
-        return defaultValue;
+        return String(field.value);
     }
   }
 }

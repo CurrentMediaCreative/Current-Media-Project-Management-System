@@ -56,23 +56,22 @@ export interface ClickUpStatus {
 export interface MappedProject {
   id: string;
   name: string;
-  status: ProjectStatus;
+  status: string;
   statusColor: string;
-  client: string | null;
-  taskType: string | null;
-  invoiceStatus: string | null;
-  invoiceNumber: string | null;
   createdAt: Date;
   updatedAt: Date;
   clickUpUrl: string;
+  customFields: {
+    [key: string]: string | number | null;
+  };
 }
 
 import { ProjectStatus } from './index';
 
 // ClickUp field mapping constants
 export const CLICKUP_FIELD_MAPPING = {
-  CLIENT: 'custom_field_client_id',
-  TASK_TYPE: 'custom_field_type_id',
-  INVOICE_STATUS: 'custom_field_invoice_status_id',
-  INVOICE_NUMBER: 'custom_field_invoice_number_id'
+  CLIENT: 'ace9e6da-73ff-48ec-add3-9aab92f518ab', // Payee field
+  INVOICE_NUMBER: '08cd5c39-b63b-4038-82f7-44d6bfde8365', // INV NUM field
+  INVOICE_STATUS: '2ad4690f-9229-4491-bf9f-a7d07436c78d', // Project Payment field
+  TASK_TYPE: null // Removed as this field is not currently used
 } as const;

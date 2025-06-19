@@ -36,6 +36,7 @@ import { dashboardService } from '../../services/dashboardService';
 import { notificationService } from '../../services/notificationService';
 import { DashboardData, NotificationItem } from './types';
 import { MappedProject } from '@shared/types/clickup';
+import { getClientName } from '@shared/utils/projectHelpers';
 import ProjectDetailsDialog from '../projects/tracking/ProjectDetailsDialog';
 import { projectService } from '../../services/projectService';
 
@@ -172,7 +173,7 @@ const Dashboard: React.FC = () => {
       <CardContent>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h6" component="div">
-            {project.client || 'No Client'}
+            {getClientName(project)}
           </Typography>
           <IconButton 
             size="small"

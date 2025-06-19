@@ -160,14 +160,64 @@ export const deleteProject = async (req: Request, res: Response) => {
  * Check if project exists by ClickUp ID
  */
 export const checkProjectExists = async (req: Request, res: Response) => {
+  const startTime = Date.now();
+  const { clickUpId } = req.params;
+
   try {
-    const { clickUpId } = req.params;
+    // Log request details
+    console.info('Checking project existence:', {
+      clickUpId,
+      userId: (req as any).user?.id,
+      timestamp: new Date().toISOString()
+    });
+
     const projects = await storage.read<Project[]>('projects.json');
+    
+    // Validate projects data
+    if (!Array.isArray(projects)) {
+      throw new Error('Invalid projects data structure');
+    }
+
     const exists = projects.some(project => project.clickUpId === clickUpId);
-    res.json({ exists });
-  } catch (error) {
-    console.error('Error checking project existence:', error);
-    res.status(500).json({ message: 'Error checking project existence' });
+    
+    // Log success response
+    const duration = Date.now() - startTime;
+    console.info('Project check completed:', {
+      clickUpId,
+      exists,
+      duration: `${duration}ms`
+    });
+
+    res.json({
+      exists,
+      checked: new Date().toISOString(),
+      requestId: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    });
+  } catch (error: any) {
+    // Log detailed error information
+    const duration = Date.now() - startTime;
+    console.error('Project existence check failed:', {
+      clickUpId,
+      error: error.message,
+      stack: error.stack,
+      duration: `${duration}ms`,
+      userId: (req as any).user?.id
+    });
+
+    // Send appropriate error response
+    if (error.message.includes('not found') || error.message.includes('Invalid data')) {
+      return res.status(503).json({
+        message: 'Service temporarily unavailable',
+        code: 'STORAGE_ERROR',
+        requestId: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      });
+    }
+
+    res.status(500).json({
+      message: 'Failed to check project existence',
+      code: 'PROJECT_CHECK_ERROR',
+      requestId: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    });
   }
 };
 

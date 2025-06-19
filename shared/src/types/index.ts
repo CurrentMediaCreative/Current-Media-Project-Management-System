@@ -108,7 +108,6 @@ export interface ProjectMetadata {
 export interface Project {
   id: string;
   title: string;
-  client: string;
   status: ProjectStatus;
   timeframe: Timeframe;
   budget: Budget;
@@ -117,7 +116,11 @@ export interface Project {
   metadata?: ProjectMetadata;
   createdAt: Date;
   updatedAt: Date;
+  customFields?: {
+    [key: string]: string | number | null;
+  };
 }
+
 
 export interface ContractorRate {
   id: string;

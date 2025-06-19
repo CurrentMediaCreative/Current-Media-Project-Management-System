@@ -24,6 +24,14 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
 
+// Field name constants to ensure type safety
+const FIELD_NAMES = {
+  CLIENT: 'Payee',
+  TASK_TYPE: 'Task Type',
+  INVOICE_STATUS: 'Project Payment',
+  INVOICE_NUMBER: 'INV NUM'
+} as const;
+
 interface ProjectDetailsDialogProps {
   open: boolean;
   onClose: () => void;
@@ -131,10 +139,10 @@ export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
       <DialogContent>
         <Box sx={{ mb: 3 }}>
           <Typography variant="subtitle2" color="text.secondary">Client</Typography>
-          <Typography>{project.client || 'No Client'}</Typography>
+          <Typography>{project.customFields[FIELD_NAMES.CLIENT] || 'No Client'}</Typography>
           
           <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>Task Type</Typography>
-          <Typography>{project.taskType || 'Not Specified'}</Typography>
+          <Typography>{project.customFields[FIELD_NAMES.TASK_TYPE] || 'Not Specified'}</Typography>
           
           <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>Created</Typography>
           <Typography>
@@ -151,12 +159,12 @@ export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
           </Typography>
           
           <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>Invoice Status</Typography>
-          <Typography>{project.invoiceStatus || 'Not Set'}</Typography>
+          <Typography>{project.customFields[FIELD_NAMES.INVOICE_STATUS] || 'Not Set'}</Typography>
           
-          {project.invoiceNumber && (
+          {project.customFields[FIELD_NAMES.INVOICE_NUMBER] && (
             <>
               <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>Invoice #</Typography>
-              <Typography>{project.invoiceNumber}</Typography>
+              <Typography>{project.customFields[FIELD_NAMES.INVOICE_NUMBER]}</Typography>
             </>
           )}
         </Box>

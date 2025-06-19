@@ -22,17 +22,43 @@ const initializeDataFile = async (filename: string, defaultData: any = []) => {
   }
 };
 
-// Generic read function
+// Generic read function with enhanced error handling and validation
 const readData = async <T>(filename: string): Promise<T> => {
-  const filePath = path.join(DATA_DIR, filename);
-  const data = await fs.readFile(filePath, 'utf-8');
-  return JSON.parse(data);
+  try {
+    const filePath = path.join(DATA_DIR, filename);
+    await fs.access(filePath);
+    const data = await fs.readFile(filePath, 'utf-8');
+    const parsed = JSON.parse(data);
+    
+    // Validate data structure for arrays
+    if (filename.endsWith('.json') && !Array.isArray(parsed)) {
+      throw new Error(`Invalid data structure in ${filename}: expected array`);
+    }
+    
+    return parsed;
+  } catch (error: any) {
+    if (error.code === 'ENOENT') {
+      console.error(`File not found: ${filename}`);
+      throw new Error(`Storage file ${filename} not found`);
+    }
+    if (error instanceof SyntaxError) {
+      console.error(`Invalid JSON in ${filename}`);
+      throw new Error(`Invalid data format in ${filename}`);
+    }
+    console.error(`Storage error (${filename}):`, error);
+    throw new Error(`Storage operation failed: ${error.message}`);
+  }
 };
 
-// Generic write function
+// Generic write function with enhanced error handling
 const writeData = async <T>(filename: string, data: T): Promise<void> => {
-  const filePath = path.join(DATA_DIR, filename);
-  await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+  try {
+    const filePath = path.join(DATA_DIR, filename);
+    await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+  } catch (error: any) {
+    console.error(`Failed to write to ${filename}:`, error);
+    throw new Error(`Failed to write to storage: ${error.message}`);
+  }
 };
 
 // Initialize storage with specified files

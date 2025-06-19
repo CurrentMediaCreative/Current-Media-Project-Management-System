@@ -1,6 +1,6 @@
 import express from 'express';
 import * as projectController from './projectController';
-import { validateProjectId } from './projectValidation';
+import { validateProjectId, validateClickUpId } from './projectValidation';
 import { authenticateToken } from '../../middleware/authMiddleware';
 
 const router = express.Router();
@@ -18,7 +18,7 @@ router.post('/', projectController.createProject);
 /**
  * Check if project exists by ClickUp ID
  */
-router.get('/check/:clickUpId', authenticateToken, projectController.checkProjectExists);
+router.get('/check/:clickUpId', authenticateToken, validateClickUpId, projectController.checkProjectExists);
 
 /**
  * Get project by ID
