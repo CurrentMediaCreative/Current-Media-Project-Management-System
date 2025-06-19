@@ -170,3 +170,57 @@ export const checkProjectExists = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Error checking project existence' });
   }
 };
+
+/**
+ * Save project progress
+ */
+export const saveProgress = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const progressData = req.body;
+
+    if (!progressData || Object.keys(progressData).length === 0) {
+      return res.status(400).json({ message: 'Progress data is required' });
+    }
+
+    const projects = await storage.read<Project[]>('projects.json');
+    const projectIndex = projects.findIndex(p => p.id === id);
+
+    if (projectIndex === -1) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    // Update only progress-related fields
+    const updatedProject = {
+      ...projects[projectIndex],
+      progress: {
+        ...projects[projectIndex].progress,
+        ...progressData
+      },
+      updatedAt: new Date().toISOString()
+    };
+
+    projects[projectIndex] = updatedProject;
+    await storage.write('projects.json', projects);
+
+    // Create notification
+    const notifications = await storage.read<any[]>('notifications.json');
+    notifications.push({
+      id: Date.now().toString(),
+      type: 'project_progress_updated',
+      read: false,
+      timestamp: new Date().toISOString(),
+      details: {
+        projectId: id,
+        projectTitle: updatedProject.title,
+        progressUpdate: progressData
+      }
+    });
+    await storage.write('notifications.json', notifications);
+
+    res.json(updatedProject);
+  } catch (error) {
+    console.error('Error saving project progress:', error);
+    res.status(500).json({ message: 'Error saving project progress' });
+  }
+};

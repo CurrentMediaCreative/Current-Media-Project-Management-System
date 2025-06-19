@@ -11,6 +11,11 @@ const router = express.Router();
 router.get('/', projectController.getProjects);
 
 /**
+ * Create new project
+ */
+router.post('/', projectController.createProject);
+
+/**
  * Check if project exists by ClickUp ID
  */
 router.get('/check/:clickUpId', authenticateToken, projectController.checkProjectExists);
@@ -21,18 +26,23 @@ router.get('/check/:clickUpId', authenticateToken, projectController.checkProjec
 router.get('/:id', validateProjectId, projectController.getProjectById);
 
 /**
- * Create new project
- */
-router.post('/', projectController.createProject);
-
-/**
  * Update project
  */
-router.put('/:id', validateProjectId, projectController.updateProject);
+router.patch('/:id', validateProjectId, projectController.updateProject);
+
+/**
+ * Save project progress
+ */
+router.patch('/:id/progress', validateProjectId, projectController.saveProgress);
 
 /**
  * Delete project
  */
 router.delete('/:id', validateProjectId, projectController.deleteProject);
+
+// Handle 404s for unknown routes
+router.use('*', (_req, res) => {
+  res.status(404).json({ message: 'Project endpoint not found' });
+});
 
 export default router;
