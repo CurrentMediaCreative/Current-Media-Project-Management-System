@@ -40,7 +40,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
-      connectSrc: ["'self'", "https://api.clickup.com", "https://current-media-website-and-project.onrender.com"],
+      connectSrc: ["'self'", "https://api.clickup.com", "https://current-media-website-and-project.onrender.com", "https://currentmedia.ca"],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
       baseUri: ["'self'"]
