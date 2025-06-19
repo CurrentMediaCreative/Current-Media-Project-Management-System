@@ -24,7 +24,7 @@ const PORT = process.env.PORT || 3000;
 // Configure CORS based on environment
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
-    ? 'https://currentmedia.ca'
+    ? ['https://currentmedia.ca', 'https://current-media-website-and-project.onrender.com']
     : 'http://localhost:3000',
   credentials: true
 };
@@ -47,9 +47,10 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(express.json());
 
 // Serve static files
-const staticPath = path.join(__dirname, '../../client/dist');
+const staticPath = path.join(__dirname, '../../../client/dist');
 if (process.env.NODE_ENV === 'production') {
   // Serve frontend static files in production
+  app.use('/', express.static(staticPath));
   app.use('/projects/management', express.static(staticPath));
 }
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
@@ -92,6 +93,9 @@ app.use('/projects/management/api', apiRouter);
 
 // Serve index.html for client-side routing in production
 if (process.env.NODE_ENV === 'production') {
+  app.get('/', (_req, res) => {
+    res.sendFile(path.join(staticPath, 'index.html'));
+  });
   app.get('/projects/management/*', (_req, res) => {
     res.sendFile(path.join(staticPath, 'index.html'));
   });

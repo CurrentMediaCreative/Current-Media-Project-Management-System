@@ -1,10 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CLICKUP_FIELD_MAPPING = void 0;
+// ClickUp field mapping constants
 exports.CLICKUP_FIELD_MAPPING = {
-    CLIENT: 'fdab03c4-bf5a-4269-a957-faa9bd58b4fb',
-    TASK_TYPE: '047652d9-831f-4da0-9112-c9f5286df5c3',
-    INVOICE_STATUS: '67b16232-45cc-43bc-98dd-693d32f9c2f1',
-    INVOICE_NUMBER: '08cd5c39-b63b-4038-82f7-44d6bfde8365'
+    CLIENT: 'custom_field_client_id',
+    TASK_TYPE: 'custom_field_type_id',
+    INVOICE_STATUS: 'custom_field_invoice_status_id',
+    INVOICE_NUMBER: 'custom_field_invoice_number_id'
 };
 //# sourceMappingURL=clickup.js.map
