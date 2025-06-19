@@ -93,11 +93,13 @@ app.use('/api', apiRouter);
 
 // Serve index.html for client-side routing in production
 if (process.env.NODE_ENV === 'production') {
-  app.get('/', (_req, res) => {
-    res.sendFile(path.join(staticPath, 'index.html'));
-  });
-  app.get('/projects/management/*', (_req, res) => {
-    res.sendFile(path.join(staticPath, 'index.html'));
+  // Serve index.html for all routes except /api to support client-side routing
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      next();
+    } else {
+      res.sendFile(path.join(staticPath, 'index.html'));
+    }
   });
 }
 
