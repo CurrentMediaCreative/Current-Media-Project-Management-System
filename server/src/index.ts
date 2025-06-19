@@ -25,8 +25,10 @@ const PORT = process.env.PORT || 3000;
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
     ? ['https://currentmedia.ca', 'https://current-media-website-and-project.onrender.com']
-    : 'http://localhost:3000',
-  credentials: true
+    : ['http://localhost:3000', 'http://localhost:5000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 // Security middleware first
@@ -97,8 +99,8 @@ apiRouter.use('/contractors', contractorRoutes);
 apiRouter.use('/dashboard', dashboardRoutes);
 apiRouter.use('/clickup', clickupRoutes);
 
-// Mount API routes with proper base path
-app.use('/api', apiRouter);
+// Mount API routes
+app.use('/', apiRouter);
 
 // Serve index.html for client-side routing in production
 if (process.env.NODE_ENV === 'production') {

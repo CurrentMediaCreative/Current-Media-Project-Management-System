@@ -167,11 +167,22 @@ class ClickUpService {
   /**
    * Get detailed task information
    */
-  async getTask(taskId: string): Promise<MappedProject> {
+  async getTask(taskId: string): Promise<MappedProject | null> {
     try {
       const response = await this.api.get<ClickUpTask>(`/task/${taskId}`);
+      if (!response.data) {
+        console.warn(`No data returned for task ${taskId}`);
+        return null;
+      }
       return ClickUpMappingService.mapTaskToProject(response.data);
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.warn(`Task ${taskId} not found in ClickUp`);
+        return null;
+      }
+      if (error.response?.status === 401) {
+        throw new Error('Unauthorized access to ClickUp API');
+      }
       console.error('Error fetching ClickUp task:', error);
       throw error;
     }
@@ -180,11 +191,22 @@ class ClickUpService {
   /**
    * Get subtasks for a task
    */
-  async getSubTasks(taskId: string): Promise<ClickUpTask[]> {
+  async getSubTasks(taskId: string): Promise<ClickUpTask[] | null> {
     try {
       const response = await this.api.get<ClickUpTasksResponse>(`/task/${taskId}/subtask`);
+      if (!response.data || !response.data.tasks) {
+        console.warn(`No subtasks found for task ${taskId}`);
+        return null;
+      }
       return response.data.tasks;
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.warn(`Parent task ${taskId} not found in ClickUp`);
+        return null;
+      }
+      if (error.response?.status === 401) {
+        throw new Error('Unauthorized access to ClickUp API');
+      }
       console.error('Error fetching ClickUp subtasks:', error);
       throw error;
     }
@@ -193,11 +215,29 @@ class ClickUpService {
   /**
    * Update a task
    */
-  async updateTask(taskId: string, data: Partial<ClickUpTask>): Promise<ClickUpTask> {
+  async updateTask(taskId: string, data: Partial<ClickUpTask>): Promise<ClickUpTask | null> {
     try {
+      if (!data || Object.keys(data).length === 0) {
+        throw new Error('Update data is required');
+      }
+
       const response = await this.api.put<ClickUpTask>(`/task/${taskId}`, data);
+      if (!response.data) {
+        console.warn(`No data returned after updating task ${taskId}`);
+        return null;
+      }
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.warn(`Task ${taskId} not found in ClickUp`);
+        return null;
+      }
+      if (error.response?.status === 401) {
+        throw new Error('Unauthorized access to ClickUp API');
+      }
+      if (error.response?.status === 400) {
+        throw new Error(`Invalid update data: ${error.response.data?.message || 'Unknown error'}`);
+      }
       console.error('Error updating ClickUp task:', error);
       throw error;
     }

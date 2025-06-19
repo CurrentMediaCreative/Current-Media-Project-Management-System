@@ -11,6 +11,11 @@ const router = express.Router();
 router.get('/', projectController.getProjects);
 
 /**
+ * Check if project exists by ClickUp ID
+ */
+router.get('/check/:clickUpId', authenticateToken, projectController.checkProjectExists);
+
+/**
  * Get project by ID
  */
 router.get('/:id', validateProjectId, projectController.getProjectById);
@@ -29,10 +34,5 @@ router.put('/:id', validateProjectId, projectController.updateProject);
  * Delete project
  */
 router.delete('/:id', validateProjectId, projectController.deleteProject);
-
-/**
- * Check if project exists by ClickUp ID
- */
-router.get('/check/:clickUpId', authenticateToken, projectController.checkProjectExists);
 
 export default router;
