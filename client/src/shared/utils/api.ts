@@ -2,10 +2,11 @@ import axios from 'axios';
 
 // Configure API base URL
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: '/',
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000, // 10 second timeout
 });
 
 // Add request interceptor for auth token
@@ -21,12 +22,31 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Handle unauthorized access
-      localStorage.removeItem('token');
-      // Redirect to login
-      window.location.href = '/login';
+    if (!error.response) {
+      // Network error or timeout
+      console.error('Network error:', error.message);
+      return Promise.reject(new Error('Network error. Please check your connection.'));
     }
+
+    switch (error.response.status) {
+      case 401:
+        // Handle unauthorized access
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+        break;
+      case 404:
+        console.warn('Resource not found:', error.response.data?.message || 'Not found');
+        break;
+      case 400:
+        console.warn('Bad request:', error.response.data?.message || 'Invalid request');
+        break;
+      case 500:
+        console.error('Server error:', error.response.data?.message || 'Internal server error');
+        break;
+      default:
+        console.error('API error:', error.response.data?.message || 'Unknown error');
+    }
+
     return Promise.reject(error);
   }
 );
