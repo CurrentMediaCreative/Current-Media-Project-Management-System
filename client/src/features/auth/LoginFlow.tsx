@@ -5,7 +5,7 @@ import { User } from '../../shared/types';
 import { useNavigate } from 'react-router-dom';
 
 interface LoginFlowProps {
-  onLogin?: (user: User) => void;
+  onLogin?: (user: User) => void | Promise<void>;
   redirectTo?: string;
 }
 
@@ -15,10 +15,9 @@ const LoginFlow: React.FC<LoginFlowProps> = ({ onLogin, redirectTo = '/' }) => {
   const handleLogin = async (user: User) => {
     try {
       if (onLogin) {
-        onLogin(user);
-      } else {
-        navigate(redirectTo);
+        await onLogin(user);
       }
+      navigate(redirectTo);
     } catch (error) {
       console.error('Error during login:', error);
     }
