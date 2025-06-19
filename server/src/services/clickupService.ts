@@ -1,6 +1,6 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
-import { ClickUpTask, ClickUpSpace, ClickUpList, MappedProject } from '../../../shared/src/types/clickup';
+import { ClickUpTask, ClickUpSpace, ClickUpList, MappedProject } from '../types/clickup';
 import { ClickUpMappingService } from './clickupMappingService';
 
 dotenv.config();

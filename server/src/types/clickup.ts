@@ -25,9 +25,10 @@ export interface ClickUpCustomField {
 
 export interface ClickUpCustomFieldOption {
   id: string;
-  name: string;
-  orderindex: number;
+  name?: string;
+  label?: string;
   color?: string;
+  orderindex?: number;
 }
 
 export interface ClickUpSpace {
