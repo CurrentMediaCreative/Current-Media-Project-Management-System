@@ -110,3 +110,5 @@ export interface Project {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export { EmailData } from './email';

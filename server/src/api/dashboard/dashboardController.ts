@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import { storage } from '../../services/storageService';
 import { clickupService } from '../../services/clickupService';
-import { MappedProject } from '@shared/types/clickup';
+import { MappedProject } from '../../types/clickup';
+import { ProjectStatus } from '../../types';
 
 interface Project extends MappedProject {}
 
@@ -49,28 +50,28 @@ export const getDashboardOverview = async (req: Request, res: Response) => {
     // Group projects by status
     const projectsByStatus = {
       newProjects: mergedProjects.filter(p => 
-        p.status === 'NEW_NOT_SENT' || p.status === 'NEW_SENT'
+        p.status === ProjectStatus.NEW_NOT_SENT || p.status === ProjectStatus.NEW_SENT
       ),
       pendingJake: [], // Empty array since PENDING_CLICKUP is redundant
       activeProjects: mergedProjects.filter(p => 
-        p.status === 'ACTIVE_IN_CLICKUP'
+        p.status === ProjectStatus.ACTIVE
       ),
       postProduction: mergedProjects.filter(p => 
-        p.status === 'COMPLETED'
+        p.status === ProjectStatus.COMPLETED
       ),
       archived: mergedProjects.filter(p => 
-        p.status === 'ARCHIVED'
+        p.status === ProjectStatus.ARCHIVED
       )
     };
 
     // Count projects by status
     const projectStatusCounts = {
-      newNotSent: mergedProjects.filter(p => p.status === 'NEW_NOT_SENT').length,
-      newSent: mergedProjects.filter(p => p.status === 'NEW_SENT').length,
+      newNotSent: mergedProjects.filter(p => p.status === ProjectStatus.NEW_NOT_SENT).length,
+      newSent: mergedProjects.filter(p => p.status === ProjectStatus.NEW_SENT).length,
       pendingClickUp: 0, // Always 0 since PENDING_CLICKUP is redundant
-      activeInClickUp: mergedProjects.filter(p => p.status === 'ACTIVE_IN_CLICKUP').length,
-      completed: mergedProjects.filter(p => p.status === 'COMPLETED').length,
-      archived: mergedProjects.filter(p => p.status === 'ARCHIVED').length
+      activeInClickUp: mergedProjects.filter(p => p.status === ProjectStatus.ACTIVE).length,
+      completed: mergedProjects.filter(p => p.status === ProjectStatus.COMPLETED).length,
+      archived: mergedProjects.filter(p => p.status === ProjectStatus.ARCHIVED).length
     };
 
     console.log('Projects by status:', projectsByStatus);
