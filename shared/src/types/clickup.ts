@@ -67,13 +67,7 @@ export interface MappedProject {
   clickUpUrl: string;
 }
 
-// Local statuses for project lifecycle
-export type ProjectStatus = 
-  | 'NEW_NOT_SENT'     // New project created locally, not yet ready to send to Jake
-  | 'NEW_SENT'         // Project completed locally and sent to Jake for ClickUp creation
-  | 'ACTIVE_IN_CLICKUP' // Project is active in ClickUp (maps from: to do, media needed, in progress, revision)
-  | 'COMPLETED'        // Project is completed (maps from ClickUp's "done" status)
-  | 'ARCHIVED';        // Project is archived locally after completion and payment
+import { ProjectStatus } from './index';
 
 // ClickUp field mapping constants
 export const CLICKUP_FIELD_MAPPING = {

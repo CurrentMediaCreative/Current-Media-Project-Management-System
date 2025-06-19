@@ -1,4 +1,5 @@
-import { ClickUpTask, CLICKUP_FIELD_MAPPING, MappedProject, ProjectStatus } from '../../../shared/src/types/clickup';
+import { ClickUpTask, CLICKUP_FIELD_MAPPING, MappedProject } from '../../../shared/src/types/clickup';
+import { ProjectStatus } from '../../../shared/src/types';
 
 export class ClickUpMappingService {
   static mapTaskToProject(task: ClickUpTask): MappedProject {
@@ -8,25 +9,27 @@ export class ClickUpMappingService {
       
       // Active statuses
       if (['to do', 'media needed', 'in progress', 'revision'].includes(lowerStatus)) {
-        return 'ACTIVE_IN_CLICKUP';
+        return ProjectStatus.ACTIVE;
       }
       
       // Completed status
       if (lowerStatus === 'done') {
-        return 'COMPLETED';
+        return ProjectStatus.COMPLETED;
       }
 
       // For local statuses, validate and return if they match our ProjectStatus type
-      if (
-        status === 'NEW_NOT_SENT' || 
-        status === 'NEW_SENT' || 
-        status === 'ARCHIVED'
-      ) {
-        return status as ProjectStatus;
+      if (status === ProjectStatus.NEW_NOT_SENT) {
+        return ProjectStatus.NEW_NOT_SENT;
+      }
+      if (status === ProjectStatus.NEW_SENT) {
+        return ProjectStatus.NEW_SENT;
+      }
+      if (status === ProjectStatus.ARCHIVED) {
+        return ProjectStatus.ARCHIVED;
       }
 
-      // Default to ACTIVE_IN_CLICKUP if we don't recognize the status
-      return 'ACTIVE_IN_CLICKUP';
+      // Default to ACTIVE if we don't recognize the status
+      return ProjectStatus.ACTIVE;
     };
 
     const rawStatus = task.status?.status || '';
