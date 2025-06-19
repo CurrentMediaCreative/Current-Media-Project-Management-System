@@ -58,7 +58,7 @@ export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
         ]);
         
         setTaskDetails(taskData);
-        setSubTasks(subTasksData);
+        setSubTasks(subTasksData || []); // Ensure we set an empty array if null
       } catch (err) {
         setError('Failed to load project details');
         console.error('Project details error:', err);
