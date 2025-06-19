@@ -38,7 +38,7 @@ app.use(helmet({
       scriptSrc: ["'self'", "'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https://api.clickup.com"]
+      connectSrc: ["'self'", "https://api.clickup.com", "https://current-media-website-and-project.onrender.com"]
     }
   },
   crossOriginEmbedderPolicy: false
