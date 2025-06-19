@@ -89,7 +89,7 @@ apiRouter.use('/dashboard', dashboardRoutes);
 apiRouter.use('/clickup', clickupRoutes);
 
 // Mount API routes with proper base path
-app.use('/projects/management/api', apiRouter);
+app.use('/api', apiRouter);
 
 // Serve index.html for client-side routing in production
 if (process.env.NODE_ENV === 'production') {

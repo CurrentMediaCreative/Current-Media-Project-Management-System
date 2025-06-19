@@ -10,7 +10,7 @@ export default defineConfig(({ command }) => ({
       '@': path.resolve(__dirname, './src')
     }
   },
-  base: command === 'serve' ? '/' : '/projects/management/',
+  base: '/',
   server: {
     port: 3000,
     proxy: {
