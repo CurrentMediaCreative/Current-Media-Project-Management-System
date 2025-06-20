@@ -1,10 +1,12 @@
 import React from 'react';
 import { Box, Typography, Paper, Grid } from '@mui/material';
-import { Project, ProjectStatus } from '@shared/types';
-import { getClientName, getTaskType, getInvoiceStatus, getInvoiceNumber } from '@shared/utils/projectHelpers';
+import { LocalProject, CombinedProject, ProjectStatus, isClickUpSynced } from '@shared/types';
+import { getClientName, getTaskType, getInvoiceStatus, getInvoiceNumber, getDisplayStatus } from '@shared/utils/projectHelpers';
+
+type ProjectType = LocalProject | CombinedProject;
 
 interface StatusDetailsProps {
-  project: Project;
+  project: ProjectType;
 }
 
 const StatusDetails: React.FC<StatusDetailsProps> = ({ project }) => {
@@ -62,24 +64,6 @@ const StatusDetails: React.FC<StatusDetailsProps> = ({ project }) => {
           </>
         );
 
-      case ProjectStatus.PENDING_CLICKUP:
-        return (
-          <>
-            <Typography variant="subtitle1" color="primary">ClickUp Entry Requirements</Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <Typography variant="body1"><strong>Required Information:</strong></Typography>
-                <ul>
-                  <li>Project scope and deliverables</li>
-                  <li>Timeline and milestones</li>
-                  <li>Budget breakdown</li>
-                  <li>Team assignments</li>
-                </ul>
-              </Grid>
-            </Grid>
-          </>
-        );
-
       case ProjectStatus.ACTIVE:
         return (
           <>
@@ -92,6 +76,13 @@ const StatusDetails: React.FC<StatusDetailsProps> = ({ project }) => {
                 <Typography variant="body1">
                   <strong>End Date:</strong> {new Date(project.timeframe.endDate).toLocaleDateString()}
                 </Typography>
+                {isClickUpSynced(project) && (
+                  <>
+                    <Typography variant="body1">
+                      <strong>ClickUp Status:</strong> {getDisplayStatus(project)}
+                    </Typography>
+                  </>
+                )}
               </Grid>
               <Grid item xs={12} md={6}>
                 <Typography variant="body1">
@@ -103,6 +94,16 @@ const StatusDetails: React.FC<StatusDetailsProps> = ({ project }) => {
                 <Typography variant="body2">
                   Actual: ${project.budget.actual}
                 </Typography>
+                {isClickUpSynced(project) && (
+                  <Box mt={1}>
+                    <Typography variant="body2">
+                      <strong>ClickUp Link:</strong>{' '}
+                      <a href={project.clickUp.url} target="_blank" rel="noopener noreferrer">
+                        View in ClickUp
+                      </a>
+                    </Typography>
+                  </Box>
+                )}
               </Grid>
             </Grid>
           </>

@@ -1,9 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Project, ProjectScope, Contractor, ProjectStatus } from '../../shared/types';
+import { LocalProject, CombinedProject, ProjectScope, Contractor, ProjectStatus } from '@shared/types';
+
+type ProjectType = LocalProject | CombinedProject;
 
 interface ProjectState {
-  projects: Project[];
-  currentProject: Project | null;
+  projects: ProjectType[];
+  currentProject: ProjectType | null;
   loading: boolean;
   error: string | null;
   filters: {
@@ -37,7 +39,7 @@ const projectSlice = createSlice({
       state.loading = true;
       state.error = null;
     },
-    fetchProjectsSuccess: (state, action: PayloadAction<Project[]>) => {
+    fetchProjectsSuccess: (state, action: PayloadAction<ProjectType[]>) => {
       state.loading = false;
       state.projects = action.payload;
     },
@@ -45,7 +47,7 @@ const projectSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    setCurrentProject: (state, action: PayloadAction<Project>) => {
+    setCurrentProject: (state, action: PayloadAction<ProjectType>) => {
       state.currentProject = action.payload;
     },
     clearCurrentProject: (state) => {

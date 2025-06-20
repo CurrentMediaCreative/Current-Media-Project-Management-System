@@ -1,3 +1,5 @@
+import { ProjectStatus, Contractor } from './index';
+
 export interface ClickUpTask {
   id: string;
   name: string;
@@ -54,19 +56,41 @@ export interface ClickUpStatus {
 }
 
 export interface MappedProject {
+  // Local project fields
   id: string;
-  name: string;
-  status: string;
-  statusColor: string;
+  title: string;
+  client: string;
+  status: ProjectStatus;
+  clickUpStatus?: string;  // Original ClickUp status string
+  timeframe: {
+    startDate: string;
+    endDate: string;
+  };
+  budget: {
+    estimated: number;
+    actual: number;
+  };
+  contractors: Contractor[];
+  metadata?: {
+    category?: string;
+    notes?: string;
+    [key: string]: any;
+  };
   createdAt: Date;
   updatedAt: Date;
-  clickUpUrl: string;
-  customFields: {
-    [key: string]: string | number | null;
+
+  // ClickUp specific fields
+  clickUp: {
+    id: string;
+    name: string;
+    status: ProjectStatus;
+    statusColor: string;
+    url: string;
+    customFields: {
+      [key: string]: string | number | null;
+    };
   };
 }
-
-import { ProjectStatus } from './index';
 
 // ClickUp field mapping constants
 export const CLICKUP_FIELD_MAPPING = {

@@ -23,14 +23,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
-
-// Field name constants to ensure type safety
-const FIELD_NAMES = {
-  CLIENT: 'Payee',
-  TASK_TYPE: 'Task Type',
-  INVOICE_STATUS: 'Project Payment',
-  INVOICE_NUMBER: 'INV NUM'
-} as const;
+import { CLICKUP_FIELD_NAMES } from '@shared/utils/projectHelpers';
 
 interface ProjectDetailsDialogProps {
   open: boolean;
@@ -126,10 +119,10 @@ export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
         <Box display="flex" alignItems="center" justifyContent="space-between">
           <Typography variant="h6">{taskDetails.name}</Typography>
           <Chip
-            label={taskDetails.status?.status || 'No Status'}
+            label={project.clickUpStatus || taskDetails.status?.status || 'No Status'}
             size="small"
             sx={{
-              backgroundColor: taskDetails.status?.color || 'grey',
+              backgroundColor: project.clickUp.statusColor || taskDetails.status?.color || 'grey',
               color: 'white'
             }}
           />
@@ -139,10 +132,10 @@ export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
       <DialogContent>
         <Box sx={{ mb: 3 }}>
           <Typography variant="subtitle2" color="text.secondary">Client</Typography>
-          <Typography>{project.customFields[FIELD_NAMES.CLIENT] || 'No Client'}</Typography>
+          <Typography>{project.client}</Typography>
           
           <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>Task Type</Typography>
-          <Typography>{project.customFields[FIELD_NAMES.TASK_TYPE] || 'Not Specified'}</Typography>
+          <Typography>{project.clickUp.customFields[CLICKUP_FIELD_NAMES.TASK_TYPE] || 'Not Specified'}</Typography>
           
           <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>Created</Typography>
           <Typography>
@@ -159,12 +152,12 @@ export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
           </Typography>
           
           <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>Invoice Status</Typography>
-          <Typography>{project.customFields[FIELD_NAMES.INVOICE_STATUS] || 'Not Set'}</Typography>
+          <Typography>{project.clickUp.customFields[CLICKUP_FIELD_NAMES.INVOICE_STATUS] || 'Not Set'}</Typography>
           
-          {project.customFields[FIELD_NAMES.INVOICE_NUMBER] && (
+          {project.clickUp.customFields[CLICKUP_FIELD_NAMES.INVOICE_NUMBER] && (
             <>
               <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>Invoice #</Typography>
-              <Typography>{project.customFields[FIELD_NAMES.INVOICE_NUMBER]}</Typography>
+              <Typography>{project.clickUp.customFields[CLICKUP_FIELD_NAMES.INVOICE_NUMBER]}</Typography>
             </>
           )}
         </Box>
@@ -224,7 +217,7 @@ export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
       <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
         <Button
           startIcon={<OpenInNewIcon />}
-          onClick={() => window.open(project.clickUpUrl, '_blank')}
+          onClick={() => window.open(project.clickUp.url, '_blank')}
         >
           View in ClickUp
         </Button>

@@ -1,9 +1,12 @@
 import React from 'react';
 import { Box, Typography, Paper, Stack, Divider } from '@mui/material';
-import { Project } from '../../../shared/types';
+import { LocalProject, CombinedProject } from '@shared/types';
+import { getDisplayStatus } from '@shared/utils/projectHelpers';
+
+type ProjectType = LocalProject | CombinedProject;
 
 interface TimelineProps {
-  project: Project;
+  project: ProjectType;
 }
 
 interface TimelineEvent {
@@ -72,7 +75,7 @@ const Timeline: React.FC<TimelineProps> = ({ project }) => {
       
       <Box sx={{ mb: 3 }}>
         <Typography variant="body2" gutterBottom>
-          <strong>Current Stage:</strong> {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+          <strong>Current Stage:</strong> {getDisplayStatus(project)}
         </Typography>
         <Typography variant="body2">
           <strong>Time in Stage:</strong> {calculateTimeInStage()}

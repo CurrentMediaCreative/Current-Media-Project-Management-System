@@ -1,10 +1,13 @@
 import { 
   ClickUpTask, 
-  MappedProject,
   ClickUpCustomField,
   ClickUpCustomFieldOption 
 } from '../types/clickup';
-import { ProjectStatus } from '../types';
+import { ProjectStatus, CombinedProject } from '@shared/types';
+import { CLICKUP_FIELD_NAMES } from '@shared/utils/projectHelpers';
+
+// Alias CombinedProject as MappedProject for backward compatibility
+type MappedProject = CombinedProject;
 
 export class ClickUpMappingService {
   static mapTaskToProject(task: ClickUpTask): MappedProject {
@@ -37,11 +40,6 @@ export class ClickUpMappingService {
       return ProjectStatus.ACTIVE;
     };
 
-    const rawStatus = task.status?.status || '';
-    console.log('Raw ClickUp status:', rawStatus);
-    const mappedStatus = mapStatus(rawStatus);
-    console.log('Mapped status:', mappedStatus);
-
     // Map all custom fields
     const customFields: { [key: string]: string | number | null } = {};
     if (task.custom_fields) {
@@ -53,15 +51,44 @@ export class ClickUpMappingService {
       });
     }
 
+    // Extract client name from custom fields
+    const clientName = customFields[CLICKUP_FIELD_NAMES.CLIENT] as string || 'No Client';
+
+    // Get status information
+    const rawStatus = task.status?.status || '';
+    const mappedStatus = mapStatus(rawStatus);
+    console.log('Raw ClickUp status:', rawStatus);
+    console.log('Mapped status:', mappedStatus);
+
+    // Create the combined project
     return {
       id: task.id || '',
-      name: task.name || '',
+      title: task.name || '',
+      client: clientName,
       status: mappedStatus,
-      statusColor: task.status?.color || '',
+      timeframe: {
+        startDate: new Date().toISOString(), // TODO: Map from ClickUp dates
+        endDate: new Date().toISOString()    // TODO: Map from ClickUp dates
+      },
+      budget: {
+        estimated: 0, // TODO: Map from ClickUp custom fields
+        actual: 0     // TODO: Map from ClickUp custom fields
+      },
+      contractors: [], // TODO: Map from ClickUp assignees
+      metadata: {
+        category: customFields[CLICKUP_FIELD_NAMES.TASK_TYPE] as string || undefined,
+        notes: ''
+      },
       createdAt: task.date_created ? new Date(parseInt(task.date_created)) : new Date(),
       updatedAt: task.date_updated ? new Date(parseInt(task.date_updated)) : new Date(),
-      clickUpUrl: task.url || '',
-      customFields
+      clickUp: {
+        id: task.id || '',
+        name: task.name || '',
+        status: rawStatus,  // Store original ClickUp status
+        statusColor: task.status?.color || '',
+        url: task.url || '',
+        customFields
+      }
     };
   }
 

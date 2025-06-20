@@ -16,7 +16,6 @@ export enum ContractorRole {
 export enum ProjectStatus {
   NEW_NOT_SENT = 'new_not_sent',
   NEW_SENT = 'new_sent',
-  PENDING_CLICKUP = 'pending_clickup',
   ACTIVE = 'active',
   COMPLETED = 'completed',
   ARCHIVED = 'archived',
@@ -105,22 +104,44 @@ export interface ProjectMetadata {
   [key: string]: any;
 }
 
-export interface Project {
+// Base project interface for locally created projects
+export interface ClickUpData {
+  id: string;
+  name: string;
+  status: string;  // Raw status from ClickUp
+  statusColor: string;
+  url: string;
+  customFields: {
+    [key: string]: string | number | null;
+  };
+}
+
+export function isClickUpSynced(project: LocalProject | CombinedProject): project is CombinedProject {
+  return 'clickUp' in project && 
+         project.clickUp !== undefined && 
+         typeof project.clickUp.id === 'string' &&
+         project.clickUp.id.length > 0;
+}
+
+export interface LocalProject {
   id: string;
   title: string;
+  client: string;
   status: ProjectStatus;
   timeframe: Timeframe;
   budget: Budget;
   contractors: Contractor[];
   scope?: ProjectScope;
   metadata?: ProjectMetadata;
-  createdAt: Date;
-  updatedAt: Date;
-  customFields?: {
-    [key: string]: string | number | null;
-  };
+  createdAt?: Date;
+  updatedAt?: Date;
+  clickUpId?: string;  // Reference to associated ClickUp task if synced
 }
 
+// Combined type that represents a project that exists both locally and in ClickUp
+export interface CombinedProject extends LocalProject {
+  clickUp: ClickUpData;
+}
 
 export interface ContractorRate {
   id: string;

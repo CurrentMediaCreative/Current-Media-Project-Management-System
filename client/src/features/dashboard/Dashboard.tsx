@@ -36,6 +36,7 @@ import { dashboardService } from '../../services/dashboardService';
 import { notificationService } from '../../services/notificationService';
 import { DashboardData, NotificationItem } from './types';
 import { MappedProject } from '@shared/types/clickup';
+import { ProjectStatus } from '@shared/types';
 import { getClientName } from '@shared/utils/projectHelpers';
 import ProjectDetailsDialog from '../projects/tracking/ProjectDetailsDialog';
 import { projectService } from '../../services/projectService';
@@ -85,7 +86,7 @@ const Dashboard: React.FC = () => {
     
     switch (action) {
       case 'view':
-        window.open(selectedProject.clickUpUrl, '_blank');
+        window.open(selectedProject.clickUp.url, '_blank');
         break;
       case 'edit':
         navigate(`/projects/edit/${selectedProject.id}`);
@@ -156,63 +157,83 @@ const Dashboard: React.FC = () => {
     setProjectInSystem(exists);
   };
 
-  const renderProjectCard = (project: MappedProject) => (
-    <Card 
-      key={project.id}
-      onClick={() => handleProjectClick(project)}
-      sx={{ 
-        mb: 2,
-        cursor: 'pointer',
-        '&:hover': {
-          boxShadow: 6,
-          transform: 'translateY(-2px)',
-          transition: 'all 0.2s ease-in-out'
-        }
-      }}
-    >
-      <CardContent>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6" component="div">
-            {getClientName(project)}
+  const renderProjectCard = (project: MappedProject) => {
+    // Map ClickUp status to our system status
+    const mapStatus = (status: string): ProjectStatus => {
+      const lowerStatus = status.toLowerCase();
+      if (['to do', 'media needed', 'in progress', 'revision'].includes(lowerStatus)) {
+        return ProjectStatus.ACTIVE;
+      }
+      if (lowerStatus === 'done') {
+        return ProjectStatus.COMPLETED;
+      }
+      return ProjectStatus.ACTIVE;
+    };
+
+    return (
+      <Card 
+        key={project.id}
+        onClick={() => handleProjectClick(project)}
+        sx={{ 
+          mb: 2,
+          cursor: 'pointer',
+          '&:hover': {
+            boxShadow: 6,
+            transform: 'translateY(-2px)',
+            transition: 'all 0.2s ease-in-out'
+          }
+        }}
+      >
+        <CardContent>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Typography variant="h6" component="div">
+              {getClientName(project)}
+            </Typography>
+            <IconButton 
+              size="small"
+              onClick={(e) => handleMenuOpen(e, project)}
+            >
+              <MoreVertIcon />
+            </IconButton>
+          </Box>
+          <Typography color="textSecondary" gutterBottom>
+            {project.title}
           </Typography>
-          <IconButton 
+          <Chip 
+            label={project.clickUpStatus || project.clickUp.status}
             size="small"
-            onClick={(e) => handleMenuOpen(e, project)}
+            sx={{ 
+              backgroundColor: project.clickUp.statusColor,
+              color: 'white',
+              mt: 1
+            }}
+          />
+        </CardContent>
+        <CardActions>
+          <Button
+            size="small"
+            startIcon={<OpenInNewIcon />}
+            onClick={(e) => {
+              e.stopPropagation();
+              window.open(project.clickUp.url, '_blank');
+            }}
           >
-            <MoreVertIcon />
-          </IconButton>
-        </Box>
-        <Typography color="textSecondary" gutterBottom>
-          {project.name}
-        </Typography>
-        <Chip 
-          label={project.status}
-          size="small"
-          sx={{ 
-            backgroundColor: project.statusColor,
-            color: 'white',
-            mt: 1
-          }}
-        />
-      </CardContent>
-      <CardActions>
-        <Button
-          size="small"
-          startIcon={<OpenInNewIcon />}
-          onClick={() => window.open(project.clickUpUrl, '_blank')}
-        >
-          View in ClickUp
-        </Button>
-        <Button
-          size="small"
-          startIcon={<EditIcon />}
-          onClick={() => navigate(`/projects/edit/${project.id}`)}
-        >
-          Edit
-        </Button>
-      </CardActions>
-    </Card>
-  );
+            View in ClickUp
+          </Button>
+          <Button
+            size="small"
+            startIcon={<EditIcon />}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/projects/edit/${project.id}`);
+            }}
+          >
+            Edit
+          </Button>
+        </CardActions>
+      </Card>
+    );
+  };
 
   const renderProjectSection = (title: string, projects: MappedProject[]) => (
     <Grid item xs={12} md={6}>

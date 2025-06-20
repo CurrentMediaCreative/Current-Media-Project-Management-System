@@ -88,15 +88,75 @@ Current Media's video production workflow currently faces several challenges:
 
 ### Core Workflow
 
-1. **Project Intake**
+1. **Project Status Flow**
+   - NEW_NOT_SENT
+     * Initial project creation in local system
+     * Complete Project Information Form
+     * Create Budget Document
+     * Create Production Overview document with potential shotlist
+     * If shoot date known: Create Google Calendar event with document links
+     * If no shoot date: Add to daily notifications
+   
+   - NEW_SENT
+     * System sends email to Jake with project info for ClickUp entry
+     * System sends emails to contractors with:
+       - Rate proposals
+       - Production Overview document
+       - Project assignment requests
+     * Track contractor responses and agreed rates
+     * When shoot date is added later: Create/update Google Calendar event
+   
+   - ACTIVE
+     * Triggered when ClickUp API finds matching project in Edit List
+     * Match based on exact project name
+     * Store ClickUp ID for reference
+     * Pull in all subtasks under the matched ClickUp list item
+     * Display ClickUp status colors in our Active state UI
+   
+   - COMPLETED
+     * Project marked as done in ClickUp
+     * Awaiting final payments/invoices
+     * Track invoice receipts and payments
+   
+   - ARCHIVED
+     * All contractor invoices paid
+     * Client has fully paid
+     * Project complete in all aspects
+
+2. **Project Intake**
    - Capture essential project information (Client, Budget, Scope, Timeframe)
    - System validates that all required information is provided
    - Generate project form to be sent to Jake for ClickUp entry
 
-2. **Project Setup**
+2. **Contractor Management**
+   - System sends legally binding agreement to contractors
+   - Agreement template dynamically populated with project details
+   - Contractor response workflow:
+     * Access agreement at currentmedia.ca/projectname/contractoragreement
+     * Confirm: Double confirmation required, acknowledging legal binding
+     * Decline: Optional reason field for rejection
+     * All responses stored with project records
+   - Track payout rate (sent to contractor) vs chargeout rate
+   - Store signed agreements with project
+
+3. **Project Setup**
    - Once Jake adds the project to ClickUp, system pulls project data
    - Automatically generate budget documents and project overview
    - Create project timeline with key milestones and deadlines
+   - Calendar Integration:
+     * Match project names in Google Calendar
+     * Auto-attach project documents to calendar events
+     * No strict naming convention required (flexible matching)
+
+4. **Invoice Management**
+   - Gmail API integration for invoice processing
+   - Auto-detect invoices in emails matching project names
+   - Store/link invoices in project-specific storage
+   - Track invoice status per contractor:
+     * "Invoice not Received" (no hyperlink)
+     * "Invoice Received" (hyperlink to invoice document)
+     * "Invoice Paid" (links to invoice + payment receipt)
+   - Clear visual status indicators in project view
 
 3. **Project Tracking**
    - Display current project status and upcoming deadlines

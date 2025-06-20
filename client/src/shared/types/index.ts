@@ -14,7 +14,7 @@ export interface ProjectMetadata {
   [key: string]: any;
 }
 
-export interface Project {
+export interface LocalProject {
   id: string;
   title: string;
   client: string;
@@ -29,6 +29,28 @@ export interface Project {
   };
   contractors: Contractor[];
   metadata?: ProjectMetadata;
+  createdAt?: Date;
+  updatedAt?: Date;
+  clickUpId?: string;  // Reference to associated ClickUp task if synced
+}
+
+// Combined type that represents a project that exists both locally and in ClickUp
+export interface CombinedProject extends LocalProject {
+  clickUp?: {
+    id: string;
+    name: string;
+    status: string;
+    statusColor: string;
+    url: string;
+    customFields: {
+      [key: string]: string | number | null;
+    };
+  };
+}
+
+// Type guard to check if a project has ClickUp data
+export function isClickUpSynced(project: LocalProject): project is CombinedProject {
+  return 'clickUp' in project && project.clickUp !== undefined;
 }
 
 export interface Deliverable {
@@ -53,7 +75,7 @@ export interface ProjectScope {
   additionalNotes?: string;
 }
 
-export interface ProjectFormData {
+export interface LocalProjectFormData {
   title: string;
   client: string;
   timeframe: {
@@ -107,7 +129,7 @@ export interface PaginatedResponse<T> {
 }
 
 // Filter and Sort Types
-export interface ProjectFilters {
+export interface LocalProjectFilters {
   status?: ProjectStatus;
   search?: string;
   startDate?: Date;
@@ -117,6 +139,6 @@ export interface ProjectFilters {
 }
 
 export interface ProjectSortOptions {
-  field: keyof Project;
+  field: keyof LocalProject;
   direction: 'asc' | 'desc';
 }

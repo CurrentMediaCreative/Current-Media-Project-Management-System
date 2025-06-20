@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Grid, Stepper, Step, StepLabel, CircularProgress } from '@mui/material';
-import { Project, ProjectStatus } from '../../../shared/types';
+import { LocalProject, CombinedProject, ProjectStatus, isClickUpSynced } from '@shared/types';
 import { projectService } from '../../../services/projectService';
 import StatusDetails from './StatusDetails';
 import ActionItems from './ActionItems';
@@ -11,14 +11,13 @@ interface ProjectTrackingProps {
 }
 
 const ProjectTracking: React.FC<ProjectTrackingProps> = ({ projectId }) => {
-  const [project, setProject] = useState<Project | null>(null);
+  const [project, setProject] = useState<LocalProject | CombinedProject | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const steps = [
     { label: 'New - Not Sent', value: ProjectStatus.NEW_NOT_SENT },
     { label: 'New - Sent', value: ProjectStatus.NEW_SENT },
-    { label: 'Pending ClickUp', value: ProjectStatus.PENDING_CLICKUP },
     { label: 'Active', value: ProjectStatus.ACTIVE },
     { label: 'Completed', value: ProjectStatus.COMPLETED },
     { label: 'Archived', value: ProjectStatus.ARCHIVED }
@@ -48,6 +47,12 @@ const ProjectTracking: React.FC<ProjectTrackingProps> = ({ projectId }) => {
     if (!project) return;
 
     try {
+      // If project is synced with ClickUp, we need to handle both local and ClickUp updates
+      if (isClickUpSynced(project)) {
+        // TODO: Add ClickUp status update logic here
+        console.log('Updating ClickUp status:', project.clickUp.id, newStatus);
+      }
+
       const updatedProject = await projectService.updateProject(project.id, { status: newStatus });
       setProject(updatedProject);
     } catch (err) {

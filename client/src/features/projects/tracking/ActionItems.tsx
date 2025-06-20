@@ -1,9 +1,11 @@
 import React from 'react';
 import { Box, Typography, Button, Stack, Paper } from '@mui/material';
-import { Project, ProjectStatus } from '../../../shared/types';
+import { LocalProject, CombinedProject, ProjectStatus } from '@shared/types';
+
+type ProjectType = LocalProject | CombinedProject;
 
 interface ActionItemsProps {
-  project: Project;
+  project: ProjectType;
   onUpdateStatus: (newStatus: ProjectStatus) => void;
 }
 
@@ -35,34 +37,15 @@ const ActionItems: React.FC<ActionItemsProps> = ({ project, onUpdateStatus }) =>
             <Button 
               variant="contained" 
               color="primary"
-              onClick={() => onUpdateStatus(ProjectStatus.PENDING_CLICKUP)}
-            >
-              Move to ClickUp Setup
-            </Button>
-            <Button 
-              variant="outlined"
-              onClick={() => {/* TODO: Open team confirmation dialog */}}
-            >
-              Check Team Status
-            </Button>
-          </Stack>
-        );
-
-      case ProjectStatus.PENDING_CLICKUP:
-        return (
-          <Stack spacing={2} direction="row">
-            <Button 
-              variant="contained" 
-              color="primary"
               onClick={() => onUpdateStatus(ProjectStatus.ACTIVE)}
             >
               Mark as Active
             </Button>
             <Button 
               variant="outlined"
-              onClick={() => {/* TODO: Open ClickUp entry form */}}
+              onClick={() => {/* TODO: Open team confirmation dialog */}}
             >
-              Create ClickUp Entry
+              Check Team Status
             </Button>
           </Stack>
         );
@@ -127,9 +110,7 @@ const ActionItems: React.FC<ActionItemsProps> = ({ project, onUpdateStatus }) =>
       case ProjectStatus.NEW_NOT_SENT:
         return 'Review project details and send to team for initial review';
       case ProjectStatus.NEW_SENT:
-        return 'Waiting for team confirmation before proceeding with ClickUp setup';
-      case ProjectStatus.PENDING_CLICKUP:
-        return 'Create ClickUp entry with project details and requirements';
+        return 'Waiting for team confirmation and ClickUp setup';
       case ProjectStatus.ACTIVE:
         return 'Track progress and update project status';
       case ProjectStatus.COMPLETED:
