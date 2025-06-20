@@ -1,11 +1,9 @@
 services:
-  # Combined frontend and backend service
+  # Backend API service
   - type: web
-    name: current-media-pms
-    env: node
-    buildCommand: |
-      cd client && npm install && npm run build && cd ..
-      cd server && npm install && npm run build
+    name: current-media-pms-api
+    runtime: node
+    buildCommand: cd server && npm install && npm run build
     startCommand: cd server && npm start
     envVars:
       - key: NODE_ENV
@@ -26,3 +24,17 @@ services:
       name: data
       mountPath: /data
       sizeGB: 1
+
+  # Frontend static site
+  - type: web
+    name: current-media-pms-client
+    runtime: static
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: ./client/dist
+    routes:
+      - type: rewrite
+        source: /pms/*
+        destination: /index.html
+      - type: rewrite
+        source: /api/*
+        destination: https://current-media-pms-api.onrender.com/api/:splat
