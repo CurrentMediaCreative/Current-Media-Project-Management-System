@@ -95,7 +95,7 @@ class ProjectService {
     }
   }
 
-  async checkProjectExists(clickUpId: string): Promise<boolean> {
+  async checkProjectExists(clickUpId: string, retryAttempt = 0): Promise<boolean> {
     try {
       if (!clickUpId) {
         throw new Error('ClickUp ID is required');
@@ -104,42 +104,54 @@ class ProjectService {
       const response = await api.get(`/projects/check/${clickUpId}`);
       return response.data.exists;
     } catch (error: any) {
-      // Handle specific error cases
-      if (error.response?.status === 401) {
-        console.error('Authentication failed during project check:', {
-          clickUpId,
-          status: error.response.status,
-          message: error.response.data?.message
-        });
-        throw new Error('Authentication failed. Please log in again.');
-      }
-
-      if (error.response?.status === 404) {
-        console.warn(`No project found with ClickUp ID: ${clickUpId}`);
-        return false;
-      }
-
-      if (error.response?.status === 503) {
-        console.error('Storage service unavailable:', {
-          clickUpId,
-          status: error.response.status,
-          code: error.response.data?.code,
-          message: error.response.data?.message
-        });
-        throw new Error('Service temporarily unavailable. Please try again later.');
-      }
-
       // Log detailed error information
       console.error('Project check failed:', {
         clickUpId,
         status: error.response?.status,
         code: error.response?.data?.code,
         message: error.message,
-        requestId: error.response?.data?.requestId
+        requestId: error.response?.data?.requestId,
+        attempt: retryAttempt + 1
       });
 
-      // Throw error with specific message if available
-      throw new Error(error.response?.data?.message || 'Failed to check project existence');
+      // Handle specific error cases
+      if (error.response?.status === 400) {
+        throw new Error('Invalid ClickUp ID provided');
+      }
+
+      if (error.response?.status === 401) {
+        throw new Error('Authentication failed. Please log in again.');
+      }
+
+      if (error.response?.status === 404) {
+        return false;
+      }
+
+      // Handle service unavailability with retry logic
+      if (error.response?.status === 503) {
+        const retryAfter = error.response.data?.retryAfter || 5;
+        const maxRetries = 3;
+
+        if (retryAttempt < maxRetries) {
+          // Wait for the suggested retry time
+          await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+          // Retry the request
+          return this.checkProjectExists(clickUpId, retryAttempt + 1);
+        }
+
+        throw new Error('Service is temporarily unavailable. Please try again later.');
+      }
+
+      // Handle data integrity errors
+      if (error.response?.data?.code === 'DATA_INTEGRITY_ERROR') {
+        throw new Error('Unable to verify project due to data integrity issues. Please contact support.');
+      }
+
+      // For any other errors, include request ID in error message if available
+      const requestId = error.response?.data?.requestId;
+      throw new Error(
+        `Failed to check project existence. ${requestId ? `Reference ID: ${requestId}` : ''}`
+      );
     }
   }
 

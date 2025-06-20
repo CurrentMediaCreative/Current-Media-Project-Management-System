@@ -6,6 +6,10 @@ interface Project {
   title: string;
   description: string;
   status: string;
+  clickUpId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  progress?: Record<string, any>;
   [key: string]: any;
 }
 
@@ -162,36 +166,70 @@ export const deleteProject = async (req: Request, res: Response) => {
 export const checkProjectExists = async (req: Request, res: Response) => {
   const startTime = Date.now();
   const { clickUpId } = req.params;
+  const requestId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+  // Validate clickUpId parameter
+  if (!clickUpId || typeof clickUpId !== 'string') {
+    return res.status(400).json({
+      message: 'Invalid ClickUp ID provided',
+      code: 'INVALID_PARAMETER',
+      requestId
+    });
+  }
 
   try {
     // Log request details
     console.info('Checking project existence:', {
       clickUpId,
       userId: (req as any).user?.id,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      requestId
     });
 
-    const projects = await storage.read<Project[]>('projects.json');
-    
-    // Validate projects data
+    let projects: Project[] = [];
+    let retryCount = 0;
+    const maxRetries = 3;
+
+    // Retry logic for storage read operations
+    while (retryCount < maxRetries) {
+      try {
+        projects = await storage.read<Project[]>('projects.json');
+        break;
+      } catch (storageError: any) {
+        retryCount++;
+        if (retryCount === maxRetries) {
+          throw new Error(`Storage read failed after ${maxRetries} attempts: ${storageError.message}`);
+        }
+        // Exponential backoff
+        await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 100));
+      }
+    }
+
+    // Validate projects data structure
     if (!Array.isArray(projects)) {
       throw new Error('Invalid projects data structure');
     }
 
-    const exists = projects.some(project => project.clickUpId === clickUpId);
-    
+    // Type-safe check for clickUpId
+    const exists = projects.some(project => 
+      project.clickUpId && 
+      typeof project.clickUpId === 'string' && 
+      project.clickUpId === clickUpId
+    );
+
     // Log success response
     const duration = Date.now() - startTime;
     console.info('Project check completed:', {
       clickUpId,
       exists,
-      duration: `${duration}ms`
+      duration: `${duration}ms`,
+      requestId
     });
 
     res.json({
       exists,
       checked: new Date().toISOString(),
-      requestId: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      requestId
     });
   } catch (error: any) {
     // Log detailed error information
@@ -201,22 +239,32 @@ export const checkProjectExists = async (req: Request, res: Response) => {
       error: error.message,
       stack: error.stack,
       duration: `${duration}ms`,
-      userId: (req as any).user?.id
+      userId: (req as any).user?.id,
+      requestId
     });
 
-    // Send appropriate error response
-    if (error.message.includes('not found') || error.message.includes('Invalid data')) {
+    // Determine appropriate error response
+    if (error.message.includes('Storage read failed')) {
       return res.status(503).json({
         message: 'Service temporarily unavailable',
         code: 'STORAGE_ERROR',
-        requestId: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        requestId,
+        retryAfter: 5 // Suggest retry after 5 seconds
+      });
+    }
+
+    if (error.message.includes('Invalid projects data')) {
+      return res.status(500).json({
+        message: 'Data integrity error',
+        code: 'DATA_INTEGRITY_ERROR',
+        requestId
       });
     }
 
     res.status(500).json({
       message: 'Failed to check project existence',
       code: 'PROJECT_CHECK_ERROR',
-      requestId: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      requestId
     });
   }
 };
