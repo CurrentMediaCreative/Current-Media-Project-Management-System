@@ -9,7 +9,7 @@ interface LoginFlowProps {
   redirectTo?: string;
 }
 
-const LoginFlow: React.FC<LoginFlowProps> = ({ onLogin, redirectTo = '/' }) => {
+const LoginFlow: React.FC<LoginFlowProps> = ({ onLogin, redirectTo = '/pms/' }) => {
   const navigate = useNavigate();
 
   const handleLogin = async (user: User) => {

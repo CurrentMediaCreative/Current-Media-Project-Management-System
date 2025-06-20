@@ -63,11 +63,11 @@ const clientPath = path.join(__dirname, '../../../client/dist');
 const landingPath = path.join(__dirname, '../../../landing');
 
 if (process.env.NODE_ENV === 'production') {
-  // Serve landing page at root
-  app.use('/', express.static(landingPath));
-  
-  // Serve PMS app at /pms
+  // Serve PMS app at /pms first to ensure its routes take precedence
   app.use('/pms', express.static(clientPath));
+  
+  // Then serve landing page at root for all other routes
+  app.use('/', express.static(landingPath));
 }
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
@@ -111,14 +111,21 @@ app.use('/pms/api', apiRouter);
 
 // Serve appropriate files for client-side routing in production
 if (process.env.NODE_ENV === 'production') {
-  // Serve landing/index.html for root path
-  app.get('/', (req, res) => {
-    res.sendFile(path.join(landingPath, 'index.html'));
-  });
-
   // Serve client/index.html for all /pms routes to support client-side routing
   app.get('/pms/*', (req, res) => {
     res.sendFile(path.join(clientPath, 'index.html'));
+  });
+
+  // Serve landing/index.html for root path and non-pms routes
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(landingPath, 'index.html'));
+  });
+  app.get('/*', (req, res, next) => {
+    if (!req.path.startsWith('/pms/')) {
+      res.sendFile(path.join(landingPath, 'index.html'));
+    } else {
+      next();
+    }
   });
 }
 
