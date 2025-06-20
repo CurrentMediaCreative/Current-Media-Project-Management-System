@@ -64,7 +64,6 @@ services:
     runtime: static
     buildCommand: cd client && npm install && npm run build
     staticPublishPath: ./client/dist
-    plan: standard
     domains:
       - currentmedia.ca
       - www.currentmedia.ca
