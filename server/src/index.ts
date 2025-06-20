@@ -62,15 +62,24 @@ app.use(express.json());
 const clientPath = path.join(__dirname, '../../../client/dist');
 const landingPath = path.join(__dirname, '../../../landing');
 
-if (process.env.NODE_ENV === 'production') {
-  // Serve PMS app at /pms first to ensure its routes take precedence
-  app.use('/pms', express.static(clientPath));
-  
-  // Then serve landing page at root for all other routes
-  app.use('/', express.static(landingPath));
-}
-
+// Serve uploads
 app.use('/pms/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// In production, configure static file serving
+if (process.env.NODE_ENV === 'production') {
+  // First serve the React app's static files
+  app.use('/pms', express.static(clientPath, {
+    setHeaders: (res, path) => {
+      // Ensure correct MIME types for JavaScript files
+      if (path.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript');
+      }
+    }
+  }));
+  
+  // Then serve the landing page's static files
+  app.use(express.static(landingPath));
+}
 
 // Initialize storage
 const initializeStorage = async () => {
@@ -109,16 +118,14 @@ apiRouter.use('/documents', documentRoutes);
 // Mount API routes under /api
 app.use('/api', apiRouter);
 
-// Serve appropriate files for client-side routing in production
+// Handle client-side routing in production
 if (process.env.NODE_ENV === 'production') {
-  // Serve client/index.html for all /pms routes to support client-side routing
-  app.use('/pms', express.static(clientPath));
+  // Handle React app routes
   app.get('/pms/*', (req, res) => {
     res.sendFile(path.join(clientPath, 'index.html'));
   });
 
-  // Serve landing/index.html for root path and non-pms routes
-  app.use('/', express.static(landingPath));
+  // Handle landing page routes
   app.get('/*', (req, res, next) => {
     if (req.path.startsWith('/api/') || req.path.startsWith('/pms/')) {
       next();
