@@ -1,4 +1,29 @@
 services:
+  # Frontend static site (primary service with domain)
+  - type: web
+    name: current-media-pms-client
+    runtime: static
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: ./client/dist
+    envVars:
+      - key: VITE_API_URL
+        value: /api
+      - key: VITE_APP_URL
+        value: /pms
+    routes:
+      # Serve React app at /pms
+      - type: rewrite
+        source: /pms/*
+        destination: /index.html
+      # Proxy API requests to backend service
+      - type: rewrite
+        source: /api/*
+        destination: /api/:splat
+      # Serve landing page at root
+      - type: rewrite
+        source: /*
+        destination: /landing/index.html
+
   # Backend API service
   - type: web
     name: current-media-pms-api
@@ -8,8 +33,6 @@ services:
     plan: standard
     numInstances: 1
     region: ohio
-    domains:
-      - api.currentmedia.ca
     envVars:
       # Server Config
       - key: NODE_ENV
@@ -21,7 +44,7 @@ services:
         sync: false
       - key: ADMIN_PASSWORD
         sync: false
-      # Email Config
+      # Email Config  
       - key: SMTP_HOST
         sync: false
       - key: SMTP_PORT
@@ -44,12 +67,6 @@ services:
         sync: false
       - key: CLICKUP_WORKSPACE_ID
         sync: false
-      - key: CLICKUP_CLIENT_ID
-        sync: false
-      - key: CLICKUP_CLIENT_SECRET
-        sync: false
-      - key: CLICKUP_REDIRECT_URL
-        sync: false
       # Storage Config
       - key: STORAGE_PATH
         value: /data
@@ -57,25 +74,3 @@ services:
       name: data
       mountPath: /data
       sizeGB: 1
-
-  # Frontend static site
-  - type: web
-    name: current-media-pms-client
-    runtime: static
-    buildCommand: cd client && npm install && npm run build
-    staticPublishPath: ./client/dist
-    domains:
-      - currentmedia.ca
-      - www.currentmedia.ca
-    envVars:
-      - key: VITE_API_URL
-        value: /api
-      - key: VITE_APP_URL
-        value: /pms
-    routes:
-      - type: rewrite
-        source: /pms/*
-        destination: /index.html
-      - type: rewrite
-        source: /api/*
-        destination: https://current-media-pms-api.onrender.com/api/:splat
