@@ -1,4 +1,4 @@
-import { MappedProject } from '@shared/types/clickup';
+import { ProjectPageData } from '../../types/project';
 
 export type NotificationType = 
   | 'CONTRACTOR_CONFIRMATION'
@@ -31,10 +31,10 @@ export interface ProjectStatusCount {
 }
 
 export interface ProjectsByStatus {
-  newProjects: MappedProject[];
-  activeProjects: MappedProject[];
-  postProduction: MappedProject[];
-  archived: MappedProject[];
+  newProjects: ProjectPageData[];
+  activeProjects: ProjectPageData[];
+  postProduction: ProjectPageData[];
+  archived: ProjectPageData[];
 }
 
 export interface DashboardData {

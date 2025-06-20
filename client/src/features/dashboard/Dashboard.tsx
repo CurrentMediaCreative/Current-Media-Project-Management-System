@@ -35,9 +35,8 @@ import { useNavigate } from 'react-router-dom';
 import { dashboardService } from '../../services/dashboardService';
 import { notificationService } from '../../services/notificationService';
 import { DashboardData, NotificationItem } from './types';
-import { MappedProject } from '@shared/types/clickup';
-import { ProjectStatus } from '@shared/types';
-import { getClientName } from '@shared/utils/projectHelpers';
+import { ProjectPageData, ProjectStatus } from '../../types/project';
+import { getClientName } from '../../utils/projectHelpers';
 import ProjectDetailsDialog from '../projects/tracking/ProjectDetailsDialog';
 import { projectService } from '../../services/projectService';
 
@@ -47,7 +46,7 @@ const Dashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedProject, setSelectedProject] = useState<MappedProject | null>(null);
+  const [selectedProject, setSelectedProject] = useState<ProjectPageData | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [projectInSystem, setProjectInSystem] = useState(false);
 
@@ -69,7 +68,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, project: MappedProject) => {
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, project: ProjectPageData) => {
     event.stopPropagation();
     setSelectedProject(project);
     setMenuAnchorEl(event.currentTarget);
@@ -82,14 +81,16 @@ const Dashboard: React.FC = () => {
   };
 
   const handleProjectAction = (action: string) => {
-    if (!selectedProject) return;
+    if (!selectedProject?.clickUp) return;
     
     switch (action) {
       case 'view':
         window.open(selectedProject.clickUp.url, '_blank');
         break;
       case 'edit':
-        navigate(`/projects/edit/${selectedProject.id}`);
+        if (selectedProject.local?.id) {
+          navigate(`/projects/edit/${selectedProject.local.id}`);
+        }
         break;
       case 'details':
         setDetailsDialogOpen(true);
@@ -150,14 +151,16 @@ const Dashboard: React.FC = () => {
     return null;
   }
 
-  const handleProjectClick = async (project: MappedProject) => {
+  const handleProjectClick = async (project: ProjectPageData) => {
     setSelectedProject(project);
     setDetailsDialogOpen(true);
-    const exists = await projectService.checkProjectExists(project.id);
-    setProjectInSystem(exists);
+    if (project.clickUp?.id) {
+      const exists = await projectService.checkProjectExists(project.clickUp.id);
+      setProjectInSystem(exists);
+    }
   };
 
-  const renderProjectCard = (project: MappedProject) => {
+  const renderProjectCard = (project: ProjectPageData) => {
     // Map ClickUp status to our system status
     const mapStatus = (status: string): ProjectStatus => {
       const lowerStatus = status.toLowerCase();
@@ -170,9 +173,12 @@ const Dashboard: React.FC = () => {
       return ProjectStatus.ACTIVE;
     };
 
+    const projectId = project.local?.id || project.clickUp?.id;
+    if (!projectId) return null;
+
     return (
       <Card 
-        key={project.id}
+        key={projectId}
         onClick={() => handleProjectClick(project)}
         sx={{ 
           mb: 2,
@@ -197,45 +203,51 @@ const Dashboard: React.FC = () => {
             </IconButton>
           </Box>
           <Typography color="textSecondary" gutterBottom>
-            {project.title}
+            {project.local?.title || project.clickUp?.name || 'Untitled Project'}
           </Typography>
-          <Chip 
-            label={project.clickUpStatus || project.clickUp.status}
-            size="small"
-            sx={{ 
-              backgroundColor: project.clickUp.statusColor,
-              color: 'white',
-              mt: 1
-            }}
-          />
+          {project.clickUp && (
+            <Chip 
+              label={project.clickUp.status}
+              size="small"
+              sx={{ 
+                backgroundColor: project.clickUp.statusColor || '#666',
+                color: 'white',
+                mt: 1
+              }}
+            />
+          )}
         </CardContent>
         <CardActions>
-          <Button
-            size="small"
-            startIcon={<OpenInNewIcon />}
-            onClick={(e) => {
-              e.stopPropagation();
-              window.open(project.clickUp.url, '_blank');
-            }}
-          >
-            View in ClickUp
-          </Button>
-          <Button
-            size="small"
-            startIcon={<EditIcon />}
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/projects/edit/${project.id}`);
-            }}
-          >
-            Edit
-          </Button>
+          {project.clickUp?.url && (
+            <Button
+              size="small"
+              startIcon={<OpenInNewIcon />}
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(project.clickUp!.url, '_blank');
+              }}
+            >
+              View in ClickUp
+            </Button>
+          )}
+          {project.local?.id && (
+            <Button
+              size="small"
+              startIcon={<EditIcon />}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/projects/edit/${project.local!.id}`);
+              }}
+            >
+              Edit
+            </Button>
+          )}
         </CardActions>
       </Card>
     );
   };
 
-  const renderProjectSection = (title: string, projects: MappedProject[]) => (
+  const renderProjectSection = (title: string, projects: ProjectPageData[]) => (
     <Grid item xs={12} md={6}>
       <Paper sx={{ p: 2, height: '100%' }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
