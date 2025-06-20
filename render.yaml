@@ -1,0 +1,42 @@
+services:
+  # Backend API service
+  - type: web
+    name: current-media-pms-api
+    env: node
+    buildCommand: cd server && npm install && npm run build
+    startCommand: cd server && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: CLICKUP_API_KEY
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: STORAGE_PATH
+        value: /data
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1
+
+  # Frontend static site
+  - type: static
+    name: current-media-pms-client
+    buildCommand: cd client && npm install && npm run build
+    publishPath: client/dist
+    envVars:
+      - key: VITE_API_URL
+        value: /api
+    routes:
+      - type: rewrite
+        source: /pms/*
+        destination: /index.html
+      - type: rewrite
+        source: /api/*
+        destination: https://current-media-pms-api.onrender.com/api/:splat
