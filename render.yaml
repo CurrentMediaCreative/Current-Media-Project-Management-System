@@ -5,7 +5,7 @@ services:
     runtime: node
     buildCommand: cd server && npm install && npm run build
     startCommand: cd server && npm start
-    plan: starter
+    plan: standard
     numInstances: 1
     region: ohio
     domains:
@@ -64,7 +64,7 @@ services:
     runtime: static
     buildCommand: cd client && npm install && npm run build
     staticPublishPath: ./client/dist
-    plan: starter
+    plan: standard
     domains:
       - currentmedia.ca
       - www.currentmedia.ca
