@@ -3,7 +3,7 @@ services:
   - type: web
     name: current-media-pms-client
     runtime: static
-    buildCommand: cd client && npm install && npm run build
+    buildCommand: cd client && npm install --node-version=18 && npm run build
     staticPublishPath: ./client/dist
     envVars:
       - key: VITE_API_URL
@@ -28,7 +28,7 @@ services:
   - type: web
     name: current-media-pms-api
     runtime: node
-    buildCommand: cd server && npm install && npm run build
+    buildCommand: cd server && npm install --node-version=18 && npm run build
     startCommand: cd server && npm start
     plan: standard
     numInstances: 1
