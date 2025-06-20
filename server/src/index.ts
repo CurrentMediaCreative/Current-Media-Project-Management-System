@@ -59,25 +59,10 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(express.json());
 
 // Serve static files
-const clientPath = path.join(__dirname, '../../../client/dist');
 const landingPath = path.join(__dirname, '../../../landing');
 
-// Serve uploads
-app.use('/pms/uploads', express.static(path.join(__dirname, '../uploads')));
-
-// In production, configure static file serving
+// In production, serve landing page files
 if (process.env.NODE_ENV === 'production') {
-  // First serve the React app's static files
-  app.use('/pms', express.static(clientPath, {
-    setHeaders: (res, path) => {
-      // Ensure correct MIME types for JavaScript files
-      if (path.endsWith('.js')) {
-        res.setHeader('Content-Type', 'application/javascript');
-      }
-    }
-  }));
-  
-  // Then serve the landing page's static files
   app.use(express.static(landingPath));
 }
 
@@ -118,16 +103,10 @@ apiRouter.use('/documents', documentRoutes);
 // Mount API routes under /api
 app.use('/api', apiRouter);
 
-// Handle client-side routing in production
+// Handle landing page routing in production
 if (process.env.NODE_ENV === 'production') {
-  // Handle React app routes
-  app.get('/pms/*', (req, res) => {
-    res.sendFile(path.join(clientPath, 'index.html'));
-  });
-
-  // Handle landing page routes
   app.get('/*', (req, res, next) => {
-    if (req.path.startsWith('/api/') || req.path.startsWith('/pms/')) {
+    if (req.path.startsWith('/api/')) {
       next();
     } else {
       res.sendFile(path.join(landingPath, 'index.html'));
