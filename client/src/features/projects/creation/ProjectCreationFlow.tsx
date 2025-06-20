@@ -13,14 +13,12 @@ import {
 import { projectService } from '../../../services/projectService';
 import { 
   ProjectScope,
-  ProjectStatus
-} from '@shared/types';
-import {
+  ProjectStatus,
   ProjectFormData,
   BudgetScenario,
   ContractorAssignment,
   ProjectCreationStep
-} from './types';
+} from '../../../types';
 import {
   InitialProjectInfo,
   ScopeDefinition,
@@ -154,10 +152,18 @@ const ProjectCreationFlow: React.FC = () => {
           title: formData.title,
           client: formData.client,
           timeframe: formData.timeframe,
-          budget: formData.budget,
+          budget: {
+            estimated: formData.budget.estimated,
+            actual: formData.budget.actual,
+            profitTarget: formData.budget.profitTarget,
+            contingencyPercentage: formData.budget.contingencyPercentage
+          },
           contractors: formData.contractors,
           scope: formData.scope,
-          status: ProjectStatus.NEW_NOT_SENT
+          status: ProjectStatus.NEW_NOT_SENT,
+          metadata: {
+            selectedScenario: formData.selectedScenario
+          }
         };
         const newProject = await projectService.createProject(projectData);
         localStorage.removeItem(STORAGE_KEY);

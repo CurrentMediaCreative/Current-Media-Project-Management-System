@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Grid, Stepper, Step, StepLabel, CircularProgress } from '@mui/material';
-import { LocalProject, CombinedProject, ProjectStatus } from '@shared/types';
-import { isClickUpSynced } from '@shared/utils/projectHelpers';
+import { ProjectPageData, ProjectStatus, LocalProject, hasClickUpData } from '../../../types';
 import { projectService } from '../../../services/projectService';
 import StatusDetails from './StatusDetails';
 import ActionItems from './ActionItems';
@@ -12,7 +11,7 @@ interface ProjectTrackingProps {
 }
 
 const ProjectTracking: React.FC<ProjectTrackingProps> = ({ projectId }) => {
-  const [project, setProject] = useState<LocalProject | CombinedProject | null>(null);
+  const [project, setProject] = useState<ProjectPageData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,13 +47,20 @@ const ProjectTracking: React.FC<ProjectTrackingProps> = ({ projectId }) => {
     if (!project) return;
 
     try {
+      if (!project.local) return;
+
       // If project is synced with ClickUp, we need to handle both local and ClickUp updates
-      if (isClickUpSynced(project)) {
+      if (hasClickUpData(project)) {
         // TODO: Add ClickUp status update logic here
-        console.log('Updating ClickUp status:', project.clickUp.id, newStatus);
+        console.log('Updating ClickUp status:', project.clickUp?.id, newStatus);
       }
 
-      const updatedProject = await projectService.updateProject(project.id, { status: newStatus });
+      const updatedProject = await projectService.updateProject(project.local.id, { 
+        local: {
+          ...project.local,
+          status: newStatus
+        }
+      });
       setProject(updatedProject);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update status');
@@ -85,7 +91,7 @@ const ProjectTracking: React.FC<ProjectTrackingProps> = ({ projectId }) => {
     );
   }
 
-  const activeStep = steps.findIndex(step => step.value === project.status);
+  const activeStep = steps.findIndex(step => project.local ? step.value === project.local.status : 0);
 
   return (
     <Box>

@@ -14,10 +14,9 @@ import {
   Typography,
   Grid
 } from '@mui/material';
-import { LocalProject, CombinedProject } from '@shared/types';
-import { getClientName } from '@shared/utils/projectHelpers';
+import { ProjectPageData } from '../../../types';
 
-type ProjectType = LocalProject | CombinedProject;
+type ProjectType = ProjectPageData;
 
 interface SortDialogProps {
   open: boolean;
@@ -32,17 +31,20 @@ const SortDialog: React.FC<SortDialogProps> = ({
   project,
   onUpdateProject
 }) => {
-  const [category, setCategory] = useState(project.metadata?.category || '');
-  const [notes, setNotes] = useState(project.metadata?.notes || '');
+  const [category, setCategory] = useState(project.local?.metadata?.category || '');
+  const [notes, setNotes] = useState(project.local?.metadata?.notes || '');
 
   const handleSubmit = () => {
+    if (!project.local) return;
     onUpdateProject({
-      ...project,
-      metadata: {
-        ...project.metadata,
-        category,
-        notes,
-      },
+      local: {
+        ...project.local,
+        metadata: {
+          ...project.local.metadata,
+          category,
+          notes,
+        },
+      }
     });
     onClose();
   };
@@ -58,10 +60,10 @@ const SortDialog: React.FC<SortDialogProps> = ({
                 Project Details
               </Typography>
               <Typography variant="body2">
-                <strong>Client:</strong> {getClientName(project)}
+                <strong>Client:</strong> {project.local?.client || 'Unknown'}
               </Typography>
               <Typography variant="body2">
-                <strong>Title:</strong> {project.title}
+                <strong>Title:</strong> {project.local?.title || project.clickUp?.name || 'Untitled'}
               </Typography>
             </Grid>
 

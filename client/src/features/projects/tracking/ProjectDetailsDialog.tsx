@@ -17,19 +17,18 @@ import {
   Alert
 } from '@mui/material';
 import { format } from 'date-fns';
-import { MappedProject, ClickUpTask } from '@shared/types/clickup';
+import { ProjectPageData, ClickUpTask, CLICKUP_FIELD_NAMES } from '../../../types';
 import ProjectDocuments from './ProjectDocuments';
-import { clickupService } from '@/services/clickupService';
+import { clickupService } from '../../../services/clickupService';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
-import { CLICKUP_FIELD_NAMES } from '@shared/utils/projectHelpers';
 
 interface ProjectDetailsDialogProps {
   open: boolean;
   onClose: () => void;
-  project: MappedProject;
+  project: ProjectPageData;
   isInSystem?: boolean;
 }
 
@@ -54,9 +53,11 @@ export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
         setError(null);
         
         // Load task details and subtasks
+        if (!project.clickUp?.id) throw new Error('No ClickUp ID found');
+        
         const [taskData, subTasksData] = await Promise.all([
-          clickupService.getTask(project.id),
-          clickupService.getSubTasks(project.id)
+          clickupService.getTask(project.clickUp.id),
+          clickupService.getSubTasks(project.clickUp.id)
         ]);
         
         setTaskDetails(taskData);
@@ -70,20 +71,23 @@ export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
     };
 
     loadTaskDetails();
-  }, [open, project.id]);
+  }, [open, project.clickUp?.id, project.local?.id]);
 
   const handleEditProject = () => {
-    navigate(`/projects/edit/${project.id}`);
+    if (!project.local?.id) return;
+    navigate(`/projects/${project.local.id}/edit`);
     onClose();
   };
 
   const handleImportProject = () => {
-    navigate(`/projects/import/${project.id}`);
+    if (!project.clickUp?.id) return;
+    navigate(`/projects/${project.clickUp.id}/import`);
     onClose();
   };
 
   const handleCreateDocument = (type: 'overview' | 'budget') => {
-    navigate(`/projects/create-document/${project.id}/${type}`);
+    if (!project.clickUp?.id) return;
+    navigate(`/projects/${project.clickUp.id}/documents/create/${type}`);
     onClose();
   };
 
@@ -118,25 +122,27 @@ export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>
         <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Typography variant="h6">{taskDetails.name}</Typography>
-          <Chip
-            label={project.clickUpStatus || taskDetails.status?.status || 'No Status'}
-            size="small"
-            sx={{
-              backgroundColor: project.clickUp.statusColor || taskDetails.status?.color || 'grey',
-              color: 'white'
-            }}
-          />
+          <Typography variant="h6">{project.local?.title || taskDetails.name}</Typography>
+          {project.clickUp && (
+            <Chip
+              label={project.clickUp.status || taskDetails.status?.status || 'No Status'}
+              size="small"
+              sx={{
+                backgroundColor: project.clickUp.statusColor || taskDetails.status?.color || 'grey',
+                color: 'white'
+              }}
+            />
+          )}
         </Box>
       </DialogTitle>
       
       <DialogContent>
         <Box sx={{ mb: 3 }}>
           <Typography variant="subtitle2" color="text.secondary">Client</Typography>
-          <Typography>{project.client}</Typography>
+          <Typography>{project.local?.client || 'Unknown'}</Typography>
           
           <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>Task Type</Typography>
-          <Typography>{project.clickUp.customFields[CLICKUP_FIELD_NAMES.TASK_TYPE] || 'Not Specified'}</Typography>
+          <Typography>{project.clickUp?.customFields[CLICKUP_FIELD_NAMES.TASK_TYPE] || 'Not Specified'}</Typography>
           
           <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>Created</Typography>
           <Typography>
@@ -153,12 +159,12 @@ export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
           </Typography>
           
           <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>Invoice Status</Typography>
-          <Typography>{project.clickUp.customFields[CLICKUP_FIELD_NAMES.INVOICE_STATUS] || 'Not Set'}</Typography>
+          <Typography>{project.clickUp?.customFields[CLICKUP_FIELD_NAMES.INVOICE_STATUS] || 'Not Set'}</Typography>
           
-          {project.clickUp.customFields[CLICKUP_FIELD_NAMES.INVOICE_NUMBER] && (
+          {project.clickUp?.customFields[CLICKUP_FIELD_NAMES.INVOICE_NUMBER] && (
             <>
               <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>Invoice #</Typography>
-              <Typography>{project.clickUp.customFields[CLICKUP_FIELD_NAMES.INVOICE_NUMBER]}</Typography>
+              <Typography>{project.clickUp?.customFields[CLICKUP_FIELD_NAMES.INVOICE_NUMBER]}</Typography>
             </>
           )}
         </Box>
@@ -196,7 +202,7 @@ export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
         {isInSystem && (
           <>
             <Divider sx={{ my: 2 }} />
-            <ProjectDocuments projectId={project.id} />
+            <ProjectDocuments projectId={project.local?.id || project.clickUp?.id || ''} />
           </>
         )}
       </DialogContent>
@@ -204,7 +210,8 @@ export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
       <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
         <Button
           startIcon={<OpenInNewIcon />}
-          onClick={() => window.open(project.clickUp.url, '_blank')}
+          onClick={() => project.clickUp?.url && window.open(project.clickUp.url, '_blank')}
+          disabled={!project.clickUp?.url}
         >
           View in ClickUp
         </Button>

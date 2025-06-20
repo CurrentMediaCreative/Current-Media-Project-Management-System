@@ -1,9 +1,8 @@
 import React from 'react';
 import { Box, Typography, Paper, Stack, Divider } from '@mui/material';
-import { LocalProject, CombinedProject } from '@shared/types';
-import { getDisplayStatus } from '@shared/utils/projectHelpers';
+import { ProjectPageData, hasClickUpData } from '../../../types';
 
-type ProjectType = LocalProject | CombinedProject;
+type ProjectType = ProjectPageData;
 
 interface TimelineProps {
   project: ProjectType;
@@ -20,19 +19,19 @@ const Timeline: React.FC<TimelineProps> = ({ project }) => {
   // In a real implementation, these would come from the backend
   const mockEvents: TimelineEvent[] = [
     {
-      date: project.timeframe.startDate,
+      date: project.local?.timeframe.startDate || new Date().toISOString(),
       title: 'Project Created',
       description: 'Initial project details submitted',
       type: 'status'
     },
     {
-      date: project.timeframe.startDate,
+      date: project.local?.timeframe.startDate || new Date().toISOString(),
       title: 'Pre-Production Start',
       description: 'Begin pre-production phase',
       type: 'milestone'
     },
     {
-      date: project.timeframe.endDate,
+      date: project.local?.timeframe.endDate || new Date().toISOString(),
       title: 'Delivery Deadline',
       description: 'Final deliverables due',
       type: 'deadline'
@@ -62,7 +61,8 @@ const Timeline: React.FC<TimelineProps> = ({ project }) => {
 
   const calculateTimeInStage = () => {
     const now = new Date();
-    const start = new Date(project.timeframe.startDate);
+    if (!project.local) return '0 days';
+    const start = new Date(project.local.timeframe.startDate);
     const days = Math.ceil((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
     return `${days} days`;
   };
@@ -75,7 +75,12 @@ const Timeline: React.FC<TimelineProps> = ({ project }) => {
       
       <Box sx={{ mb: 3 }}>
         <Typography variant="body2" gutterBottom>
-          <strong>Current Stage:</strong> {getDisplayStatus(project)}
+          <strong>Current Stage:</strong> {project.local?.status || 'Unknown'}
+          {hasClickUpData(project) && (
+            <Typography variant="body2" gutterBottom>
+              <strong>ClickUp Status:</strong> {project.clickUp?.status || 'Unknown'}
+            </Typography>
+          )}
         </Typography>
         <Typography variant="body2">
           <strong>Time in Stage:</strong> {calculateTimeInStage()}
@@ -109,11 +114,11 @@ const Timeline: React.FC<TimelineProps> = ({ project }) => {
 
       <Box sx={{ mt: 3 }}>
         <Typography variant="body2" color="text.secondary">
-          Project Duration: {Math.ceil(
-            (new Date(project.timeframe.endDate).getTime() - 
-             new Date(project.timeframe.startDate).getTime()) / 
+          Project Duration: {project.local ? Math.ceil(
+            (new Date(project.local.timeframe.endDate).getTime() - 
+             new Date(project.local.timeframe.startDate).getTime()) / 
              (1000 * 60 * 60 * 24)
-          )} days
+          ) : 0} days
         </Typography>
       </Box>
     </Paper>

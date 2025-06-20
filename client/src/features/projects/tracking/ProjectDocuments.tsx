@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { Delete, Download, Upload } from '@mui/icons-material';
 import { documentService } from '../../../services/documentService';
-import { ALLOWED_DOCUMENT_TYPES, DocumentType, DocumentSection } from '../../../../../shared/src/types/documents';
+import { ALLOWED_DOCUMENT_TYPES, DocumentType, DocumentSection } from '../../../types';
 
 interface ProjectDocumentsProps {
   projectId: string;

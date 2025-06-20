@@ -1,280 +1,82 @@
-# Current Media Project Management System - Technical Context
+# Technical Context
 
-## Technology Stack
+## Project Data Architecture
 
-### Frontend
-- React with TypeScript for UI components
-- Simple state management for data flow
-- Clean, efficient component structure
-- Basic routing for navigation
+### Core Components
+1. Local Project Data
+   - Stored in backend database
+   - Contains detailed project information
+   - Includes budgeting, contractors, documents
+   - Has statuses: new_not_sent, new_sent, active, completed, archived
 
-### Backend
-- Node.js with Express
-- PostgreSQL for data storage
-- Basic API endpoints
-- Simple data validation
+2. ClickUp Integration
+   - Pulls project data from ClickUp API
+   - Displays in project tracking interface
+   - Can exist independently of local data
+   - Provides task/status tracking
 
-### External Services
-- ClickUp API for project data
-- Basic email service for notifications
+### Project Matching System
+- Projects are matched by name
+- Example: Local "Cool Video Project" matches ClickUp "Cool Video Project"
+- This links the local project ID with the ClickUp task ID
+- Simple 1:1 matching reduces complexity and potential issues
 
-## Implementation Details
+### Project Page Scenarios
+1. Local-Only Project
+   - Shows local project info
+   - No ClickUp data yet
+   - Typically new projects not sent to Jake
 
-### Frontend Structure
+2. ClickUp-Only Project
+   - Shows ClickUp task data
+   - No local project info
+   - Option to create matching local project
+   - Can pre-fill creation form with ClickUp data
 
-```
-client/
-├── src/
-│   ├── components/         # UI Components
-│   │   ├── dashboard/     # Dashboard components
-│   │   ├── projects/      # Project creation & tracking
-│   │   └── finance/       # Financial management
-│   │
-│   ├── services/          # API communication
-│   │   ├── projects/      # Project operations
-│   │   └── finance/       # Financial operations
-│   │
-│   └── store/             # State management
-```
+3. Matched Project
+   - Shows both local and ClickUp data
+   - Fully integrated view
+   - Complete project management capabilities
 
-### Backend Structure
+### Project Creation Flows
+1. Local-First Flow
+   - Create local project
+   - Send to Jake
+   - Jake creates in ClickUp
+   - Systems match by name
 
-```
-server/
-├── src/
-│   ├── api/              # API endpoints
-│   ├── services/         # Business logic
-│   └── integrations/     # External services
-```
+2. ClickUp-First Flow
+   - Project exists in ClickUp
+   - Create matching local project
+   - Pre-fill from ClickUp data
+   - Add local-specific info (budget, contractors, etc.)
 
-### Database Schema
+### Project Completion & Archiving
+- Completed projects from ClickUp populate completed projects page
+- Can retroactively attach local data (invoices, documents)
+- Manual archive button moves from completed to archived status
+- Preserves project history and documentation
 
-Enhanced schema for comprehensive project management:
+### Type System Requirements
+1. Local Project Types
+   - Define database structure
+   - Handle local-specific fields
+   - Manage project status transitions
 
-```sql
--- Projects
-CREATE TABLE projects (
-  id SERIAL PRIMARY KEY,
-  title TEXT NOT NULL,
-  client TEXT NOT NULL,
-  status TEXT NOT NULL,
-  timeframe JSONB,
-  budget JSONB,
-  clickup_id TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+2. ClickUp Types
+   - Mirror ClickUp API structure
+   - Handle task data mapping
+   - Support status synchronization
 
--- Contractors
-CREATE TABLE contractors (
-  id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  email TEXT NOT NULL,
-  payout_rate DECIMAL,
-  chargeout_rate DECIMAL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+3. UI Component Types
+   - Support both data sources
+   - Handle optional/partial data
+   - Enable flexible display modes
 
--- Project Contractors
-CREATE TABLE project_contractors (
-  id SERIAL PRIMARY KEY,
-  project_id INTEGER REFERENCES projects(id),
-  contractor_id INTEGER REFERENCES contractors(id),
-  role TEXT NOT NULL,
-  payout_rate DECIMAL NOT NULL,
-  chargeout_rate DECIMAL NOT NULL,
-  agreement_status TEXT NOT NULL,
-  agreement_response_date TIMESTAMP,
-  decline_reason TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Contractor Agreements
-CREATE TABLE contractor_agreements (
-  id SERIAL PRIMARY KEY,
-  project_contractor_id INTEGER REFERENCES project_contractors(id),
-  agreement_text TEXT NOT NULL,
-  signed_at TIMESTAMP,
-  ip_address TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Invoices
-CREATE TABLE invoices (
-  id SERIAL PRIMARY KEY,
-  project_id INTEGER REFERENCES projects(id),
-  contractor_id INTEGER REFERENCES contractors(id),
-  file_path TEXT NOT NULL,
-  amount DECIMAL NOT NULL,
-  status TEXT NOT NULL,
-  received_date TIMESTAMP,
-  paid_date TIMESTAMP,
-  payment_receipt_path TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Calendar Events
-CREATE TABLE calendar_events (
-  id SERIAL PRIMARY KEY,
-  project_id INTEGER REFERENCES projects(id),
-  google_event_id TEXT NOT NULL,
-  event_name TEXT NOT NULL,
-  event_date TIMESTAMP NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-## Core Features
-
-### 1. Project Creation
-- Step-by-step form process
-- Progress saving at each step
-- Budget calculation tools
-- Contractor assignment
-- Document generation
-
-### 2. Project Tracking
-- Status management
-- ClickUp synchronization
-- Invoice tracking
-- Simple progress monitoring
-
-### 3. Financial Management
-- Budget vs actual comparison
-- Payment tracking
-- Basic financial analytics
-- Profit calculation
-
-### 4. Dashboard
-- Clean, efficient layout
-- Status notifications
-- Quick navigation
-- Essential project overview
-
-## Integration Points
-
-### ClickUp Integration
-- Real-time data fetching via API
-- No local storage of ClickUp data except IDs
-- Project matching based on exact name
-- Status mapping:
-  * ClickUp statuses influence UI (e.g., colors for ACTIVE state)
-  * Local statuses remain independent
-  * Subtasks pulled and displayed in project details
-- Error handling and retry mechanisms
-- Separation between local and ClickUp data in UI where appropriate
-
-### Email Integration
-- Gmail API integration for:
-  * Sending contractor agreements
-  * Receiving and processing invoices
-  * Automated document attachment handling
-- Dynamic email templates with project-specific data
-- Invoice detection and processing:
-  * Match emails by project name
-  * Extract and store PDF/DOC attachments
-  * Update invoice status in system
-- Contractor agreement emails with secure links
-- Email tracking and status updates
-
-### Google Calendar Integration
-- Match project names flexibly
-- Auto-attach project documents to events
-- Two-way sync capabilities:
-  * Create events from project system
-  * Detect and link existing events
-- Document linking in event descriptions
-
-## Development Guidelines
-
-### Code Organization
-- Keep components focused and simple
-- Clear separation of concerns
-- Minimal dependencies
-- Practical error handling
-
-### State Management
-- Simple, predictable state flow
-- Basic action creators
-- Essential reducers
-- Practical middleware
-
-### API Design
-- RESTful endpoints
-- Simple request/response cycle
-- Basic error responses
-- Clear status codes
-
-### Testing Strategy
-- Focus on core functionality
-- Basic integration tests
-- Simple unit tests
-- Manual testing of flows
-
-## Deployment
-
-### Development
-- Local development setup
-- Basic build process
-- Simple environment config
-
-### Production
-- Single-server deployment
-- Basic SSL setup
-- Simple backup strategy
-
-## Security Considerations
-
-### Authentication
-- Basic login system
-- Simple session management
-- Secure password storage
-
-### Data Protection
-- Basic input validation
-- Simple SQL injection prevention
-- Essential XSS protection
-
-## Maintenance
-
-### Monitoring
-- Basic error logging
-- Simple performance monitoring
-- Essential backup verification
-
-### Updates
-- Regular dependency updates
-- Simple version control
-- Basic documentation maintenance
-
-## Implementation Questions
-
-### Contractor Agreement UI
-- Should double confirmation dialog show full agreement text again?
-- What specific legal disclaimers to include in confirmation?
-- Need for customizable agreement templates per project type?
-
-### Invoice Processing
-- Implement OCR for automatic amount extraction?
-- Add validation for invoice amount vs agreed rate?
-- Track invoice due dates and add payment reminders?
-
-### Document Storage
-- Proposed structure: /projects/{projectId}/[agreements|invoices|receipts]/
-- Final storage solution TBD:
-  * Dedicated server folder structure
-  * Cloud storage service
-  * Database binary storage
-- Document branding and templates to be designed
-
-Note: These questions should be revisited and answered before implementing each specific feature.
-
-## Future Considerations
-
-### Potential Enhancements
-- Additional analytics features
-- Enhanced reporting capabilities
-- Improved automation
-- UI/UX improvements
-
-*Note: All enhancements must be discussed and approved before implementation to maintain system simplicity and efficiency.*
+## Implementation Notes
+- Keep type system simple and focused
+- Maintain clear separation between local and ClickUp data
+- Use name-based matching for reliability
+- Support both creation workflows
+- Enable retroactive data attachment
+- Preserve existing ClickUp integration functionality

@@ -1,11 +1,20 @@
-import { LocalProject, CombinedProject, ProjectStatus, Budget, ProjectScope, Contractor } from '@shared/types';
+import { 
+  LocalProject, 
+  ProjectPageData, 
+  ProjectStatus, 
+  Budget, 
+  ProjectScope, 
+  Contractor,
+  ProjectFormData,
+  ProjectCreationBudget
+} from '../types';
 import api from '../shared/utils/api';
 
-type ProjectType = LocalProject | CombinedProject;
+type ProjectType = ProjectPageData;
 
 interface CreateProjectData {
   status: ProjectStatus;
-  budget: Budget;
+  budget: ProjectCreationBudget;
   title: string;
   client: string;
   timeframe: {
@@ -14,6 +23,7 @@ interface CreateProjectData {
   };
   contractors: Contractor[];
   scope?: ProjectScope;
+  metadata?: Record<string, any>;
 }
 
 class ProjectService {
@@ -133,7 +143,7 @@ class ProjectService {
     }
   }
 
-  async saveProgress(id: string, data: Partial<ProjectType>): Promise<ProjectType | null> {
+  async saveProgress(id: string, data: ProjectFormData): Promise<ProjectType | null> {
     try {
       if (!data || Object.keys(data).length === 0) {
         throw new Error('Progress data is required');

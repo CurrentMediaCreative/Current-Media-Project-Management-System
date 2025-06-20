@@ -1,8 +1,8 @@
 import React from 'react';
 import { Box, Typography, Button, Stack, Paper } from '@mui/material';
-import { LocalProject, CombinedProject, ProjectStatus } from '@shared/types';
+import { ProjectPageData, ProjectStatus } from '../../../types';
 
-type ProjectType = LocalProject | CombinedProject;
+type ProjectType = ProjectPageData;
 
 interface ActionItemsProps {
   project: ProjectType;
@@ -11,7 +11,9 @@ interface ActionItemsProps {
 
 const ActionItems: React.FC<ActionItemsProps> = ({ project, onUpdateStatus }) => {
   const renderActionButtons = () => {
-    switch (project.status) {
+    if (!project.local) return null;
+    
+    switch (project.local.status) {
       case ProjectStatus.NEW_NOT_SENT:
         return (
           <Stack spacing={2} direction="row">
@@ -106,7 +108,9 @@ const ActionItems: React.FC<ActionItemsProps> = ({ project, onUpdateStatus }) =>
   };
 
   const renderActionDescription = () => {
-    switch (project.status) {
+    if (!project.local) return '';
+    
+    switch (project.local.status) {
       case ProjectStatus.NEW_NOT_SENT:
         return 'Review project details and send to team for initial review';
       case ProjectStatus.NEW_SENT:

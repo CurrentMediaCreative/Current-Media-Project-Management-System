@@ -1,4 +1,4 @@
-import { ProjectCreationStep } from './types';
+import { ProjectCreationStep } from '../../../types';
 
 // Export components
 export { default as ProjectCreationFlow } from './ProjectCreationFlow';
