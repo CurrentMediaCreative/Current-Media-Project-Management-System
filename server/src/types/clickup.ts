@@ -63,13 +63,40 @@ export interface ClickUpStatus {
 
 export interface MappedProject {
   id: string;
-  name: string;
+  title: string;
+  client: string;
   status: ProjectStatus;
-  statusColor: string;
+  timeframe: {
+    startDate: string;
+    endDate: string;
+  };
+  budget: {
+    estimated: number;
+    actual: number;
+  };
+  contractors: Array<{
+    name: string;
+    email: string;
+    role: string;
+    baseRate: number;
+    chargeOutRate: number;
+    isFixed: boolean;
+  }>;
+  metadata?: {
+    category?: string;
+    notes?: string;
+    [key: string]: any;
+  };
   createdAt: Date;
   updatedAt: Date;
-  clickUpUrl: string;
-  customFields: {
-    [key: string]: string | number | null;
+  clickUp: {
+    id: string;
+    name: string;
+    status: string;
+    statusColor: string;
+    url: string;
+    customFields: {
+      [key: string]: string | number | null;
+    };
   };
 }

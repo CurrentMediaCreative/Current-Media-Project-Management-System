@@ -1,3 +1,15 @@
+/**
+ * Project Types
+ * 
+ * This file contains types for our project management system.
+ * There is a clear separation between local project data that we can modify
+ * and read-only ClickUp data that we only display.
+ */
+
+/**
+ * Local project statuses that we manage in our system.
+ * These are independent of ClickUp statuses which are read-only.
+ */
 export enum ProjectStatus {
   NEW_NOT_SENT = 'new_not_sent',
   NEW_SENT = 'new_sent',
@@ -20,6 +32,10 @@ export interface ProjectMetadata {
   [key: string]: any;
 }
 
+/**
+ * Represents a project in our local system.
+ * This is the data we can modify and manage independently of ClickUp.
+ */
 export interface LocalProject {
   id: string;
   title: string;
@@ -37,9 +53,13 @@ export interface LocalProject {
   metadata?: ProjectMetadata;
   createdAt?: Date;
   updatedAt?: Date;
-  clickUpId?: string;  // Reference to associated ClickUp task if synced
+  clickUpId?: string;  // Optional reference to associated ClickUp task (read-only)
 }
 
+/**
+ * Represents read-only data from ClickUp.
+ * This data is only for display purposes and cannot be modified.
+ */
 export interface ClickUpData {
   id: string;
   name: string;
@@ -51,7 +71,12 @@ export interface ClickUpData {
   };
 }
 
-// Project page data - can have local data, ClickUp data, or both
+/**
+ * Combined project data structure.
+ * - local: Our system's data that we can modify
+ * - clickUp: Read-only data from ClickUp for display purposes
+ * A project can have either local data, ClickUp data, or both
+ */
 export interface ProjectPageData {
   local?: LocalProject;
   clickUp?: ClickUpData;
@@ -102,17 +127,24 @@ export interface ProjectSortOptions {
   direction: 'asc' | 'desc';
 }
 
-// Helper function to check if a project has matching ClickUp data
+/**
+ * Helper function to check if a project has associated read-only ClickUp data
+ */
 export function hasClickUpData(project: ProjectPageData): boolean {
   return project.clickUp !== undefined;
 }
 
-// Helper function to check if a project has local data
+/**
+ * Helper function to check if a project has local data that we can modify
+ */
 export function hasLocalData(project: ProjectPageData): boolean {
   return project.local !== undefined;
 }
 
-// Helper function to match local and ClickUp projects by name
+/**
+ * Helper function to match local and ClickUp projects by name
+ * Used for display purposes to associate our local data with read-only ClickUp data
+ */
 export function matchProjectNames(localName: string, clickUpName: string): boolean {
   return localName.toLowerCase() === clickUpName.toLowerCase();
 }

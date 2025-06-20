@@ -49,12 +49,7 @@ const ProjectTracking: React.FC<ProjectTrackingProps> = ({ projectId }) => {
     try {
       if (!project.local) return;
 
-      // If project is synced with ClickUp, we need to handle both local and ClickUp updates
-      if (hasClickUpData(project)) {
-        // TODO: Add ClickUp status update logic here
-        console.log('Updating ClickUp status:', project.clickUp?.id, newStatus);
-      }
-
+      // Update only local project data - ClickUp data is read-only
       const updatedProject = await projectService.updateProject(project.local.id, { 
         local: {
           ...project.local,

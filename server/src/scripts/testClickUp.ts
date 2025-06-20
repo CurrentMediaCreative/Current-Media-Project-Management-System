@@ -40,15 +40,10 @@ async function exploreClickUpData() {
           const list = lists.lists[0];
           console.log(`Using list: ${list.name}`);
 
-          // Get custom fields
-          console.log('Fetching Custom Fields...');
-          const customFields = await clickupService.getCustomFields(list.id);
-          writeResult('04-custom-fields.json', customFields);
-
           // Get tasks
           console.log('Fetching Tasks...');
           const clickupProjects = await clickupService.getTasks(list.id) as ClickUpData[];
-          writeResult('05-mapped-projects.json', clickupProjects);
+          writeResult('04-mapped-projects.json', clickupProjects);
 
           if (clickupProjects.length > 0) {
             const project = clickupProjects[0];
@@ -57,14 +52,9 @@ async function exploreClickUpData() {
             // Get detailed task info
             console.log('Fetching Detailed Project Info...');
             const projectDetails = await clickupService.getTask(project.id);
-            writeResult('06-project-details.json', projectDetails);
+            writeResult('05-project-details.json', projectDetails);
           }
         }
-
-        // Get views
-        console.log('Fetching Views...');
-        const views = await clickupService.getViews(space.id);
-        writeResult('07-views.json', views);
       }
     }
   } catch (error) {

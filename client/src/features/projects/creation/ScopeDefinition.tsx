@@ -13,7 +13,7 @@ import { useFormik, FieldArray, FormikProvider } from 'formik';
 import * as Yup from 'yup';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { ProjectScope } from '../../../shared/types';
+import { ProjectScope } from '../../../types/project';
 
 interface ScopeDefinitionProps {
   onSave: (scope: ProjectScope) => void;

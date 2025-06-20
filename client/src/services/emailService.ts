@@ -1,5 +1,5 @@
-import api from '../shared/utils/api';
-import { LocalProject } from '../shared/types';
+import api from '../utils/api';
+import { LocalProject } from '../types/project';
 
 export class EmailService {
   async sendContractorAssignment(data: {

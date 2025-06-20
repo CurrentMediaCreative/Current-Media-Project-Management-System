@@ -1,4 +1,4 @@
-import api from '../shared/utils/api';
+import api from '../utils/api';
 
 const updateNotificationStatus = async (id: string, status: 'READ' | 'ARCHIVED'): Promise<void> => {
   await api.put(`/dashboard/notifications/${id}/status`, { status });

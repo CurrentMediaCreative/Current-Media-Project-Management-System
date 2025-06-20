@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Paper } from '@mui/material';
 import LoginForm from './LoginForm';
-import { User } from '../../shared/types';
+import { User } from '../../types/auth';
 import { useNavigate } from 'react-router-dom';
 
 interface LoginFlowProps {

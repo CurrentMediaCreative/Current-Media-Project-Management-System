@@ -8,8 +8,7 @@
     "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom", "node"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@shared/*": ["../shared/src/*"]
+      "@/*": ["src/*"]
     },
 
     /* Bundler mode */

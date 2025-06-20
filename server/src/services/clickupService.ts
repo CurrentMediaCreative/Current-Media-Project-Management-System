@@ -360,63 +360,13 @@ class ClickUpService {
     }
   }
 
-  /**
-   * Update a task
-   */
-  async updateTask(taskId: string, data: Partial<ClickUpTask>): Promise<ClickUpTask | null> {
-    try {
-      if (!data || Object.keys(data).length === 0) {
-        throw new Error('Update data is required');
-      }
 
-      const response = await this.api.put<ClickUpTask>(`/task/${taskId}`, data);
-      if (!response.data) {
-        console.warn(`No data returned after updating task ${taskId}`);
-        return null;
-      }
-      return response.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        console.warn(`Task ${taskId} not found in ClickUp`);
-        return null;
-      }
-      if (error.response?.status === 401) {
-        throw new Error('Unauthorized access to ClickUp API');
-      }
-      if (error.response?.status === 400) {
-        throw new Error(`Invalid update data: ${error.response.data?.message || 'Unknown error'}`);
-      }
-      console.error('Error updating ClickUp task:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get custom fields for a list
-   */
-  async getCustomFields(listId: string): Promise<any> {
-    try {
-      const response = await this.api.get(`/list/${listId}/field`);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching ClickUp custom fields:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get all views in a space
-   */
-  async getViews(spaceId: string): Promise<any> {
-    try {
-      const response = await this.api.get(`/space/${spaceId}/view`);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching ClickUp views:', error);
-      throw error;
-    }
-  }
 }
 
+/**
+ * This service provides read-only access to ClickUp data.
+ * It is used to display project information from ClickUp but never modifies ClickUp data.
+ * All modifications are handled locally in our own system.
+ */
 export const clickupService = new ClickUpService();
 export default clickupService;

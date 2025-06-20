@@ -29,7 +29,7 @@ import {
   Warning as WarningIcon,
   Send as SendIcon
 } from '@mui/icons-material';
-import { ProjectScope, Contractor } from '../../../shared/types';
+import { ProjectScope, Contractor } from '../../../types/project';
 import { emailService } from '../../../services/emailService';
 
 interface ProductionOverviewProps {

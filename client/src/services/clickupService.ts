@@ -1,5 +1,14 @@
+/**
+ * ClickUp Service
+ * 
+ * This service provides read-only access to ClickUp data.
+ * It is used to fetch and display project information from ClickUp,
+ * but never modifies any data in ClickUp. All modifications are
+ * handled locally in our own system.
+ */
+
 import { ClickUpTask } from '../types/clickup';
-import api from '../shared/utils/api';
+import api from '../utils/api';
 
 class ClickUpService {
   async getTask(taskId: string): Promise<ClickUpTask | null> {
@@ -28,24 +37,6 @@ class ClickUpService {
     }
   }
 
-  async updateTask(taskId: string, data: Partial<ClickUpTask>): Promise<ClickUpTask | null> {
-    try {
-      if (!data || Object.keys(data).length === 0) {
-        throw new Error('Update data is required');
-      }
-      const response = await api.patch(`/clickup/tasks/${taskId}`, data);
-      return response.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        console.warn(`Task ${taskId} not found`);
-        return null;
-      }
-      if (error.response?.status === 400) {
-        throw new Error(`Invalid update data: ${error.response.data?.message || 'Unknown error'}`);
-      }
-      throw error;
-    }
-  }
 }
 
 export const clickupService = new ClickUpService();

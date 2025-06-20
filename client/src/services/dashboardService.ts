@@ -1,4 +1,4 @@
-import api from '../shared/utils/api';
+import api from '../utils/api';
 import { DashboardData } from '../features/dashboard/types';
 
 const getDashboardData = async (): Promise<DashboardData> => {

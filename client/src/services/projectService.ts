@@ -8,7 +8,7 @@ import {
   ProjectFormData,
   ProjectCreationBudget
 } from '../types';
-import api from '../shared/utils/api';
+import api from '../utils/api';
 
 type ProjectType = ProjectPageData;
 
