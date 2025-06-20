@@ -58,12 +58,17 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(express.json());
 
 // Serve static files
-const staticPath = path.join(__dirname, '../../../client/dist');
+const clientPath = path.join(__dirname, '../../../client/dist');
+const landingPath = path.join(__dirname, '../../../landing');
+
 if (process.env.NODE_ENV === 'production') {
-  // Serve frontend static files in production
-  app.use('/', express.static(staticPath));
-  app.use('/projects/management', express.static(staticPath));
+  // Serve landing page at root
+  app.use('/', express.static(landingPath));
+  
+  // Serve PMS app at /PMS
+  app.use('/PMS', express.static(clientPath));
 }
+
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Initialize storage
@@ -99,18 +104,19 @@ apiRouter.use('/contractors', contractorRoutes);
 apiRouter.use('/dashboard', dashboardRoutes);
 apiRouter.use('/clickup', clickupRoutes);
 
-// Mount API routes
-app.use('/', apiRouter);
+// Mount API routes under /PMS/api
+app.use('/PMS/api', apiRouter);
 
-// Serve index.html for client-side routing in production
+// Serve appropriate files for client-side routing in production
 if (process.env.NODE_ENV === 'production') {
-  // Serve index.html for all routes except /api to support client-side routing
-  app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/api')) {
-      next();
-    } else {
-      res.sendFile(path.join(staticPath, 'index.html'));
-    }
+  // Serve landing/index.html for root path
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(landingPath, 'index.html'));
+  });
+
+  // Serve client/index.html for all /PMS routes to support client-side routing
+  app.get('/PMS/*', (req, res) => {
+    res.sendFile(path.join(clientPath, 'index.html'));
   });
 }
 

@@ -16,18 +16,18 @@ import { Dashboard } from './features/dashboard';
 // Auth Guard Component
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
-  return user ? <>{children}</> : <Navigate to="/login" />;
+  return user ? <>{children}</> : <Navigate to="/PMS/login" />;
 };
 
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/login" element={<LoginFlow />} />
+      <Route path="/PMS/login" element={<LoginFlow />} />
 
       {/* Protected Routes */}
       <Route
-        path="/*"
+        path="/PMS/*"
         element={
           <PrivateRoute>
             <MainLayout>
