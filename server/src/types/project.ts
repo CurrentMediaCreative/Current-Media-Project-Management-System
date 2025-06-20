@@ -1,23 +1,57 @@
 export enum ProjectStatus {
-  NEW_NOT_SENT = "NEW_NOT_SENT",
-  NEW_SENT = "NEW_SENT",
-  PENDING_CLICKUP = "PENDING_CLICKUP",
-  ACTIVE = "ACTIVE",
-  COMPLETED = "COMPLETED",
-  ARCHIVED = "ARCHIVED"
+  NEW_NOT_SENT = 'new_not_sent',
+  NEW_SENT = 'new_sent',
+  PENDING_CLICKUP = 'pending_clickup',
+  ACTIVE = 'active',
+  COMPLETED = 'completed',
+  ARCHIVED = 'archived'
 }
 
-export interface Project {
+export interface LocalProject {
   id: string;
-  clickupId?: string;
   title: string;
   client: string;
   status: ProjectStatus;
-  startDate: string; // ISO date string
-  endDate: string; // ISO date string
-  budget: number;
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
+  timeframe: {
+    startDate: string;
+    endDate: string;
+  };
+  budget: {
+    estimated: number;
+    actual: number;
+  };
+  contractors: Array<{
+    name: string;
+    email: string;
+    role: string;
+    baseRate: number;
+    chargeOutRate: number;
+    isFixed: boolean;
+  }>;
+  metadata?: {
+    category?: string;
+    notes?: string;
+    [key: string]: any;
+  };
+  createdAt: Date;
+  updatedAt: Date;
+  clickUpId?: string;
+}
+
+export interface ClickUpData {
+  id: string;
+  name: string;
+  status: string;
+  statusColor: string;
+  url: string;
+  customFields: {
+    [key: string]: string | number | null;
+  };
+}
+
+export interface ProjectPageData {
+  local?: LocalProject;
+  clickUp?: ClickUpData;
 }
 
 export interface CreateProjectInput {
