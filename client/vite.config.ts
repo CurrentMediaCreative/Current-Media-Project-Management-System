@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 // https://vitejs.dev/config/
-export default defineConfig(({ command }) => ({
+export default defineConfig(({ command, mode }) => ({
   plugins: [react()],
   resolve: {
     alias: {
@@ -13,13 +13,12 @@ export default defineConfig(({ command }) => ({
   base: '/pms/',
   server: {
     port: 3000,
-    proxy: {
+    proxy: mode === 'development' ? {
       '/pms/api': {
         target: 'http://localhost:5000',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/pms\/api/, '')
+        changeOrigin: true
       }
-    }
+    } : undefined
   },
   build: {
     outDir: 'dist',

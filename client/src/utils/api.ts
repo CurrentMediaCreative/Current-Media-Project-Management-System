@@ -1,8 +1,12 @@
 import axios from 'axios';
 
 // Configure API base URL
+const baseURL = import.meta.env.PROD 
+  ? import.meta.env.VITE_API_URL
+  : '/pms/api/';
+
 const api = axios.create({
-  baseURL: '/pms/api/',
+  baseURL,
   headers: {
     'Content-Type': 'application/json',
   },
