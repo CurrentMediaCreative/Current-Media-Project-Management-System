@@ -10,6 +10,7 @@ import contractorRoutes from './api/contractors/contractorRateRoutes';
 // import emailRoutes from './api/email/emailRoutes';  // TODO: Implement email functionality later
 import dashboardRoutes from './api/dashboard/dashboardRoutes';
 import clickupRoutes from './api/clickup/clickupRoutes';
+import documentRoutes from './api/documents/documentRoutes';
 import { storage } from './services/storageService';
 
 // Load environment variables
@@ -39,7 +40,7 @@ app.use(helmet({
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https:", "blob:"],
+      imgSrc: ["'self'", "data:", "https:", "blob:", "file:"],
       connectSrc: ["'self'", "https://api.clickup.com", "https://current-media-website-and-project.onrender.com", "https://currentmedia.ca"],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
@@ -103,6 +104,7 @@ apiRouter.use('/contractors', contractorRoutes);
 // apiRouter.use('/email', emailRoutes);  // TODO: Implement email functionality later
 apiRouter.use('/dashboard', dashboardRoutes);
 apiRouter.use('/clickup', clickupRoutes);
+apiRouter.use('/documents', documentRoutes);
 
 // Mount API routes under /PMS/api
 app.use('/PMS/api', apiRouter);

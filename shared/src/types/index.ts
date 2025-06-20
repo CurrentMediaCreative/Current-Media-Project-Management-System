@@ -116,13 +116,6 @@ export interface ClickUpData {
   };
 }
 
-export function isClickUpSynced(project: LocalProject | CombinedProject): project is CombinedProject {
-  return 'clickUp' in project && 
-         project.clickUp !== undefined && 
-         typeof project.clickUp.id === 'string' &&
-         project.clickUp.id.length > 0;
-}
-
 export interface LocalProject {
   id: string;
   title: string;
@@ -201,3 +194,6 @@ export interface ProjectFormData {
   scope?: ProjectScope;
   selectedScenario?: BudgetScenario;
 }
+
+// Export document types
+export * from './documents';

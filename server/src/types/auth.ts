@@ -1,4 +1,5 @@
 import { User } from './user';
+import { Request } from 'express';
 
 export interface LoginInput {
   email: string;
@@ -26,4 +27,12 @@ export interface JwtPayload {
 
 export interface AuthUser extends Omit<User, 'password'> {
   token: string;
+}
+
+export interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+    email: string;
+    role: string;
+  };
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Grid, Stepper, Step, StepLabel, CircularProgress } from '@mui/material';
-import { LocalProject, CombinedProject, ProjectStatus, isClickUpSynced } from '@shared/types';
+import { LocalProject, CombinedProject, ProjectStatus } from '@shared/types';
+import { isClickUpSynced } from '@shared/utils/projectHelpers';
 import { projectService } from '../../../services/projectService';
 import StatusDetails from './StatusDetails';
 import ActionItems from './ActionItems';

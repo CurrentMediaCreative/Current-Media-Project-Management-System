@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import { format } from 'date-fns';
 import { MappedProject, ClickUpTask } from '@shared/types/clickup';
+import ProjectDocuments from './ProjectDocuments';
 import { clickupService } from '@/services/clickupService';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import EditIcon from '@mui/icons-material/Edit';
@@ -195,21 +196,7 @@ export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
         {isInSystem && (
           <>
             <Divider sx={{ my: 2 }} />
-            <Typography variant="h6" gutterBottom>Project Documents</Typography>
-            <List>
-              <ListItem>
-                <ListItemText primary="Project Overview" />
-                <Button startIcon={<EditIcon />} onClick={() => handleCreateDocument('overview')}>
-                  Edit
-                </Button>
-              </ListItem>
-              <ListItem>
-                <ListItemText primary="Budget Document" />
-                <Button startIcon={<EditIcon />} onClick={() => handleCreateDocument('budget')}>
-                  Edit
-                </Button>
-              </ListItem>
-            </List>
+            <ProjectDocuments projectId={project.id} />
           </>
         )}
       </DialogContent>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography, Paper, Grid } from '@mui/material';
-import { LocalProject, CombinedProject, ProjectStatus, isClickUpSynced } from '@shared/types';
-import { getClientName, getTaskType, getInvoiceStatus, getInvoiceNumber, getDisplayStatus } from '@shared/utils/projectHelpers';
+import { LocalProject, CombinedProject, ProjectStatus } from '@shared/types';
+import { getClientName, getTaskType, getInvoiceStatus, getInvoiceNumber, getDisplayStatus, isClickUpSynced } from '@shared/utils/projectHelpers';
 
 type ProjectType = LocalProject | CombinedProject;
 
