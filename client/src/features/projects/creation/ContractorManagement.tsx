@@ -17,8 +17,8 @@ import {
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import EmailIcon from '@mui/icons-material/Email';
-import { ContractorManagementProps, ContractorAssignment } from './types';
-import { emailService } from '@/services/emailService';
+import { ContractorManagementProps, ContractorAssignment } from '../../../types';
+import { emailService } from '../../../services/emailService';
 
 const ContractorManagement: React.FC<ContractorManagementProps> = ({
   onComplete,
@@ -28,26 +28,19 @@ const ContractorManagement: React.FC<ContractorManagementProps> = ({
   onNext,
   onBack
 }) => {
-  const [assignments, setAssignments] = useState<ContractorAssignment[]>([]);
+  const [assignments, setAssignments] = useState<ContractorAssignment[]>(
+    initialData?.contractors?.map(contractor => ({
+      contractor,
+      status: 'pending',
+      emailSent: false,
+      role: contractor.role,
+      baseRate: contractor.baseRate,
+      chargeOutRate: contractor.chargeOutRate,
+      isFixed: contractor.isFixed
+    })) || []
+  );
   const [sendingEmails, setSendingEmails] = useState<boolean>(false);
   const [emailError, setEmailError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (initialData?.contractors) {
-      // Convert contractors to assignments if they exist
-      setAssignments(
-        initialData.contractors.map(contractor => ({
-          contractor,
-          status: 'pending',
-          emailSent: false,
-          role: contractor.role || '',
-          baseRate: contractor.baseRate || 0,
-          chargeOutRate: contractor.chargeOutRate || 0,
-          isFixed: contractor.isFixed || false
-        }))
-      );
-    }
-  }, [initialData]);
 
   const handleSendAssignmentEmails = async () => {
     setSendingEmails(true);

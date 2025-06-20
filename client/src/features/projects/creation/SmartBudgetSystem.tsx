@@ -21,7 +21,7 @@ import {
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
-import { BudgetScenario, SmartBudgetSystemProps } from './types';
+import { BudgetScenario, SmartBudgetSystemProps } from '../../../types';
 
 const validationSchema = Yup.object({
   profitTarget: Yup.number()
@@ -145,7 +145,7 @@ const SmartBudgetSystem: React.FC<SmartBudgetSystemProps> = ({
     }
   }, [activeStep, teamSuggestions]);
 
-  const getRiskColor = (risk: string) => {
+  const getRiskColor = (risk: string): 'success' | 'warning' | 'error' | 'default' => {
     switch (risk) {
       case 'low':
         return 'success';
@@ -218,7 +218,7 @@ const SmartBudgetSystem: React.FC<SmartBudgetSystemProps> = ({
                         <TableCell align="right">
                           <Chip
                             label={scenario.riskLevel.toUpperCase()}
-                            color={getRiskColor(scenario.riskLevel) as any}
+                            color={getRiskColor(scenario.riskLevel)}
                             size="small"
                           />
                         </TableCell>

@@ -25,14 +25,13 @@ import * as Yup from 'yup';
 import EmailIcon from '@mui/icons-material/Email';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { Contractor } from '../../../shared/types';
-import { ContractorAssignment, Budget } from '../creation/types';
+import { Contractor, ContractorAssignment, ProjectCreationBudget } from '../../../types';
 
 interface ContractorManagementProps {
   onComplete: (assignments: ContractorAssignment[]) => void;
   initialData?: {
     contractors?: Contractor[];
-    budget?: Budget;
+    budget?: ProjectCreationBudget;
   };
 }
 

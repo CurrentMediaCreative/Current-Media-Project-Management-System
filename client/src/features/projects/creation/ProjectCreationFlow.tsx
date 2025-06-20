@@ -192,11 +192,11 @@ const ProjectCreationFlow: React.FC = () => {
     }
   });
 
-  const mapBudgetToFormData = (budgetData: { 
-    selectedScenario: BudgetScenario; 
-    profitTarget: number; 
-    contingencyPercentage: number; 
-  }): Partial<ProjectFormData> => ({
+  const mapBudgetToFormData = (budgetData: {
+    selectedScenario: BudgetScenario;
+    profitTarget: number;
+    contingencyPercentage: number;
+  } & Record<string, unknown>): Partial<ProjectFormData> => ({
     selectedScenario: budgetData.selectedScenario,
     budget: {
       estimated: budgetData.selectedScenario.totalCost,

@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Typography, TextField, Button, Grid, Paper } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { ProjectFormData } from './types';
+import { ProjectFormData } from '../../../types';
 
 interface InitialProjectInfoProps {
   onSave: (data: ProjectFormData) => void;
