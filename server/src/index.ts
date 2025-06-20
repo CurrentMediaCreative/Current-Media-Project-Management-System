@@ -66,8 +66,8 @@ if (process.env.NODE_ENV === 'production') {
   // Serve landing page at root
   app.use('/', express.static(landingPath));
   
-  // Serve PMS app at /PMS
-  app.use('/PMS', express.static(clientPath));
+  // Serve PMS app at /pms
+  app.use('/pms', express.static(clientPath));
 }
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
@@ -106,8 +106,8 @@ apiRouter.use('/dashboard', dashboardRoutes);
 apiRouter.use('/clickup', clickupRoutes);
 apiRouter.use('/documents', documentRoutes);
 
-// Mount API routes under /PMS/api
-app.use('/PMS/api', apiRouter);
+// Mount API routes under /pms/api
+app.use('/pms/api', apiRouter);
 
 // Serve appropriate files for client-side routing in production
 if (process.env.NODE_ENV === 'production') {
@@ -116,8 +116,8 @@ if (process.env.NODE_ENV === 'production') {
     res.sendFile(path.join(landingPath, 'index.html'));
   });
 
-  // Serve client/index.html for all /PMS routes to support client-side routing
-  app.get('/PMS/*', (req, res) => {
+  // Serve client/index.html for all /pms routes to support client-side routing
+  app.get('/pms/*', (req, res) => {
     res.sendFile(path.join(clientPath, 'index.html'));
   });
 }
