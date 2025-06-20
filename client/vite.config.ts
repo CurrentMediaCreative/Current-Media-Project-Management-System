@@ -10,7 +10,7 @@ export default defineConfig(({ command }) => ({
       '@': path.resolve(__dirname, './src')
     }
   },
-  base: '/',
+  base: '/pms/',
   server: {
     port: 3000,
     proxy: {

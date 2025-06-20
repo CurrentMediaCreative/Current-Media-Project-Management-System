@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Configure API base URL
 const api = axios.create({
-  baseURL: '/PMS/api/',
+  baseURL: '/pms/api/',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -32,7 +32,7 @@ api.interceptors.response.use(
       case 401:
         // Handle unauthorized access
         localStorage.removeItem('token');
-        window.location.href = '/PMS/login';
+        window.location.href = '/pms/login';
         break;
       case 404:
         console.warn('Resource not found:', error.response.data?.message || 'Not found');
