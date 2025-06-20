@@ -29,7 +29,8 @@ export interface Budget {
 export interface ProjectMetadata {
   category?: string;
   notes?: string;
-  [key: string]: any;
+  // Allow common metadata value types but not 'any'
+  [key: string]: string | number | boolean | Date | object | undefined;
 }
 
 /**

@@ -8,6 +8,14 @@ interface CustomMatchers<R = unknown> {
 }
 
 declare module 'vitest' {
-  interface Assertion<T = any> extends CustomMatchers<T> {}
-  interface AsymmetricMatchersContaining extends CustomMatchers {}
+  interface Assertion<T = any> extends CustomMatchers<T> {
+    // Required to satisfy @typescript-eslint/no-empty-interface
+    // These interfaces extend CustomMatchers to enable custom test matchers
+    readonly _customMatcherBrand: unique symbol;
+  }
+  interface AsymmetricMatchersContaining extends CustomMatchers {
+    // Required to satisfy @typescript-eslint/no-empty-interface
+    // These interfaces extend CustomMatchers to enable custom test matchers
+    readonly _customMatcherBrand: unique symbol;
+  }
 }
