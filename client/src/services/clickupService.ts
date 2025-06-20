@@ -1,4 +1,4 @@
-import { ClickUpTask } from '@shared/types/clickup';
+import { ClickUpTask } from '../types/clickup';
 import api from '../shared/utils/api';
 
 class ClickUpService {

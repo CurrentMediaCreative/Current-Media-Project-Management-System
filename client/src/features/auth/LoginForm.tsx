@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Box, TextField, Button, Typography, CircularProgress, Alert } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { LoginCredentials, User } from '@shared/types';
+import { LoginCredentials, User } from '../../types/auth';
 import { useAuth } from './contexts/AuthContext';
 
 interface LoginFormProps {

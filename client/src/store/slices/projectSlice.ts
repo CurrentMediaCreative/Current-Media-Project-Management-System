@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { LocalProject, CombinedProject, ProjectScope, Contractor, ProjectStatus } from '@shared/types';
+import { LocalProject, ProjectScope, Contractor, ProjectStatus, ProjectPageData } from '../../types/project';
 
-type ProjectType = LocalProject | CombinedProject;
+type ProjectType = LocalProject | ProjectPageData;
 
 interface ProjectState {
   projects: ProjectType[];
@@ -54,21 +54,51 @@ const projectSlice = createSlice({
       state.currentProject = null;
     },
     updateProjectStatus: (state, action: PayloadAction<{ projectId: string; status: ProjectStatus }>) => {
-      const project = state.projects.find(p => p.id === action.payload.projectId);
+      const project = state.projects.find((p: ProjectType) => {
+        if ('status' in p) return p.id === action.payload.projectId;
+        return p.local?.id === action.payload.projectId;
+      });
+      
       if (project) {
-        project.status = action.payload.status;
+        if ('status' in project) {
+          project.status = action.payload.status;
+        } else if (project.local) {
+          project.local.status = action.payload.status;
+        }
       }
-      if (state.currentProject?.id === action.payload.projectId) {
-        state.currentProject.status = action.payload.status;
+
+      if (state.currentProject) {
+        if ('status' in state.currentProject) {
+          if (state.currentProject.id === action.payload.projectId) {
+            state.currentProject.status = action.payload.status;
+          }
+        } else if (state.currentProject.local?.id === action.payload.projectId) {
+          state.currentProject.local.status = action.payload.status;
+        }
       }
     },
     updateProjectContractors: (state, action: PayloadAction<{ projectId: string; contractors: Contractor[] }>) => {
-      const project = state.projects.find(p => p.id === action.payload.projectId);
+      const project = state.projects.find((p: ProjectType) => {
+        if ('contractors' in p) return p.id === action.payload.projectId;
+        return p.local?.id === action.payload.projectId;
+      });
+      
       if (project) {
-        project.contractors = action.payload.contractors;
+        if ('contractors' in project) {
+          project.contractors = action.payload.contractors;
+        } else if (project.local) {
+          project.local.contractors = action.payload.contractors;
+        }
       }
-      if (state.currentProject?.id === action.payload.projectId) {
-        state.currentProject.contractors = action.payload.contractors;
+
+      if (state.currentProject) {
+        if ('contractors' in state.currentProject) {
+          if (state.currentProject.id === action.payload.projectId) {
+            state.currentProject.contractors = action.payload.contractors;
+          }
+        } else if (state.currentProject.local?.id === action.payload.projectId) {
+          state.currentProject.local.contractors = action.payload.contractors;
+        }
       }
     },
     setFilters: (state, action: PayloadAction<{
