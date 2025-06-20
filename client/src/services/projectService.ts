@@ -1,8 +1,10 @@
-import { Project } from '@shared/types';
+import { LocalProject, CombinedProject } from '@shared/types';
 import api from '../shared/utils/api';
 
+type ProjectType = LocalProject | CombinedProject;
+
 class ProjectService {
-  async getProjects(): Promise<Project[]> {
+  async getProjects(): Promise<ProjectType[]> {
     try {
       const response = await api.get('/projects');
       return response.data;
@@ -12,7 +14,7 @@ class ProjectService {
     }
   }
 
-  async getProject(id: string): Promise<Project | null> {
+  async getProject(id: string): Promise<ProjectType | null> {
     try {
       const response = await api.get(`/projects/${id}`);
       return response.data;
@@ -26,7 +28,7 @@ class ProjectService {
     }
   }
 
-  async createProject(project: Partial<Project>): Promise<Project> {
+  async createProject(project: Partial<LocalProject>): Promise<LocalProject> {
     try {
       if (!project || Object.keys(project).length === 0) {
         throw new Error('Project data is required');
@@ -39,7 +41,7 @@ class ProjectService {
     }
   }
 
-  async updateProject(id: string, project: Partial<Project>): Promise<Project | null> {
+  async updateProject(id: string, project: Partial<ProjectType>): Promise<ProjectType | null> {
     try {
       if (!project || Object.keys(project).length === 0) {
         throw new Error('Update data is required');
@@ -118,7 +120,7 @@ class ProjectService {
     }
   }
 
-  async saveProgress(id: string, data: Partial<Project>): Promise<Project | null> {
+  async saveProgress(id: string, data: Partial<ProjectType>): Promise<ProjectType | null> {
     try {
       if (!data || Object.keys(data).length === 0) {
         throw new Error('Progress data is required');

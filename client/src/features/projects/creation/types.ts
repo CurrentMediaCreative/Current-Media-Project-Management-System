@@ -1,5 +1,5 @@
 import { 
-  Project,
+  LocalProject,
   ProjectScope,
   Contractor
 } from '../../../shared/types';
@@ -16,7 +16,7 @@ export interface Timeframe {
   endDate: string;
 }
 
-export interface ProjectFormData extends Omit<Pick<Project, 'title' | 'client' | 'timeframe' | 'contractors'>, 'budget'> {
+export interface ProjectFormData extends Omit<Pick<LocalProject, 'title' | 'client' | 'timeframe' | 'contractors'>, 'budget'> {
   budget: Budget;
   scope?: ProjectScope;
   selectedScenario?: BudgetScenario;

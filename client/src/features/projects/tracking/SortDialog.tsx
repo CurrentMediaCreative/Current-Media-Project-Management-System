@@ -14,14 +14,16 @@ import {
   Typography,
   Grid
 } from '@mui/material';
-import { Project, ProjectMetadata } from '@shared/types';
+import { LocalProject, CombinedProject } from '@shared/types';
 import { getClientName } from '@shared/utils/projectHelpers';
+
+type ProjectType = LocalProject | CombinedProject;
 
 interface SortDialogProps {
   open: boolean;
   onClose: () => void;
-  project: Project;
-  onUpdateProject: (data: Partial<Project>) => void;
+  project: ProjectType;
+  onUpdateProject: (data: Partial<ProjectType>) => void;
 }
 
 const SortDialog: React.FC<SortDialogProps> = ({

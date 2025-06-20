@@ -1,5 +1,5 @@
 import api from '../shared/utils/api';
-import { Project } from '../shared/types';
+import { LocalProject } from '../shared/types';
 
 export class EmailService {
   async sendContractorAssignment(data: {
@@ -18,7 +18,7 @@ export class EmailService {
     }
   }
 
-  async sendProjectToJake(projectData: Partial<Project>): Promise<void> {
+  async sendProjectToJake(projectData: Partial<LocalProject>): Promise<void> {
     try {
       await api.post('/api/email/send-to-jake', {
         projectData,
