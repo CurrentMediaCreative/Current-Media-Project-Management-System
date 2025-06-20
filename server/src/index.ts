@@ -106,25 +106,24 @@ apiRouter.use('/dashboard', dashboardRoutes);
 apiRouter.use('/clickup', clickupRoutes);
 apiRouter.use('/documents', documentRoutes);
 
-// Mount API routes under /pms/api
-app.use('/pms/api', apiRouter);
+// Mount API routes under /api
+app.use('/api', apiRouter);
 
 // Serve appropriate files for client-side routing in production
 if (process.env.NODE_ENV === 'production') {
   // Serve client/index.html for all /pms routes to support client-side routing
+  app.use('/pms', express.static(clientPath));
   app.get('/pms/*', (req, res) => {
     res.sendFile(path.join(clientPath, 'index.html'));
   });
 
   // Serve landing/index.html for root path and non-pms routes
-  app.get('/', (req, res) => {
-    res.sendFile(path.join(landingPath, 'index.html'));
-  });
+  app.use('/', express.static(landingPath));
   app.get('/*', (req, res, next) => {
-    if (!req.path.startsWith('/pms/')) {
-      res.sendFile(path.join(landingPath, 'index.html'));
-    } else {
+    if (req.path.startsWith('/api/') || req.path.startsWith('/pms/')) {
       next();
+    } else {
+      res.sendFile(path.join(landingPath, 'index.html'));
     }
   });
 }

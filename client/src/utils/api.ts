@@ -2,8 +2,8 @@ import axios from 'axios';
 
 // Configure API base URL
 const baseURL = import.meta.env.PROD 
-  ? import.meta.env.VITE_API_URL
-  : '/pms/api/';
+  ? '/api'  // In production, use relative path
+  : '/pms/api';  // In development, include /pms prefix
 
 const api = axios.create({
   baseURL,
