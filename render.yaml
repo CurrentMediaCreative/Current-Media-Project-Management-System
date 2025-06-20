@@ -1,30 +1,4 @@
 services:
-  # Backend API service
-  - type: web
-    name: current-media-pms-api
-    runtime: node
-    buildCommand: cd server && npm install && npm run build
-    startCommand: cd server && npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10000
-      - key: CLICKUP_API_KEY
-        sync: false
-      - key: GOOGLE_CLIENT_ID
-        sync: false
-      - key: GOOGLE_CLIENT_SECRET
-        sync: false
-      - key: JWT_SECRET
-        sync: false
-      - key: STORAGE_PATH
-        value: /data
-    disk:
-      name: data
-      mountPath: /data
-      sizeGB: 1
-
   # Frontend static site
   - type: web
     name: current-media-pms-client
