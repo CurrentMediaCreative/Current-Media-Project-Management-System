@@ -5,6 +5,11 @@ services:
     runtime: node
     buildCommand: cd server && npm install && npm run build
     startCommand: cd server && npm start
+    plan: starter
+    numInstances: 1
+    region: ohio
+    domains:
+      - api.currentmedia.ca
     envVars:
       # Server Config
       - key: NODE_ENV
@@ -59,6 +64,10 @@ services:
     runtime: static
     buildCommand: cd client && npm install && npm run build
     staticPublishPath: ./client/dist
+    plan: starter
+    domains:
+      - currentmedia.ca
+      - www.currentmedia.ca
     envVars:
       - key: VITE_API_URL
         value: /api
