@@ -14,7 +14,7 @@ import { projectService } from '../../../services/projectService';
 import { 
   ProjectScope,
   ProjectStatus
-} from '../../../shared/types';
+} from '@shared/types';
 import {
   ProjectFormData,
   BudgetScenario,
@@ -151,7 +151,12 @@ const ProjectCreationFlow: React.FC = () => {
       setApiError(null);
       try {
         const projectData = {
-          ...formData,
+          title: formData.title,
+          client: formData.client,
+          timeframe: formData.timeframe,
+          budget: formData.budget,
+          contractors: formData.contractors,
+          scope: formData.scope,
           status: ProjectStatus.NEW_NOT_SENT
         };
         const newProject = await projectService.createProject(projectData);

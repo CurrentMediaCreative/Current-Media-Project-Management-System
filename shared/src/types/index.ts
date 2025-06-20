@@ -16,6 +16,7 @@ export enum ContractorRole {
 export enum ProjectStatus {
   NEW_NOT_SENT = 'new_not_sent',
   NEW_SENT = 'new_sent',
+  PENDING_CLICKUP = 'pending_clickup',
   ACTIVE = 'active',
   COMPLETED = 'completed',
   ARCHIVED = 'archived',

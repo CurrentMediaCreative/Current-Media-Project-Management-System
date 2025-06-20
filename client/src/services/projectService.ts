@@ -1,7 +1,20 @@
-import { LocalProject, CombinedProject } from '@shared/types';
+import { LocalProject, CombinedProject, ProjectStatus, Budget, ProjectScope, Contractor } from '@shared/types';
 import api from '../shared/utils/api';
 
 type ProjectType = LocalProject | CombinedProject;
+
+interface CreateProjectData {
+  status: ProjectStatus;
+  budget: Budget;
+  title: string;
+  client: string;
+  timeframe: {
+    startDate: string;
+    endDate: string;
+  };
+  contractors: Contractor[];
+  scope?: ProjectScope;
+}
 
 class ProjectService {
   async getProjects(): Promise<ProjectType[]> {
@@ -28,7 +41,7 @@ class ProjectService {
     }
   }
 
-  async createProject(project: Partial<LocalProject>): Promise<LocalProject> {
+  async createProject(project: CreateProjectData): Promise<LocalProject> {
     try {
       if (!project || Object.keys(project).length === 0) {
         throw new Error('Project data is required');
