@@ -70,7 +70,7 @@ if (process.env.NODE_ENV === 'production') {
   app.use('/', express.static(landingPath));
 }
 
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/pms/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Initialize storage
 const initializeStorage = async () => {

@@ -14,7 +14,7 @@ export default defineConfig(({ command }) => ({
   server: {
     port: 3000,
     proxy: {
-      '/api': {
+      '/pms/api': {
         target: 'http://localhost:5000',
         changeOrigin: true
       }
