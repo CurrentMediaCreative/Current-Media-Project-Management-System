@@ -21,12 +21,18 @@ class ProjectService {
       id: uuidv4(),
       title: input.title,
       client: input.client,
-      budget: input.budget,
-      startDate: input.startDate.toISOString(),
-      endDate: input.endDate.toISOString(),
       status: ProjectStatus.NEW_NOT_SENT,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      timeframe: {
+        startDate: input.startDate.toISOString(),
+        endDate: input.endDate.toISOString()
+      },
+      budget: {
+        estimated: input.budget,
+        actual: 0
+      },
+      contractors: [],
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
 
     projects.push(newProject);
@@ -95,12 +101,22 @@ class ProjectService {
       }
     }
 
-    const updatedProject = {
+    const updatedProject: Project = {
       ...projects[index],
-      ...input,
-      startDate: input.startDate ? input.startDate.toISOString() : projects[index].startDate,
-      endDate: input.endDate ? input.endDate.toISOString() : projects[index].endDate,
-      updatedAt: new Date().toISOString()
+      title: input.title ?? projects[index].title,
+      client: input.client ?? projects[index].client,
+      status: input.status ?? projects[index].status,
+      timeframe: {
+        startDate: input.startDate ? input.startDate.toISOString() : projects[index].timeframe.startDate,
+        endDate: input.endDate ? input.endDate.toISOString() : projects[index].timeframe.endDate
+      },
+      budget: {
+        estimated: input.budget ?? projects[index].budget.estimated,
+        actual: projects[index].budget.actual
+      },
+      contractors: projects[index].contractors,
+      updatedAt: new Date(),
+      clickUpId: input.clickupId ?? projects[index].clickUpId
     };
 
     projects[index] = updatedProject;

@@ -1,10 +1,7 @@
 import { Request, Response } from 'express';
 import { storage } from '../../services/storageService';
 import { clickupService } from '../../services/clickupService';
-import { MappedProject } from '../../types/clickup';
-import { ProjectStatus } from '../../types';
-
-interface Project extends MappedProject {}
+import { ProjectStatus, LocalProject, ProjectPageData, ClickUpData } from '../../types/project';
 
 interface Notification {
   id: string;
@@ -25,23 +22,29 @@ export const getDashboardOverview = async (req: Request, res: Response) => {
   try {
     // Get projects from both local storage and ClickUp
     const [localProjects, clickupProjects] = await Promise.all([
-      storage.read<Project[]>('projects.json'),
-      clickupService.getAllTasks()
+      storage.read<LocalProject[]>('projects.json'),
+      clickupService.getAllTasks() as Promise<ClickUpData[]>
     ]);
 
     console.log('Local projects:', localProjects);
     console.log('ClickUp projects:', clickupProjects);
 
-    // Merge projects, preferring ClickUp data when available
-    const mergedProjects = localProjects.map(localProject => {
-      const clickupProject = clickupProjects.find(cp => cp.id === localProject.id);
-      return clickupProject || localProject;
+    // Create merged ProjectPageData array
+    const mergedProjects: ProjectPageData[] = localProjects.map(localProject => {
+      const matchingClickUpProject = clickupProjects.find(cp => cp.id === localProject.clickUpId);
+      return {
+        local: localProject,
+        clickUp: matchingClickUpProject
+      };
     });
 
     // Add any ClickUp projects that don't exist locally
+    const existingClickUpIds = new Set(mergedProjects.map(p => p.clickUp?.id).filter(Boolean));
     clickupProjects.forEach(clickupProject => {
-      if (!mergedProjects.find(p => p.id === clickupProject.id)) {
-        mergedProjects.push(clickupProject);
+      if (!existingClickUpIds.has(clickupProject.id)) {
+        mergedProjects.push({
+          clickUp: clickupProject
+        });
       }
     });
 
@@ -50,28 +53,28 @@ export const getDashboardOverview = async (req: Request, res: Response) => {
     // Group projects by status
     const projectsByStatus = {
       newProjects: mergedProjects.filter(p => 
-        p.status === ProjectStatus.NEW_NOT_SENT || p.status === ProjectStatus.NEW_SENT
+        p.local?.status === ProjectStatus.NEW_NOT_SENT || p.local?.status === ProjectStatus.NEW_SENT
       ),
       pendingJake: [], // Empty array since PENDING_CLICKUP is redundant
       activeProjects: mergedProjects.filter(p => 
-        p.status === ProjectStatus.ACTIVE
+        p.local?.status === ProjectStatus.ACTIVE || p.clickUp?.status === 'active'
       ),
       postProduction: mergedProjects.filter(p => 
-        p.status === ProjectStatus.COMPLETED
+        p.local?.status === ProjectStatus.COMPLETED || p.clickUp?.status === 'completed'
       ),
       archived: mergedProjects.filter(p => 
-        p.status === ProjectStatus.ARCHIVED
+        p.local?.status === ProjectStatus.ARCHIVED || p.clickUp?.status === 'archived'
       )
     };
 
     // Count projects by status
     const projectStatusCounts = {
-      newNotSent: mergedProjects.filter(p => p.status === ProjectStatus.NEW_NOT_SENT).length,
-      newSent: mergedProjects.filter(p => p.status === ProjectStatus.NEW_SENT).length,
+      newNotSent: mergedProjects.filter(p => p.local?.status === ProjectStatus.NEW_NOT_SENT).length,
+      newSent: mergedProjects.filter(p => p.local?.status === ProjectStatus.NEW_SENT).length,
       pendingClickUp: 0, // Always 0 since PENDING_CLICKUP is redundant
-      activeInClickUp: mergedProjects.filter(p => p.status === ProjectStatus.ACTIVE).length,
-      completed: mergedProjects.filter(p => p.status === ProjectStatus.COMPLETED).length,
-      archived: mergedProjects.filter(p => p.status === ProjectStatus.ARCHIVED).length
+      activeInClickUp: mergedProjects.filter(p => p.local?.status === ProjectStatus.ACTIVE || p.clickUp?.status === 'active').length,
+      completed: mergedProjects.filter(p => p.local?.status === ProjectStatus.COMPLETED || p.clickUp?.status === 'completed').length,
+      archived: mergedProjects.filter(p => p.local?.status === ProjectStatus.ARCHIVED || p.clickUp?.status === 'archived').length
     };
 
     console.log('Projects by status:', projectsByStatus);

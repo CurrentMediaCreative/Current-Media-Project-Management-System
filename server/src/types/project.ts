@@ -54,6 +54,9 @@ export interface ProjectPageData {
   clickUp?: ClickUpData;
 }
 
+// Re-export LocalProject as Project for backward compatibility
+export type Project = LocalProject;
+
 export interface CreateProjectInput {
   title: string;
   client: string;

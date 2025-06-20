@@ -1,5 +1,5 @@
 import { clickupService } from '../services/clickupService';
-import { MappedProject } from '../../../shared/src/types/clickup';
+import { ClickUpData } from '../types/project';
 import fs from 'fs';
 import path from 'path';
 
@@ -47,11 +47,11 @@ async function exploreClickUpData() {
 
           // Get tasks
           console.log('Fetching Tasks...');
-          const mappedProjects = await clickupService.getTasks(list.id);
-          writeResult('05-mapped-projects.json', mappedProjects);
+          const clickupProjects = await clickupService.getTasks(list.id) as ClickUpData[];
+          writeResult('05-mapped-projects.json', clickupProjects);
 
-          if (mappedProjects.length > 0) {
-            const project = mappedProjects[0];
+          if (clickupProjects.length > 0) {
+            const project = clickupProjects[0];
             console.log(`Using project: ${project.name}`);
 
             // Get detailed task info
