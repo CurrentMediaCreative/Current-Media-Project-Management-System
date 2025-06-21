@@ -46,7 +46,6 @@ class ClickUpService {
   }
 
   async getTasks(): Promise<ClickUpTask[]> {
-    await this.validateConfig();
     return this.getAllTasks();
   }
 
@@ -85,15 +84,8 @@ class ClickUpService {
   }
 
   // Additional helper methods for workspace/space/list management
-  async getWorkspaces(): Promise<any> {
-    const response = await axios.get(`${this.baseUrl}/team`, {
-      headers: this.getHeaders()
-    });
-    return response.data.teams;
-  }
-
-  async getSpaces(teamId: string): Promise<any> {
-    const response = await axios.get(`${this.baseUrl}/team/${teamId}/space`, {
+  async getSpaces(workspaceId: string): Promise<any> {
+    const response = await axios.get(`${this.baseUrl}/team/${workspaceId}/space?archived=false`, {
       headers: this.getHeaders()
     });
     return response.data.spaces;
@@ -133,11 +125,20 @@ class ClickUpService {
           for (const list of lists) {
             try {
               const response = await this.retryRequest(() =>
-                axios.get(`${this.baseUrl}/list/${list.id}/task`, {
-                  headers: this.getHeaders()
+                axios.get(`${this.baseUrl}/list/${list.id}/task?archived=false`, {
+                  headers: this.getHeaders(),
+                  params: {
+                    subtasks: true,
+                    include_closed: true
+                  }
                 })
               );
-              allTasks = [...allTasks, ...response.data.tasks];
+              
+              if (response.data && Array.isArray(response.data.tasks)) {
+                allTasks = [...allTasks, ...response.data.tasks];
+              } else {
+                console.warn(`Unexpected response format for list ${list.id}:`, response.data);
+              }
             } catch (listError) {
               console.error(`Error fetching tasks for list ${list.id}:`, listError);
               // Continue with next list
@@ -152,6 +153,9 @@ class ClickUpService {
       return allTasks;
     } catch (error) {
       console.error('Error in getAllTasks:', error);
+      if (error instanceof Error) {
+        throw error;
+      }
       throw new Error('Failed to fetch ClickUp tasks');
     }
   }

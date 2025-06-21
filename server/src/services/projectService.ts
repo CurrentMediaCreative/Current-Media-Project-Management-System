@@ -65,7 +65,7 @@ class ProjectService {
   }
 
   async getProjects(filters?: { status?: string }): Promise<LocalProject[]> {
-    let query = 'SELECT * FROM projects';
+    let query = 'SELECT * FROM "Projects"';
     const values: any[] = [];
 
     if (filters?.status) {
@@ -80,12 +80,12 @@ class ProjectService {
   }
 
   async getProjectById(id: string): Promise<LocalProject | null> {
-    const result = await db.query('SELECT * FROM projects WHERE id = $1', [id]);
+    const result = await db.query('SELECT * FROM "Projects" WHERE id = $1', [id]);
     return result.rows.length ? this.mapToLocalProject(result.rows[0]) : null;
   }
 
   async checkProjectExists(name: string): Promise<boolean> {
-    const result = await db.query('SELECT EXISTS(SELECT 1 FROM projects WHERE name = $1)', [name]);
+    const result = await db.query('SELECT EXISTS(SELECT 1 FROM "Projects" WHERE name = $1)', [name]);
     return result.rows[0].exists;
   }
 
