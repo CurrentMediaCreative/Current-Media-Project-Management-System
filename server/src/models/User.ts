@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { storage } from '../services/storageService';
 import { v4 as uuidv4 } from 'uuid';
 
