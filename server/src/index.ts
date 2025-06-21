@@ -7,6 +7,7 @@ import clickupRoutes from './api/clickup/clickupRoutes';
 import documentRoutes from './api/documents/documentRoutes';
 import dashboardRoutes from './api/dashboard/dashboardRoutes';
 import contractorRoutes from './api/contractors/contractorRateRoutes';
+import authRoutes from './api/auth/authRoutes';
 import { authMiddleware } from './middleware/authMiddleware';
 
 // Load environment variables
@@ -27,6 +28,10 @@ app.use(cors({
 app.use(express.json());
 
 // API Routes
+// Auth routes (unprotected)
+app.use('/api/auth', authRoutes);
+
+// Protected routes
 app.use('/api/projects', authMiddleware, projectRoutes);
 app.use('/api/clickup', authMiddleware, clickupRoutes);
 app.use('/api/documents', authMiddleware, documentRoutes);
