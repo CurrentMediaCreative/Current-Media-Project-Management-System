@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
+import { Express } from 'express';
 
 interface AuthRequest extends Request {
   user?: {
@@ -8,6 +9,7 @@ interface AuthRequest extends Request {
     email: string;
     role: string;
   };
+  file?: Express.Multer.File;
 }
 
 export const uploadDocument = async (req: AuthRequest, res: Response) => {

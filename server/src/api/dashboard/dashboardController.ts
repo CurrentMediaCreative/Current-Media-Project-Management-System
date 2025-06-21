@@ -12,7 +12,15 @@ interface AuthRequest extends Request {
   };
 }
 
-export const getDashboardData = async (req: AuthRequest, res: Response) => {
+interface Notification {
+  id: string;
+  userId: string;
+  message: string;
+  read: boolean;
+  createdAt: Date;
+}
+
+export const getDashboardOverview = async (req: AuthRequest, res: Response) => {
   try {
     // Get local projects
     const localProjects = await projectService.getProjects();
@@ -75,5 +83,32 @@ export const getTaskSummary = async (req: AuthRequest, res: Response) => {
   } catch (error) {
     console.error('Error getting task summary:', error);
     res.status(500).json({ error: 'Failed to get task summary' });
+  }
+};
+
+export const getNotifications = async (req: AuthRequest, res: Response) => {
+  try {
+    // Get user notifications from database
+    // This is a placeholder - implement actual notification retrieval logic
+    const notifications: Notification[] = [];
+    
+    res.json(notifications);
+  } catch (error) {
+    console.error('Error getting notifications:', error);
+    res.status(500).json({ error: 'Failed to get notifications' });
+  }
+};
+
+export const markNotificationRead = async (req: AuthRequest, res: Response) => {
+  try {
+    const notificationId = req.params.id;
+    
+    // Mark notification as read in database
+    // This is a placeholder - implement actual notification update logic
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    res.status(500).json({ error: 'Failed to mark notification as read' });
   }
 };

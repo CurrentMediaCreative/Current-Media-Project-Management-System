@@ -1,6 +1,6 @@
-import express from 'express';
+import express, { Request } from 'express';
 import { authMiddleware } from '../../middleware/authMiddleware';
-import multer from 'multer';
+import multer, { FileFilterCallback } from 'multer';
 import path from 'path';
 import { uploadDocument, getDocument, deleteDocument } from './documentController';
 
@@ -8,16 +8,37 @@ const router = express.Router();
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  destination: (
+    req: Request,
+    file: Express.Multer.File,
+    cb: (error: Error | null, destination: string) => void
+  ) => {
     cb(null, path.join(__dirname, '../../../uploads'));
   },
-  filename: (req, file, cb) => {
+  filename: (
+    req: Request,
+    file: Express.Multer.File,
+    cb: (error: Error | null, filename: string) => void
+  ) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
 
-const upload = multer({ storage });
+// Optional: Add file filter if needed
+const fileFilter = (
+  req: Request,
+  file: Express.Multer.File,
+  cb: FileFilterCallback
+) => {
+  // Add any file type restrictions here if needed
+  cb(null, true);
+};
+
+const upload = multer({ 
+  storage,
+  fileFilter
+});
 
 // Upload a document
 router.post('/', authMiddleware, upload.single('file'), uploadDocument);
