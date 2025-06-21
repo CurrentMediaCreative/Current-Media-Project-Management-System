@@ -27,19 +27,19 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// API Routes
+// API Routes with /pms prefix
 // Auth routes (unprotected)
-app.use('/api/auth', authRoutes);
+app.use('/pms/api/auth', authRoutes);
 
 // Protected routes
-app.use('/api/projects', authMiddleware, projectRoutes);
-app.use('/api/clickup', authMiddleware, clickupRoutes);
-app.use('/api/documents', authMiddleware, documentRoutes);
-app.use('/api/dashboard', authMiddleware, dashboardRoutes);
-app.use('/api/contractors', authMiddleware, contractorRoutes);
+app.use('/pms/api/projects', authMiddleware, projectRoutes);
+app.use('/pms/api/clickup', authMiddleware, clickupRoutes);
+app.use('/pms/api/documents', authMiddleware, documentRoutes);
+app.use('/pms/api/dashboard', authMiddleware, dashboardRoutes);
+app.use('/pms/api/contractors', authMiddleware, contractorRoutes);
 
 // API 404 handler
-app.use('/api/*', (req, res) => {
+app.use('/pms/api/*', (req, res) => {
   res.status(404).json({ message: 'API endpoint not found' });
 });
 

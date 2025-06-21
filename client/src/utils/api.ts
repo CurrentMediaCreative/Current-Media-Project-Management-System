@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Configure API base URL
 const baseURL = import.meta.env.PROD 
-  ? 'https://current-media-project-management-api.onrender.com'  // Production API URL
+  ? 'https://current-media-project-management-api.onrender.com/pms/api'  // Production API URL
   : '/pms/api';  // In development, include /pms prefix
 
 const api = axios.create({
