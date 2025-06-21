@@ -43,8 +43,6 @@ services:
       - type: rewrite
         source: /*
         destination: /index.html
-    domains:
-      - pms.currentmedia.ca
     envVars:
       - key: VITE_API_URL
         value: https://current-media-project-management-api.onrender.com/api
