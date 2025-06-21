@@ -1,5 +1,20 @@
-import { User } from './user';
 import { Request } from 'express';
+import { Express } from 'express';
+
+export interface AuthRequest extends Request {
+  user?: {
+    id: string;
+    email: string;
+    role: string;
+  };
+  file?: Express.Multer.File;
+}
+
+export interface JwtPayload {
+  userId: string;
+  email: string;
+  role: string;
+}
 
 export interface LoginInput {
   email: string;
@@ -7,32 +22,22 @@ export interface LoginInput {
   googleId?: string;
 }
 
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface RegisterData extends LoginCredentials {
+  name: string;
+  role?: string;
+}
+
 export interface AuthResponse {
+  token: string;
   user: {
     id: string;
     email: string;
     name: string;
-    role: string;
-  };
-  token: string;
-}
-
-export interface JwtPayload {
-  userId: string;
-  email: string;
-  role: string;
-  iat?: number;
-  exp?: number;
-}
-
-export interface AuthUser extends Omit<User, 'password'> {
-  token: string;
-}
-
-export interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    email: string;
     role: string;
   };
 }
