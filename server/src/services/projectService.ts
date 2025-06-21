@@ -27,22 +27,32 @@ class ProjectService {
         ]
       );
 
-      // Create project folder if it doesn't exist
-      const projectFolderPath = path.join(process.cwd(), 'data', 'projects', project.rows[0].id);
-      if (!fs.existsSync(projectFolderPath)) {
-        fs.mkdirSync(projectFolderPath, { recursive: true });
+      let updatedProject = project;
+
+      // Only handle file operations in development
+      if (process.env.NODE_ENV !== 'production') {
+        try {
+          // Create project folder if it doesn't exist
+          const projectFolderPath = path.join(process.cwd(), 'data', 'projects', project.rows[0].id);
+          if (!fs.existsSync(projectFolderPath)) {
+            fs.mkdirSync(projectFolderPath, { recursive: true });
+          }
+
+          // Create project page
+          const pageContent = this.generateProjectPage(project.rows[0]);
+          const pagePath = path.join(projectFolderPath, 'index.html');
+          fs.writeFileSync(pagePath, pageContent);
+
+          // Update folder path in database
+          updatedProject = await client.query(
+            'UPDATE projects SET folder_path = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *',
+            [projectFolderPath, project.rows[0].id]
+          );
+        } catch (fileError) {
+          console.error('File operation error:', fileError);
+          // Continue without file operations in case of error
+        }
       }
-
-      // Create project page
-      const pageContent = this.generateProjectPage(project.rows[0]);
-      const pagePath = path.join(projectFolderPath, 'index.html');
-      fs.writeFileSync(pagePath, pageContent);
-
-      // Update folder path in database
-      const updatedProject = await client.query(
-        'UPDATE projects SET folder_path = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *',
-        [projectFolderPath, project.rows[0].id]
-      );
 
       await client.query('COMMIT');
       return this.mapToLocalProject(updatedProject.rows[0]);
@@ -137,11 +147,16 @@ class ProjectService {
     const result = await db.query(query, values);
     const updatedProject = this.mapToLocalProject(result.rows[0]);
 
-    // Update project page
-    if (updatedProject.folderPath) {
-      const pagePath = path.join(updatedProject.folderPath, 'index.html');
-      const pageContent = this.generateProjectPage(result.rows[0]);
-      fs.writeFileSync(pagePath, pageContent);
+    // Only handle file operations in development
+    if (process.env.NODE_ENV !== 'production' && updatedProject.folderPath) {
+      try {
+        const pagePath = path.join(updatedProject.folderPath, 'index.html');
+        const pageContent = this.generateProjectPage(result.rows[0]);
+        fs.writeFileSync(pagePath, pageContent);
+      } catch (fileError) {
+        console.error('File operation error:', fileError);
+        // Continue without file operations in case of error
+      }
     }
 
     return updatedProject;

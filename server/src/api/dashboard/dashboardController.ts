@@ -21,14 +21,28 @@ interface Notification {
 }
 
 export const getDashboardOverview = async (req: AuthRequest, res: Response) => {
+  let localProjects: LocalProject[] = [];
+  let clickUpTasks: ClickUpTask[] = [];
+  let errors: string[] = [];
+
   try {
     // Get local projects
-    const localProjects = await projectService.getProjects();
+    try {
+      localProjects = await projectService.getProjects();
+    } catch (projectError) {
+      console.error('Error fetching local projects:', projectError);
+      errors.push('Failed to fetch local projects');
+    }
 
     // Get ClickUp tasks
-    const clickUpTasks = await clickupService.getTasks();
+    try {
+      clickUpTasks = await clickupService.getTasks();
+    } catch (clickUpError) {
+      console.error('Error fetching ClickUp tasks:', clickUpError);
+      errors.push('Failed to fetch ClickUp tasks');
+    }
 
-    // Combine data
+    // Return data even if some parts failed
     const dashboardData = {
       localProjects,
       clickUpTasks,
@@ -36,13 +50,21 @@ export const getDashboardOverview = async (req: AuthRequest, res: Response) => {
         totalProjects: localProjects.length,
         totalTasks: clickUpTasks.length,
         linkedTasks: localProjects.filter(p => p.clickUpId).length
-      }
+      },
+      errors: errors.length > 0 ? errors : undefined
     };
 
-    res.json(dashboardData);
+    // If both fetches failed, return 500, otherwise return partial data with 206
+    if (errors.length === 2) {
+      res.status(500).json({ error: 'Failed to get any dashboard data', errors });
+    } else if (errors.length > 0) {
+      res.status(206).json(dashboardData);
+    } else {
+      res.json(dashboardData);
+    }
   } catch (error) {
-    console.error('Error getting dashboard data:', error);
-    res.status(500).json({ error: 'Failed to get dashboard data' });
+    console.error('Critical error in dashboard overview:', error);
+    res.status(500).json({ error: 'Failed to process dashboard data', errors });
   }
 };
 
