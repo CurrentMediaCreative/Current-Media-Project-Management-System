@@ -54,3 +54,4 @@ client/coverage/
 Cline/
 memory-bank/
 Reference Images/
+server/config/*.js
