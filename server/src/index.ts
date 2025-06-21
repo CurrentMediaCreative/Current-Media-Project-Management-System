@@ -19,9 +19,6 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from React build
-app.use(express.static(path.join(__dirname, '../../client/dist')));
-
 // API Routes
 app.use('/api/projects', authMiddleware, projectRoutes);
 app.use('/api/clickup', authMiddleware, clickupRoutes);
@@ -29,15 +26,20 @@ app.use('/api/documents', authMiddleware, documentRoutes);
 app.use('/api/dashboard', authMiddleware, dashboardRoutes);
 app.use('/api/contractors', authMiddleware, contractorRoutes);
 
-// Serve React app for all other routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
+// API 404 handler
+app.use('/api/*', (req, res) => {
+  res.status(404).json({ message: 'API endpoint not found' });
+});
+
+// Root path handler
+app.get('/', (req, res) => {
+  res.json({ message: 'Current Media Project Management API' });
 });
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err.stack);
-  res.status(500).send('Something broke!');
+  res.status(500).json({ message: 'Internal server error', error: err.message });
 });
 
 // Start server
