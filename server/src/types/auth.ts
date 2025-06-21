@@ -8,6 +8,10 @@ export interface AuthRequest extends Request {
     role: string;
   };
   file?: Express.Multer.File;
+  params: Request['params'];
+  body: Request['body'];
+  query: Request['query'];
+  headers: Request['headers'];
 }
 
 export interface JwtPayload {

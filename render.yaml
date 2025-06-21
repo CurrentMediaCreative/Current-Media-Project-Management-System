@@ -2,7 +2,7 @@ services:
   - type: web
     name: current-media-project-management-api
     env: node
-    buildCommand: cd server && npm install && npm run build
+    buildCommand: cd server && NODE_ENV=production npm install --include=dev && npm run build
     startCommand: cd server && node dist/src/index.js
     envVars:
       - key: NODE_ENV
