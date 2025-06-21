@@ -5,7 +5,8 @@ import path from 'path';
 async function initializeDatabase() {
   try {
     // Read the schema file
-    const schemaPath = path.join(__dirname, '../../config/schema.sql');
+    const schemaPath = path.join(process.cwd(), 'config/schema.sql');
+    console.log('Looking for schema at:', schemaPath);
     const schema = fs.readFileSync(schemaPath, 'utf8');
 
     // Execute the schema
