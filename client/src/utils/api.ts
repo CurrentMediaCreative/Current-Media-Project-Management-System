@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Configure API base URL
 const baseURL = import.meta.env.PROD 
-  ? import.meta.env.VITE_API_URL  // Use the full API URL in production
+  ? 'https://current-media-project-management-api.onrender.com'  // Production API URL
   : '/pms/api';  // In development, include /pms prefix
 
 const api = axios.create({
@@ -10,12 +10,15 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // 10 second timeout
+  timeout: 10000 // 10 second timeout
 });
 
 // Add request interceptor for auth token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
+  
+  // Clear any existing Authorization header
+  delete config.headers.Authorization;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

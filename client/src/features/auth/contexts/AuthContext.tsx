@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../../../types/auth';
+import api from '../../../utils/api';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string) => Promise<User>;
+  login: (email: string, password: string) => Promise<User>;
   logout: () => Promise<void>;
 }
 
@@ -26,16 +27,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Check for existing session
     const checkAuth = async () => {
       try {
-        const token = localStorage.getItem('auth_token');
+        const token = localStorage.getItem('token');
         if (token) {
-          // TODO: Validate token with backend
-          const mockUser: User = {
-            id: '1',
-            email: 'user@example.com',
-            name: 'Test User',
-            role: 'admin'
-          };
-          setUser(mockUser);
+          const { data: { user } } = await api.get('/auth/validate');
+          setUser(user);
         }
       } catch (error) {
         console.error('Auth check failed:', error);
@@ -47,19 +42,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkAuth();
   }, []);
 
-  const login = async (email: string): Promise<User> => {
+  const login = async (email: string, password: string): Promise<User> => {
     try {
       setLoading(true);
-      // TODO: Implement actual login logic
-      const mockUser: User = {
-        id: '1',
-        email,
-        name: 'Test User',
-        role: 'admin'
-      };
-      localStorage.setItem('auth_token', 'mock_token');
-      setUser(mockUser);
-      return mockUser;
+      const { data: { user, token } } = await api.post('/auth/login', { email, password });
+      localStorage.setItem('token', token);
+      setUser(user);
+      return user;
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
@@ -71,7 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     try {
       setLoading(true);
-      localStorage.removeItem('auth_token');
+      localStorage.removeItem('token');
       setUser(null);
     } catch (error) {
       console.error('Logout failed:', error);

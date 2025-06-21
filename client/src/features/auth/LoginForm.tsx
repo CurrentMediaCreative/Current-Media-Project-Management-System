@@ -34,7 +34,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
       try {
         setError(null);
         setIsLoading(true);
-        const user = await login(values.email);
+        const user = await login(values.email, values.password);
         onSubmit(user);
       } catch (err) {
         setError('Invalid credentials');
