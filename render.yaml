@@ -38,5 +38,5 @@ services:
 
 databases:
   - name: current-media-db
-    plan: standard
+    plan: free
     ipAllowList: []
