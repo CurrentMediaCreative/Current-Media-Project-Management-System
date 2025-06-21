@@ -3,7 +3,7 @@ services:
     name: current-media-project-management-api
     env: node
     buildCommand: cd server && npm install && npm run build
-    startCommand: cd server && node dist/index.js
+    startCommand: cd server && node dist/src/index.js
     envVars:
       - key: NODE_ENV
         value: production
