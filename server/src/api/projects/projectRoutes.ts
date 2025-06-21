@@ -1,48 +1,45 @@
 import express from 'express';
-import * as projectController from './projectController';
-import { validateProjectId, validateClickUpId } from './projectValidation';
-import { authenticateToken } from '../../middleware/authMiddleware';
+import { authMiddleware } from '../../middleware/authMiddleware';
+import {
+  createProject,
+  getProjects,
+  getProjectById,
+  updateProject,
+  deleteProject,
+  checkProjectExists,
+  pollClickUpData,
+  linkClickUpTask,
+  unlinkClickUpTask
+} from './projectController';
+import { validateProject } from './projectValidation';
 
 const router = express.Router();
 
-/**
- * Get all projects
- */
-router.get('/', projectController.getProjects);
+// Project existence check
+router.get('/exists/:name', authMiddleware, checkProjectExists);
 
-/**
- * Create new project
- */
-router.post('/', projectController.createProject);
+// ClickUp data polling
+router.get('/poll-clickup', authMiddleware, pollClickUpData);
 
-/**
- * Check if project exists by ClickUp ID
- */
-router.get('/check/:clickUpId', authenticateToken, validateClickUpId, projectController.checkProjectExists);
+// Create a new project
+router.post('/', authMiddleware, validateProject, createProject);
 
-/**
- * Get project by ID
- */
-router.get('/:id', validateProjectId, projectController.getProjectById);
+// Get all projects
+router.get('/', authMiddleware, getProjects);
 
-/**
- * Update project
- */
-router.patch('/:id', validateProjectId, projectController.updateProject);
+// Get a specific project
+router.get('/:id', authMiddleware, getProjectById);
 
-/**
- * Save project progress
- */
-router.patch('/:id/progress', validateProjectId, projectController.saveProgress);
+// Update a project
+router.put('/:id', authMiddleware, validateProject, updateProject);
 
-/**
- * Delete project
- */
-router.delete('/:id', validateProjectId, projectController.deleteProject);
+// Delete a project
+router.delete('/:id', authMiddleware, deleteProject);
 
-// Handle 404s for unknown routes
-router.use('*', (_req, res) => {
-  res.status(404).json({ message: 'Project endpoint not found' });
-});
+// Link ClickUp task (by name matching)
+router.post('/:id/clickup/:taskName', authMiddleware, linkClickUpTask);
+
+// Unlink ClickUp task
+router.delete('/:id/clickup', authMiddleware, unlinkClickUpTask);
 
 export default router;

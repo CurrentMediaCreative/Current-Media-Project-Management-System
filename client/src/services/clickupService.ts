@@ -24,6 +24,11 @@ class ClickUpService {
     }
   }
 
+  async getTaskDetails(taskId: string): Promise<ClickUpTask> {
+    const response = await api.get(`/clickup/tasks/${taskId}/details`);
+    return response.data;
+  }
+
   async getSubTasks(taskId: string): Promise<ClickUpTask[] | null> {
     try {
       const response = await api.get(`/clickup/tasks/${taskId}/subtasks`);

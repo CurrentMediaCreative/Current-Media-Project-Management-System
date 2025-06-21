@@ -17,13 +17,14 @@ import {
   Alert
 } from '@mui/material';
 import { format } from 'date-fns';
-import { ProjectPageData, ClickUpTask, CLICKUP_FIELD_NAMES } from '../../../types';
+import { ProjectPageData, ClickUpTask, ClickUpCustomField, CLICKUP_FIELD_NAMES } from '../../../types';
+import { ProjectFormData } from '../../projects/creation/types';
 import ProjectDocuments from './ProjectDocuments';
 import { clickupService } from '../../../services/clickupService';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface ProjectDetailsDialogProps {
   open: boolean;
@@ -31,6 +32,31 @@ interface ProjectDetailsDialogProps {
   project: ProjectPageData;
   isInSystem?: boolean;
 }
+
+// Helper to get custom field value by name
+const getCustomFieldValue = (task: ClickUpTask, fieldName: string): string | number | null => {
+  const field = task.custom_fields?.find(f => f.name === fieldName);
+  return field?.value || null;
+};
+
+// Helper to convert ClickUp data to ProjectFormData
+const convertClickUpToFormData = (clickUpData: ClickUpTask): Partial<ProjectFormData> => {
+  return {
+    title: clickUpData.name,
+    client: getCustomFieldValue(clickUpData, CLICKUP_FIELD_NAMES.CLIENT)?.toString() || '',
+    timeframe: {
+      startDate: clickUpData.date_created ? format(new Date(parseInt(clickUpData.date_created)), 'yyyy-MM-dd') : '',
+      endDate: clickUpData.date_updated ? format(new Date(parseInt(clickUpData.date_updated)), 'yyyy-MM-dd') : ''
+    },
+    budget: {
+      estimated: parseFloat(getCustomFieldValue(clickUpData, CLICKUP_FIELD_NAMES.BUDGET)?.toString() || '0'),
+      actual: 0,
+      profitTarget: 20, // Default values from ProjectCreationFlow
+      contingencyPercentage: 10
+    },
+    contractors: []
+  };
+};
 
 export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
   open,
@@ -76,6 +102,25 @@ export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
   const handleEditProject = () => {
     if (!project.local?.id) return;
     navigate(`/projects/${project.local.id}/edit`);
+    onClose();
+  };
+
+  const handleCreateLocalProject = () => {
+    if (!taskDetails) return;
+    
+    // Convert ClickUp data to form data format
+    const formData = convertClickUpToFormData(taskDetails);
+    
+    // Store the form data in localStorage for ProjectCreationFlow
+    localStorage.setItem('project_creation_state', JSON.stringify(formData));
+    
+    // Navigate to project creation flow
+    navigate('/projects/create', { 
+      state: { 
+        fromClickUp: true,
+        clickUpId: project.clickUp?.id 
+      }
+    });
     onClose();
   };
 
@@ -142,7 +187,7 @@ export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
           <Typography>{project.local?.client || 'Unknown'}</Typography>
           
           <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>Task Type</Typography>
-          <Typography>{project.clickUp?.customFields[CLICKUP_FIELD_NAMES.TASK_TYPE] || 'Not Specified'}</Typography>
+          <Typography>{getCustomFieldValue(taskDetails, CLICKUP_FIELD_NAMES.TASK_TYPE)?.toString() || 'Not Specified'}</Typography>
           
           <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>Created</Typography>
           <Typography>
@@ -159,12 +204,12 @@ export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
           </Typography>
           
           <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>Invoice Status</Typography>
-          <Typography>{project.clickUp?.customFields[CLICKUP_FIELD_NAMES.INVOICE_STATUS] || 'Not Set'}</Typography>
+          <Typography>{getCustomFieldValue(taskDetails, CLICKUP_FIELD_NAMES.INVOICE_STATUS)?.toString() || 'Not Set'}</Typography>
           
-          {project.clickUp?.customFields[CLICKUP_FIELD_NAMES.INVOICE_NUMBER] && (
+          {getCustomFieldValue(taskDetails, CLICKUP_FIELD_NAMES.INVOICE_NUMBER) && (
             <>
               <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>Invoice #</Typography>
-              <Typography>{project.clickUp?.customFields[CLICKUP_FIELD_NAMES.INVOICE_NUMBER]}</Typography>
+              <Typography>{getCustomFieldValue(taskDetails, CLICKUP_FIELD_NAMES.INVOICE_NUMBER)?.toString()}</Typography>
             </>
           )}
         </Box>
@@ -226,26 +271,36 @@ export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
           </Button>
         ) : (
           <Box>
-            <Button
-              startIcon={<AddIcon />}
-              onClick={() => handleCreateDocument('overview')}
-              sx={{ mr: 1 }}
-            >
-              Create Overview
-            </Button>
-            <Button
-              startIcon={<AddIcon />}
-              onClick={() => handleCreateDocument('budget')}
-              sx={{ mr: 1 }}
-            >
-              Create Budget
-            </Button>
-            <Button
-              variant="contained"
-              onClick={handleImportProject}
-            >
-              Import Project
-            </Button>
+            <Box>
+              <Button
+                startIcon={<AddIcon />}
+                onClick={() => handleCreateDocument('overview')}
+                sx={{ mr: 1 }}
+              >
+                Create Overview
+              </Button>
+              <Button
+                startIcon={<AddIcon />}
+                onClick={() => handleCreateDocument('budget')}
+                sx={{ mr: 1 }}
+              >
+                Create Budget
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleCreateLocalProject}
+                sx={{ mr: 1 }}
+              >
+                Create Local Project
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={handleImportProject}
+              >
+                Import Project
+              </Button>
+            </Box>
           </Box>
         )}
       </DialogActions>

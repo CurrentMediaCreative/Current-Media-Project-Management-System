@@ -1,107 +1,68 @@
 import { Request, Response } from 'express';
-import { storage } from '../../services/storageService';
-import { Readable } from 'stream';
-import { AuthenticatedRequest } from '../../types/auth';
+import fs from 'fs';
+import path from 'path';
 
-export const documentController = {
-  // Upload a document
-  uploadDocument: async (req: AuthenticatedRequest, res: Response) => {
-    try {
-      const { projectId, documentType } = req.params;
-      const file = req.file;
+interface AuthRequest extends Request {
+  user?: {
+    id: string;
+    email: string;
+    role: string;
+  };
+}
 
-      if (!file) {
-        return res.status(400).json({ error: 'No file provided' });
-      }
-
-      if (!Object.keys(storage.ALLOWED_DOCUMENT_TYPES).includes(documentType)) {
-        return res.status(400).json({ error: 'Invalid document type' });
-      }
-
-      // Convert buffer to stream
-      const stream = Readable.from(file.buffer);
-      
-      const filePath = await storage.storeDocument(
-        projectId,
-        documentType as keyof typeof storage.ALLOWED_DOCUMENT_TYPES,
-        file.originalname,
-        stream
-      );
-
-      res.json({ 
-        message: 'Document uploaded successfully',
-        filePath 
-      });
-    } catch (error: any) {
-      console.error('Document upload error:', error);
-      res.status(500).json({ error: error.message });
+export const uploadDocument = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
     }
-  },
 
-  // Download a document
-  downloadDocument: async (req: AuthenticatedRequest, res: Response) => {
-    try {
-      const { projectId, documentType, filename } = req.params;
+    const documentPath = req.file.path;
+    const documentName = req.file.filename;
 
-      if (!Object.keys(storage.ALLOWED_DOCUMENT_TYPES).includes(documentType)) {
-        return res.status(400).json({ error: 'Invalid document type' });
+    res.status(201).json({
+      message: 'Document uploaded successfully',
+      document: {
+        name: documentName,
+        path: documentPath
       }
+    });
+  } catch (error) {
+    console.error('Error uploading document:', error);
+    res.status(500).json({ error: 'Failed to upload document' });
+  }
+};
 
-      const stream = await storage.getDocumentStream(
-        projectId,
-        documentType as keyof typeof storage.ALLOWED_DOCUMENT_TYPES,
-        filename
-      );
+export const getDocument = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const uploadsDir = path.join(__dirname, '../../../uploads');
+    const filePath = path.join(uploadsDir, id);
 
-      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-      stream.pipe(res);
-    } catch (error: any) {
-      console.error('Document download error:', error);
-      res.status(error.message.includes('not found') ? 404 : 500)
-         .json({ error: error.message });
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'Document not found' });
     }
-  },
 
-  // Delete a document
-  deleteDocument: async (req: AuthenticatedRequest, res: Response) => {
-    try {
-      const { projectId, documentType, filename } = req.params;
+    res.download(filePath);
+  } catch (error) {
+    console.error('Error getting document:', error);
+    res.status(500).json({ error: 'Failed to get document' });
+  }
+};
 
-      if (!Object.keys(storage.ALLOWED_DOCUMENT_TYPES).includes(documentType)) {
-        return res.status(400).json({ error: 'Invalid document type' });
-      }
+export const deleteDocument = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const uploadsDir = path.join(__dirname, '../../../uploads');
+    const filePath = path.join(uploadsDir, id);
 
-      await storage.deleteDocument(
-        projectId,
-        documentType as keyof typeof storage.ALLOWED_DOCUMENT_TYPES,
-        filename
-      );
-
-      res.json({ message: 'Document deleted successfully' });
-    } catch (error: any) {
-      console.error('Document deletion error:', error);
-      res.status(500).json({ error: error.message });
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'Document not found' });
     }
-  },
 
-  // List documents
-  listDocuments: async (req: AuthenticatedRequest, res: Response) => {
-    try {
-      const { projectId, documentType } = req.params;
-
-      if (!Object.keys(storage.ALLOWED_DOCUMENT_TYPES).includes(documentType)) {
-        return res.status(400).json({ error: 'Invalid document type' });
-      }
-
-      const files = await storage.listDocuments(
-        projectId,
-        documentType as keyof typeof storage.ALLOWED_DOCUMENT_TYPES
-      );
-
-      res.json({ files });
-    } catch (error: any) {
-      console.error('Document listing error:', error);
-      res.status(500).json({ error: error.message });
-    }
+    fs.unlinkSync(filePath);
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error deleting document:', error);
+    res.status(500).json({ error: 'Failed to delete document' });
   }
 };

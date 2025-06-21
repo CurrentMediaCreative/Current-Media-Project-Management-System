@@ -1,67 +1,69 @@
-/**
- * ClickUp Controller
- * 
- * This controller provides read-only access to ClickUp data.
- * It is used to fetch and display project information from ClickUp,
- * but never modifies any data in ClickUp. All modifications are
- * handled locally in our own system.
- */
-
 import { Request, Response } from 'express';
 import { clickupService } from '../../services/clickupService';
+import { ClickUpData } from '../../types/clickup';
 
-export const getTask = async (req: Request, res: Response) => {
+interface AuthRequest extends Request {
+  user?: {
+    id: string;
+    email: string;
+    role: string;
+  };
+}
+
+export const getClickUpTasks = async (req: AuthRequest, res: Response) => {
   try {
-    const { taskId } = req.params;
-    if (!taskId) {
-      return res.status(400).json({ message: 'Task ID is required' });
-    }
-    
-    const task = await clickupService.getTask(taskId);
-    if (!task) {
-      return res.status(404).json({ message: 'Task not found' });
-    }
-    
-    res.json(task);
-  } catch (error: any) {
-    console.error('Error fetching task:', error);
-    if (error.response?.status === 404) {
-      return res.status(404).json({ message: 'Task not found in ClickUp' });
-    }
-    if (error.response?.status === 401) {
-      return res.status(401).json({ message: 'Unauthorized access to ClickUp' });
-    }
-    res.status(500).json({ 
-      message: 'Failed to fetch task details',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+    const tasks = await clickupService.getTasks();
+    res.json(tasks);
+  } catch (error) {
+    console.error('Error getting ClickUp tasks:', error);
+    res.status(500).json({ error: 'Failed to get ClickUp tasks' });
   }
 };
 
-export const getSubTasks = async (req: Request, res: Response) => {
+export const getClickUpTask = async (req: AuthRequest, res: Response) => {
   try {
     const { taskId } = req.params;
-    if (!taskId) {
-      return res.status(400).json({ message: 'Task ID is required' });
+    const task = await clickupService.getTask(taskId);
+    if (!task) {
+      return res.status(404).json({ error: 'Task not found' });
     }
+    res.json(task);
+  } catch (error) {
+    console.error('Error getting ClickUp task:', error);
+    res.status(500).json({ error: 'Failed to get ClickUp task' });
+  }
+};
 
-    const subTasks = await clickupService.getSubTasks(taskId);
-    if (!subTasks) {
-      return res.status(404).json({ message: 'No subtasks found' });
-    }
+export const createClickUpTask = async (req: AuthRequest, res: Response) => {
+  try {
+    const taskData: Partial<ClickUpData> = req.body;
+    const task = await clickupService.createTask(taskData);
+    res.status(201).json(task);
+  } catch (error) {
+    console.error('Error creating ClickUp task:', error);
+    res.status(500).json({ error: 'Failed to create ClickUp task' });
+  }
+};
 
-    res.json(subTasks);
-  } catch (error: any) {
-    console.error('Error fetching subtasks:', error);
-    if (error.response?.status === 404) {
-      return res.status(404).json({ message: 'Parent task not found in ClickUp' });
-    }
-    if (error.response?.status === 401) {
-      return res.status(401).json({ message: 'Unauthorized access to ClickUp' });
-    }
-    res.status(500).json({ 
-      message: 'Failed to fetch subtasks',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+export const updateClickUpTask = async (req: AuthRequest, res: Response) => {
+  try {
+    const { taskId } = req.params;
+    const taskData: Partial<ClickUpData> = req.body;
+    const task = await clickupService.updateTask(taskId, taskData);
+    res.json(task);
+  } catch (error) {
+    console.error('Error updating ClickUp task:', error);
+    res.status(500).json({ error: 'Failed to update ClickUp task' });
+  }
+};
+
+export const deleteClickUpTask = async (req: AuthRequest, res: Response) => {
+  try {
+    const { taskId } = req.params;
+    await clickupService.deleteTask(taskId);
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error deleting ClickUp task:', error);
+    res.status(500).json({ error: 'Failed to delete ClickUp task' });
   }
 };

@@ -1,102 +1,115 @@
-import { ProjectStatus } from './index';
-
 export interface ClickUpTask {
   id: string;
   name: string;
-  status?: {
+  description?: string;
+  status: {
     status: string;
+    type: string;
+  };
+  url: string;
+  list: {
+    id: string;
+  };
+  space: {
+    id: string;
+  };
+  folder: {
+    id: string;
+  };
+  customFields?: Record<string, any>;
+  assignees?: {
+    id: string;
+    username: string;
+    email: string;
+  }[];
+  tags?: {
+    name: string;
+    tag_fg: string;
+    tag_bg: string;
+  }[];
+  dueDate?: string;
+  startDate?: string;
+  timeEstimate?: number;
+  timeSpent?: number;
+  priority?: {
+    priority: string;
     color: string;
   };
-  url?: string;
-  date_created?: string;
-  date_updated?: string;
-  custom_fields?: ClickUpCustomField[];
 }
 
-export interface ClickUpCustomField {
+export interface ClickUpWorkspace {
   id: string;
   name: string;
-  type: string;
-  type_config: {
-    precision?: number;
-    currency_type?: string;
-    options?: ClickUpCustomFieldOption[];
-  };
-  date_created: string;
-  hide_from_guests: boolean;
-  required?: boolean;
-  value: string | number | null;
-}
-
-export interface ClickUpCustomFieldOption {
-  id: string;
-  name?: string;
-  label?: string;
-  color?: string;
-  orderindex?: number;
+  color: string;
+  avatar?: string;
+  members: {
+    user: {
+      id: string;
+      username: string;
+      email: string;
+    };
+    role: number;
+  }[];
 }
 
 export interface ClickUpSpace {
   id: string;
   name: string;
   private: boolean;
-  statuses: ClickUpStatus[];
-  features: Record<string, any>;
+  statuses: {
+    id: string;
+    status: string;
+    type: string;
+    orderindex: number;
+    color: string;
+  }[];
+  multiple_assignees: boolean;
+  features: {
+    due_dates: boolean;
+    time_tracking: boolean;
+    tags: boolean;
+    time_estimates: boolean;
+    checklists: boolean;
+    custom_fields: boolean;
+    remap_dependencies: boolean;
+    dependency_warning: boolean;
+    portfolios: boolean;
+  };
 }
 
 export interface ClickUpList {
   id: string;
   name: string;
-  content: string;
-  task_count: number;
-  archived: boolean;
-  space: ClickUpSpace;
-}
-
-export interface ClickUpStatus {
-  id: string;
-  status: string;
-  type: string;
   orderindex: number;
-  color: string;
-}
-
-export interface MappedProject {
-  id: string;
-  title: string;
-  client: string;
-  status: ProjectStatus;
-  timeframe: {
-    startDate: string;
-    endDate: string;
+  content: string;
+  status: {
+    status: string;
+    color: string;
+    hide_label: boolean;
   };
-  budget: {
-    estimated: number;
-    actual: number;
+  priority: {
+    priority: string;
+    color: string;
   };
-  contractors: Array<{
-    name: string;
-    email: string;
-    role: string;
-    baseRate: number;
-    chargeOutRate: number;
-    isFixed: boolean;
-  }>;
-  metadata?: {
-    category?: string;
-    notes?: string;
-    [key: string]: any;
-  };
-  createdAt: Date;
-  updatedAt: Date;
-  clickUp: {
+  assignee: string | null;
+  task_count: number;
+  due_date: string | null;
+  start_date: string | null;
+  folder: {
     id: string;
     name: string;
-    status: string;
-    statusColor: string;
-    url: string;
-    customFields: {
-      [key: string]: string | number | null;
-    };
+    hidden: boolean;
+    access: boolean;
   };
+  space: {
+    id: string;
+    name: string;
+    access: boolean;
+  };
+  archived: boolean;
+  override_statuses: boolean;
+  permission_level: string;
 }
+
+// Alias for backward compatibility
+export type ClickUpData = ClickUpTask;

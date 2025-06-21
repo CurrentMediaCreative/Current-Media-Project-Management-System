@@ -171,6 +171,20 @@ class ProjectService {
       throw new Error(error.response?.data?.message || 'Failed to save progress');
     }
   }
+
+  async syncClickUpStatus(projectId: string, clickUpTaskId: string): Promise<ProjectType | null> {
+    try {
+      const response = await api.post(`/projects/${projectId}/sync-status`, { clickUpTaskId });
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.warn(`Project ${projectId} or ClickUp task ${clickUpTaskId} not found`);
+        return null;
+      }
+      console.error('Error syncing ClickUp status:', error);
+      throw new Error(error.response?.data?.message || 'Failed to sync ClickUp status');
+    }
+  }
 }
 
 export const projectService = new ProjectService();

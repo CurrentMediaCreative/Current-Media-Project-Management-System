@@ -1,44 +1,31 @@
-import { Router } from 'express';
+import express from 'express';
+import { authMiddleware } from '../../middleware/authMiddleware';
 import multer from 'multer';
-import { documentController } from './documentController';
-import { authenticateToken } from '../../middleware/authMiddleware';
+import path from 'path';
+import { uploadDocument, getDocument, deleteDocument } from './documentController';
 
-const router = Router();
+const router = express.Router();
 
-// Configure multer for memory storage
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, '../../../uploads'));
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
 
-// Apply auth middleware to all routes
-router.use(authenticateToken);
+const upload = multer({ storage });
 
 // Upload a document
-router.post(
-  '/:projectId/:documentType',
-  upload.single('file'),
-  documentController.uploadDocument
-);
+router.post('/', authMiddleware, upload.single('file'), uploadDocument);
 
-// Download a document
-router.get(
-  '/:projectId/:documentType/:filename',
-  documentController.downloadDocument
-);
+// Get a document
+router.get('/:id', authMiddleware, getDocument);
 
 // Delete a document
-router.delete(
-  '/:projectId/:documentType/:filename',
-  documentController.deleteDocument
-);
-
-// List documents
-router.get(
-  '/:projectId/:documentType',
-  documentController.listDocuments
-);
+router.delete('/:id', authMiddleware, deleteDocument);
 
 export default router;

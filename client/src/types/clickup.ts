@@ -58,5 +58,6 @@ export const CLICKUP_FIELD_NAMES = {
   CLIENT: 'client',
   INVOICE_NUMBER: 'invoice_number',
   INVOICE_STATUS: 'invoice_status',
-  TASK_TYPE: 'task_type'
+  TASK_TYPE: 'task_type',
+  BUDGET: 'budget'
 } as const;

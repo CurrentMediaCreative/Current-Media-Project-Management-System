@@ -1,26 +1,28 @@
-/**
- * ClickUp Routes
- * 
- * These routes provide read-only access to ClickUp data.
- * They are used to fetch and display project information from ClickUp,
- * but never modify any data in ClickUp. All modifications are
- * handled locally in our own system.
- */
-
 import express from 'express';
-import { getTask, getSubTasks } from './clickupController';
+import { authMiddleware } from '../../middleware/authMiddleware';
+import {
+  getClickUpTask,
+  getClickUpTasks,
+  createClickUpTask,
+  updateClickUpTask,
+  deleteClickUpTask
+} from './clickupController';
 
 const router = express.Router();
 
-// Get task details
-router.get('/tasks/:taskId', getTask);
+// Get all tasks
+router.get('/tasks', authMiddleware, getClickUpTasks);
 
-// Get subtasks for a task
-router.get('/tasks/:taskId/subtasks', getSubTasks);
+// Get a specific task
+router.get('/tasks/:taskId', authMiddleware, getClickUpTask);
 
-// Handle 404s for unknown routes
-router.use('*', (_req, res) => {
-  res.status(404).json({ message: 'ClickUp endpoint not found' });
-});
+// Create a new task
+router.post('/tasks', authMiddleware, createClickUpTask);
+
+// Update a task
+router.put('/tasks/:taskId', authMiddleware, updateClickUpTask);
+
+// Delete a task
+router.delete('/tasks/:taskId', authMiddleware, deleteClickUpTask);
 
 export default router;

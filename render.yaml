@@ -1,76 +1,24 @@
 services:
-  # Frontend static site (primary service with domain)
   - type: web
-    name: current-media-pms-client
-    runtime: static
-    buildCommand: cd client && npm install --node-version=18 && npm run build
-    staticPublishPath: ./client/dist
-    envVars:
-      - key: VITE_API_URL
-        value: /api
-      - key: VITE_APP_URL
-        value: /pms
-    routes:
-      # Serve React app at /pms
-      - type: rewrite
-        source: /pms/*
-        destination: /index.html
-      # Proxy API requests to backend service
-      - type: rewrite
-        source: /api/*
-        destination: /api/:splat
-      # Serve landing page at root
-      - type: rewrite
-        source: /*
-        destination: /landing/index.html
-
-  # Backend API service
-  - type: web
-    name: current-media-pms-api
-    runtime: node
-    buildCommand: cd server && npm install --node-version=18 && npm run build
+    name: current-media-project-management
+    env: node
+    buildCommand: |
+      cd client && npm install && npm run build
+      cd ../server && npm install
     startCommand: cd server && npm start
-    plan: standard
-    numInstances: 1
-    region: ohio
     envVars:
-      # Server Config
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 10000
-      # Admin Config
-      - key: ADMIN_EMAIL
-        sync: false
-      - key: ADMIN_PASSWORD
-        sync: false
-      # Email Config  
-      - key: SMTP_HOST
-        sync: false
-      - key: SMTP_PORT
-        sync: false
-      - key: SMTP_SECURE
-        sync: false
-      - key: SMTP_USER
-        sync: false
-      - key: SMTP_PASS
-        sync: false
-      - key: SMTP_FROM
-        sync: false
-      - key: JAKE_EMAIL
-        sync: false
-      # JWT Config
-      - key: JWT_SECRET
-        sync: false
-      # ClickUp Config
+      - key: DATABASE_URL
+        fromDatabase:
+          name: current-media-db
+          property: connectionString
       - key: CLICKUP_API_KEY
         sync: false
-      - key: CLICKUP_WORKSPACE_ID
-        sync: false
-      # Storage Config
-      - key: STORAGE_PATH
-        value: /data
-    disk:
-      name: data
-      mountPath: /data
-      sizeGB: 1
+      - key: JWT_SECRET
+        generateValue: true
+
+databases:
+  - name: current-media-db
+    plan: standard
+    ipAllowList: []

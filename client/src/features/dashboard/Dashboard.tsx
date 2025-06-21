@@ -9,28 +9,25 @@ import {
   ListItemText,
   ListItemIcon,
   IconButton,
-  Card,
-  CardContent,
-  CardActions,
   Badge,
   Divider,
   CircularProgress,
   Alert,
-  Chip,
   Menu,
   MenuItem,
   Button
 } from '@mui/material';
+import { clickupService } from '../../services/clickupService';
 import {
   Assignment as AssignmentIcon,
   Person as PersonIcon,
   Update as UpdateIcon,
   Clear as ClearIcon,
   Add as AddIcon,
-  MoreVert as MoreVertIcon,
   OpenInNew as OpenInNewIcon,
   Edit as EditIcon
 } from '@mui/icons-material';
+import ProjectCard from './ProjectCard';
 import { useNavigate } from 'react-router-dom';
 import { dashboardService } from '../../services/dashboardService';
 import { notificationService } from '../../services/notificationService';
@@ -39,6 +36,8 @@ import { ProjectPageData, ProjectStatus } from '../../types/project';
 import { getClientName } from '../../utils/projectHelpers';
 import ProjectDetailsDialog from '../projects/tracking/ProjectDetailsDialog';
 import { projectService } from '../../services/projectService';
+import ClickUpDataDialog from './ClickUpDataDialog';
+import { ClickUpTask } from '../../types/clickup';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -49,6 +48,10 @@ const Dashboard: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<ProjectPageData | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [projectInSystem, setProjectInSystem] = useState(false);
+  const [clickUpDialogOpen, setClickUpDialogOpen] = useState(false);
+  const [clickUpTask, setClickUpTask] = useState<ClickUpTask | undefined>();
+  const [clickUpLoading, setClickUpLoading] = useState(false);
+  const [clickUpError, setClickUpError] = useState<string | undefined>();
 
   useEffect(() => {
     loadDashboardData();
@@ -160,91 +163,44 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const renderProjectCard = (project: ProjectPageData) => {
-    // Map ClickUp status to our system status
-    const mapStatus = (status: string): ProjectStatus => {
-      const lowerStatus = status.toLowerCase();
-      if (['to do', 'media needed', 'in progress', 'revision'].includes(lowerStatus)) {
-        return ProjectStatus.ACTIVE;
-      }
-      if (lowerStatus === 'done') {
-        return ProjectStatus.COMPLETED;
-      }
-      return ProjectStatus.ACTIVE;
-    };
+  const handleClickUpOpen = async (e: React.MouseEvent, taskId: string) => {
+    e.stopPropagation();
+    setClickUpDialogOpen(true);
+    setClickUpLoading(true);
+    setClickUpError(undefined);
+    
+    try {
+      const task = await clickupService.getTaskDetails(taskId);
+      setClickUpTask(task);
+    } catch (err) {
+      console.error('Failed to load ClickUp task:', err);
+      setClickUpError('Failed to load ClickUp task details');
+    } finally {
+      setClickUpLoading(false);
+    }
+  };
 
-    const projectId = project.local?.id || project.clickUp?.id;
-    if (!projectId) return null;
+  const handleClickUpView = (e: React.MouseEvent, url: string) => {
+    e.stopPropagation();
+    window.open(url, '_blank');
+  };
 
-    return (
-      <Card 
-        key={projectId}
-        onClick={() => handleProjectClick(project)}
-        sx={{ 
-          mb: 2,
-          cursor: 'pointer',
-          '&:hover': {
-            boxShadow: 6,
-            transform: 'translateY(-2px)',
-            transition: 'all 0.2s ease-in-out'
-          }
-        }}
-      >
-        <CardContent>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6" component="div">
-              {getClientName(project)}
-            </Typography>
-            <IconButton 
-              size="small"
-              onClick={(e) => handleMenuOpen(e, project)}
-            >
-              <MoreVertIcon />
-            </IconButton>
-          </Box>
-          <Typography color="textSecondary" gutterBottom>
-            {project.local?.title || project.clickUp?.name || 'Untitled Project'}
-          </Typography>
-          {project.clickUp && (
-            <Chip 
-              label={project.clickUp.status}
-              size="small"
-              sx={{ 
-                backgroundColor: project.clickUp.statusColor || '#666',
-                color: 'white',
-                mt: 1
-              }}
-            />
-          )}
-        </CardContent>
-        <CardActions>
-          {project.clickUp?.url && (
-            <Button
-              size="small"
-              startIcon={<OpenInNewIcon />}
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open(project.clickUp!.url, '_blank');
-              }}
-            >
-              View in ClickUp
-            </Button>
-          )}
-          {project.local?.id && (
-            <Button
-              size="small"
-              startIcon={<EditIcon />}
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/projects/edit/${project.local!.id}`);
-              }}
-            >
-              Edit
-            </Button>
-          )}
-        </CardActions>
-      </Card>
-    );
+  const handleSyncStatus = async () => {
+    if (!selectedProject?.local?.id || !clickUpTask?.id) return;
+    
+    try {
+      await projectService.syncClickUpStatus(selectedProject.local.id, clickUpTask.id);
+      await loadDashboardData(); // Refresh dashboard data
+      setClickUpDialogOpen(false);
+    } catch (err) {
+      console.error('Failed to sync status:', err);
+      setClickUpError('Failed to sync status with ClickUp');
+    }
+  };
+
+  const handleEditClick = (e: React.MouseEvent, projectId: string) => {
+    e.stopPropagation();
+    navigate(`/projects/edit/${projectId}`);
   };
 
   const renderProjectSection = (title: string, projects: ProjectPageData[]) => (
@@ -257,7 +213,22 @@ const Dashboard: React.FC = () => {
           </Typography>
         </Box>
         <Box sx={{ maxHeight: 400, overflowY: 'auto' }}>
-          {projects.map(renderProjectCard)}
+          {projects.map(project => {
+            const projectId = project.local?.id || project.clickUp?.id;
+            if (!projectId) return null;
+            
+            return (
+              <ProjectCard
+                key={projectId}
+                project={project}
+                onMenuOpen={handleMenuOpen}
+                onProjectClick={handleProjectClick}
+                onEditClick={handleEditClick}
+                onClickUpOpen={handleClickUpOpen}
+                onClickUpView={handleClickUpView}
+              />
+            );
+          })}
         </Box>
       </Paper>
     </Grid>
@@ -474,6 +445,20 @@ const Dashboard: React.FC = () => {
           isInSystem={projectInSystem}
         />
       )}
+
+      {/* ClickUp Data Dialog */}
+      <ClickUpDataDialog
+        open={clickUpDialogOpen}
+        onClose={() => {
+          setClickUpDialogOpen(false);
+          setClickUpTask(undefined);
+          setClickUpError(undefined);
+        }}
+        task={clickUpTask}
+        loading={clickUpLoading}
+        error={clickUpError}
+        onSyncStatus={handleSyncStatus}
+      />
     </>
   );
 };
