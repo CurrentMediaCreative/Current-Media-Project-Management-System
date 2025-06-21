@@ -24,6 +24,7 @@ export const getDashboardOverview = async (req: AuthRequest, res: Response) => {
   let localProjects: LocalProject[] = [];
   let clickUpTasks: ClickUpTask[] = [];
   let errors: string[] = [];
+  let clickUpConfigError = false;
 
   try {
     // Get local projects
@@ -31,7 +32,8 @@ export const getDashboardOverview = async (req: AuthRequest, res: Response) => {
       localProjects = await projectService.getProjects();
     } catch (projectError) {
       console.error('Error fetching local projects:', projectError);
-      errors.push('Failed to fetch local projects');
+      const errorMessage = projectError instanceof Error ? projectError.message : 'Failed to fetch local projects';
+      errors.push(errorMessage);
     }
 
     // Get ClickUp tasks
@@ -39,7 +41,14 @@ export const getDashboardOverview = async (req: AuthRequest, res: Response) => {
       clickUpTasks = await clickupService.getTasks();
     } catch (clickUpError) {
       console.error('Error fetching ClickUp tasks:', clickUpError);
-      errors.push('Failed to fetch ClickUp tasks');
+      if (clickUpError instanceof Error && 
+         (clickUpError.message.includes('API key is not configured') || 
+          clickUpError.message.includes('workspace ID is not configured'))) {
+        clickUpConfigError = true;
+        errors.push('ClickUp integration is not properly configured');
+      } else {
+        errors.push('Failed to fetch ClickUp tasks');
+      }
     }
 
     // Return data even if some parts failed
@@ -51,20 +60,23 @@ export const getDashboardOverview = async (req: AuthRequest, res: Response) => {
         totalTasks: clickUpTasks.length,
         linkedTasks: localProjects.filter(p => p.clickUpId).length
       },
-      errors: errors.length > 0 ? errors : undefined
+      errors: errors.length > 0 ? errors : undefined,
+      clickUpConfigError
     };
 
-    // If both fetches failed, return 500, otherwise return partial data with 206
-    if (errors.length === 2) {
+    // If both fetches failed and it's not just a config issue, return 500
+    if (errors.length === 2 && !clickUpConfigError) {
       res.status(500).json({ error: 'Failed to get any dashboard data', errors });
     } else if (errors.length > 0) {
+      // Return 206 for partial data, even if ClickUp is not configured
       res.status(206).json(dashboardData);
     } else {
       res.json(dashboardData);
     }
   } catch (error) {
     console.error('Critical error in dashboard overview:', error);
-    res.status(500).json({ error: 'Failed to process dashboard data', errors });
+    const errorMessage = error instanceof Error ? error.message : 'Failed to process dashboard data';
+    res.status(500).json({ error: errorMessage, errors });
   }
 };
 

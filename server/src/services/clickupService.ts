@@ -4,9 +4,13 @@ import { ClickUpTask } from '../types/clickup';
 class ClickUpService {
   private apiKey: string;
   private baseUrl: string;
+  private workspaceId: string;
+  private retryAttempts = 3;
+  private retryDelay = 1000; // 1 second
 
   constructor() {
     this.apiKey = process.env.CLICKUP_API_KEY || '';
+    this.workspaceId = process.env.CLICKUP_WORKSPACE_ID || '';
     this.baseUrl = 'https://api.clickup.com/api/v2';
   }
 
@@ -17,11 +21,33 @@ class ClickUpService {
     };
   }
 
+  private async validateConfig() {
+    if (!this.apiKey) {
+      throw new Error('ClickUp API key is not configured');
+    }
+    if (!this.workspaceId) {
+      throw new Error('ClickUp workspace ID is not configured');
+    }
+  }
+
+  private async retryRequest<T>(request: () => Promise<T>): Promise<T> {
+    let lastError: Error | null = null;
+    for (let attempt = 1; attempt <= this.retryAttempts; attempt++) {
+      try {
+        return await request();
+      } catch (error) {
+        lastError = error as Error;
+        if (attempt < this.retryAttempts) {
+          await new Promise(resolve => setTimeout(resolve, this.retryDelay * attempt));
+        }
+      }
+    }
+    throw lastError;
+  }
+
   async getTasks(): Promise<ClickUpTask[]> {
-    const response = await axios.get(`${this.baseUrl}/team/tasks`, {
-      headers: this.getHeaders()
-    });
-    return response.data.tasks;
+    await this.validateConfig();
+    return this.getAllTasks();
   }
 
   async getTask(taskId: string): Promise<ClickUpTask | null> {
@@ -88,23 +114,46 @@ class ClickUpService {
   }
 
   async getAllTasks(): Promise<ClickUpTask[]> {
-    const workspaces = await this.getWorkspaces();
-    let allTasks: ClickUpTask[] = [];
+    await this.validateConfig();
+    
+    try {
+      let allTasks: ClickUpTask[] = [];
 
-    for (const workspace of workspaces) {
-      const spaces = await this.getSpaces(workspace.id);
+      // Get spaces directly using workspace ID
+      const spaces = await this.retryRequest(() => 
+        this.getSpaces(this.workspaceId)
+      );
+
       for (const space of spaces) {
-        const lists = await this.getLists(space.id);
-        for (const list of lists) {
-          const response = await axios.get(`${this.baseUrl}/list/${list.id}/task`, {
-            headers: this.getHeaders()
-          });
-          allTasks = [...allTasks, ...response.data.tasks];
+        try {
+          const lists = await this.retryRequest(() => 
+            this.getLists(space.id)
+          );
+
+          for (const list of lists) {
+            try {
+              const response = await this.retryRequest(() =>
+                axios.get(`${this.baseUrl}/list/${list.id}/task`, {
+                  headers: this.getHeaders()
+                })
+              );
+              allTasks = [...allTasks, ...response.data.tasks];
+            } catch (listError) {
+              console.error(`Error fetching tasks for list ${list.id}:`, listError);
+              // Continue with next list
+            }
+          }
+        } catch (spaceError) {
+          console.error(`Error fetching lists for space ${space.id}:`, spaceError);
+          // Continue with next space
         }
       }
-    }
 
-    return allTasks;
+      return allTasks;
+    } catch (error) {
+      console.error('Error in getAllTasks:', error);
+      throw new Error('Failed to fetch ClickUp tasks');
+    }
   }
 
   async findTaskIdByName(taskName: string): Promise<string | null> {
