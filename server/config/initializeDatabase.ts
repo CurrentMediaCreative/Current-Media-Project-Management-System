@@ -1,4 +1,5 @@
-import { db } from '../../config/database';
+import { db } from './database';
+import { PoolClient } from 'pg';
 import fs from 'fs';
 import path from 'path';
 
@@ -17,7 +18,7 @@ async function initializeDatabase() {
     throw error;
   } finally {
     // Close the database connection
-    await db.getClient().then(client => client.release());
+    await db.getClient().then((client: PoolClient) => client.release());
   }
 }
 
