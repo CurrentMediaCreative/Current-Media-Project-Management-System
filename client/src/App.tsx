@@ -9,7 +9,7 @@ import { AuthProvider, useAuth } from './features/auth/contexts/AuthContext';
 // Layout & Features
 import MainLayout from './components/layout/MainLayout';
 import { LoginFlow } from './features/auth';
-import { ProjectTracking } from './features/projects/tracking';
+import { ProjectTracking, ProjectPage } from './features/projects/tracking';
 import { ProjectCreationFlow } from './features/projects/creation';
 import { Dashboard } from './features/dashboard';
 
@@ -35,6 +35,7 @@ const AppRoutes: React.FC = () => {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/projects" element={<ProjectTracking />} />
                 <Route path="/projects/new" element={<ProjectCreationFlow />} />
+                <Route path="/projects/:id" element={<ProjectPage />} />
               </Routes>
             </MainLayout>
           </PrivateRoute>

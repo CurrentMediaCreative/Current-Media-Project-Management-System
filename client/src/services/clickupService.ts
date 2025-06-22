@@ -42,6 +42,16 @@ class ClickUpService {
     }
   }
 
+  async getTasks(): Promise<ClickUpTask[]> {
+    try {
+      const response = await api.get('/clickup/tasks');
+      return response.data;
+    } catch (error: any) {
+      console.error('Error fetching ClickUp tasks:', error);
+      throw error;
+    }
+  }
+
 }
 
 export const clickupService = new ClickUpService();

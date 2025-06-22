@@ -1,65 +1,88 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Grid, Stepper, Step, StepLabel, CircularProgress } from '@mui/material';
-import { ProjectPageData, ProjectStatus, LocalProject, hasClickUpData } from '../../../types';
+import { 
+  Box, 
+  Typography, 
+  Grid, 
+  Button, 
+  CircularProgress,
+  Alert,
+  Container
+} from '@mui/material';
+import { Add as AddIcon } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { ProjectPageData } from '../../../types';
 import { projectService } from '../../../services/projectService';
-import StatusDetails from './StatusDetails';
-import ActionItems from './ActionItems';
-import Timeline from './Timeline';
+import { clickupService } from '../../../services/clickupService';
+import ProjectCard from '../../dashboard/ProjectCard';
+import ProjectDetailsDialog from './ProjectDetailsDialog';
 
-interface ProjectTrackingProps {
-  projectId?: string;
-}
-
-const ProjectTracking: React.FC<ProjectTrackingProps> = ({ projectId }) => {
-  const [project, setProject] = useState<ProjectPageData | null>(null);
+const ProjectTracking: React.FC = () => {
+  const navigate = useNavigate();
+  const [projects, setProjects] = useState<ProjectPageData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const steps = [
-    { label: 'New - Not Sent', value: ProjectStatus.NEW_NOT_SENT },
-    { label: 'New - Sent', value: ProjectStatus.NEW_SENT },
-    { label: 'Active', value: ProjectStatus.ACTIVE },
-    { label: 'Completed', value: ProjectStatus.COMPLETED },
-    { label: 'Archived', value: ProjectStatus.ARCHIVED }
-  ];
+  const [selectedProject, setSelectedProject] = useState<ProjectPageData | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   useEffect(() => {
-    const loadProject = async () => {
+    const loadProjects = async () => {
       try {
         setLoading(true);
-        // For demo, load the first project if no ID provided
-        const projects = await projectService.getProjects();
-        const targetProject = projectId 
-          ? await projectService.getProject(projectId)
-          : projects[0];
-        setProject(targetProject);
+        const [localProjects, clickUpTasks] = await Promise.all([
+          projectService.getProjects(),
+          clickupService.getTasks()
+        ]);
+
+        // Convert ClickUp tasks to ProjectPageData format
+        const clickUpProjects = clickUpTasks.map(task => ({
+          clickUp: {
+            id: task.id,
+            name: task.name,
+            status: task.status?.status || 'No Status',
+            statusColor: task.status?.color || '#666666',
+            url: task.url || '',
+            customFields: task.custom_fields?.reduce((acc: Record<string, string | number | null>, field) => {
+              acc[field.name] = field.value;
+              return acc;
+            }, {}) || {}
+          }
+        }));
+
+        // Merge local and ClickUp projects by name
+        const mergedProjects = [...localProjects];
+        clickUpProjects.forEach(clickUpProject => {
+          const existingProject = mergedProjects.find(
+            p => p.local?.title === clickUpProject.clickUp?.name
+          );
+          if (existingProject) {
+            existingProject.clickUp = clickUpProject.clickUp;
+          } else {
+            mergedProjects.push(clickUpProject);
+          }
+        });
+
+        setProjects(mergedProjects);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load project');
+        setError(err instanceof Error ? err.message : 'Failed to load projects');
       } finally {
         setLoading(false);
       }
     };
 
-    loadProject();
-  }, [projectId]);
+    loadProjects();
+  }, []);
 
-  const handleStatusUpdate = async (newStatus: ProjectStatus) => {
-    if (!project) return;
-
-    try {
-      if (!project.local) return;
-
-      // Update only local project data - ClickUp data is read-only
-      const updatedProject = await projectService.updateProject(project.local.id, { 
-        local: {
-          ...project.local,
-          status: newStatus
-        }
-      });
-      setProject(updatedProject);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update status');
+  const handleProjectClick = (project: ProjectPageData) => {
+    if (project.local?.id) {
+      navigate(`/projects/${project.local.id}`);
+    } else if (project.clickUp?.id) {
+      setSelectedProject(project);
+      setIsDetailsOpen(true);
     }
+  };
+
+  const handleCreateProject = () => {
+    navigate('/projects/new');
   };
 
   if (loading) {
@@ -73,43 +96,54 @@ const ProjectTracking: React.FC<ProjectTrackingProps> = ({ projectId }) => {
   if (error) {
     return (
       <Box>
-        <Typography color="error">{error}</Typography>
+        <Alert severity="error">{error}</Alert>
       </Box>
     );
   }
-
-  if (!project) {
-    return (
-      <Box>
-        <Typography>No project found</Typography>
-      </Box>
-    );
-  }
-
-  const activeStep = steps.findIndex(step => project.local ? step.value === project.local.status : 0);
 
   return (
-    <Box>
-      <Typography variant="h5" gutterBottom>Project Status Tracking</Typography>
-      
-      <Stepper activeStep={activeStep} alternativeLabel>
-        {steps.map((step) => (
-          <Step key={step.value}>
-            <StepLabel>{step.label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
+    <Container maxWidth="lg">
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography variant="h4">Projects</Typography>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleCreateProject}
+        >
+          Create New Project
+        </Button>
+      </Box>
 
-      <Grid container spacing={3} sx={{ mt: 4 }}>
-        <Grid item xs={12} md={8}>
-          <StatusDetails project={project} />
-          <ActionItems project={project} onUpdateStatus={handleStatusUpdate} />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Timeline project={project} />
-        </Grid>
+      <Grid container spacing={3}>
+        {projects.map((project, index) => (
+          <Grid item xs={12} sm={6} md={4} key={project.local?.id || project.clickUp?.id || index}>
+            <ProjectCard
+              project={project}
+              onProjectClick={handleProjectClick}
+              onMenuOpen={() => {}}
+              onEditClick={(e, id) => {
+                e.stopPropagation();
+                navigate(`/projects/${id}/edit`);
+              }}
+              onClickUpOpen={() => {}}
+              onClickUpView={(e, url) => {
+                e.stopPropagation();
+                window.open(url, '_blank');
+              }}
+            />
+          </Grid>
+        ))}
       </Grid>
-    </Box>
+
+      {selectedProject && (
+        <ProjectDetailsDialog
+          open={isDetailsOpen}
+          onClose={() => setIsDetailsOpen(false)}
+          project={selectedProject}
+          isInSystem={false}
+        />
+      )}
+    </Container>
   );
 };
 
