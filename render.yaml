@@ -47,7 +47,7 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        value: https://current-media-project-management-api.onrender.com/api
+        value: https://current-media-project-management-api.onrender.com/pms/api
 
 databases:
   - name: current-media-db
