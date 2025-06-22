@@ -51,10 +51,29 @@ export const getDashboardOverview = async (req: AuthRequest, res: Response) => {
       }
     }
 
+    // Calculate project status counts
+    const projectStatusCounts = {
+      newNotSent: localProjects.filter(p => p.status === 'NEW_NOT_SENT').length,
+      newSent: localProjects.filter(p => p.status === 'NEW_SENT').length,
+      activeInClickUp: localProjects.filter(p => p.status === 'ACTIVE').length,
+      completed: localProjects.filter(p => p.status === 'COMPLETED').length,
+      archived: localProjects.filter(p => p.status === 'ARCHIVED').length
+    };
+
+    // Group projects by status
+    const projects = {
+      newProjects: localProjects.filter(p => ['NEW_NOT_SENT', 'NEW_SENT'].includes(p.status)),
+      activeProjects: localProjects.filter(p => p.status === 'ACTIVE'),
+      postProduction: localProjects.filter(p => p.status === 'COMPLETED'),
+      archived: localProjects.filter(p => p.status === 'ARCHIVED')
+    };
+
     // Return data even if some parts failed
     const dashboardData = {
       localProjects,
       clickUpTasks,
+      projectStatusCounts,
+      projects,
       summary: {
         totalProjects: localProjects.length,
         totalTasks: clickUpTasks.length,
