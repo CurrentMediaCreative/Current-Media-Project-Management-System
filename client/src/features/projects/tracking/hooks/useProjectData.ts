@@ -30,6 +30,8 @@ export const useProjectData = () => {
     status: task.status.status,
     statusColor: task.status.color,
     url: task.url,
+    dateCreated: task.date_created,
+    dateUpdated: task.date_updated,
     customFields: task.customFields || {},
     subtasks: task.subtasks ? task.subtasks.map(mapTaskToClickUpData) : undefined
   });

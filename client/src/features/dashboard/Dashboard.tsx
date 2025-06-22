@@ -30,17 +30,16 @@ import {
   Refresh as RefreshIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { ProjectPageData, ClickUpData } from '../../types/project';
+import { ProjectPageData } from '../../types/project';
 import ProjectCard from './ProjectCard';
 import ProjectDetailsDialog from '../projects/tracking/ProjectDetailsDialog';
 import ClickUpDataDialog from './ClickUpDataDialog';
-import { ClickUpTask, ClickUpCustomField } from '../../types/clickup';
+import { TaskDetails } from '../../types/task';
 import { NotificationItem } from './types';
 import ProjectErrorBoundary from '../projects/tracking/components/ProjectErrorBoundary';
 import { useDashboardData } from './hooks/useDashboardData';
-import { useDispatch } from 'react-redux';
-import { updateClickUpProject, addMatch } from '../../store/slices/projectSlice';
-import { clickupService } from '../../services/clickupService';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateClickUpProject, addMatch, selectAllProjects } from '../../store/slices/projectSlice';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -51,9 +50,12 @@ const Dashboard: React.FC = () => {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [projectInSystem, setProjectInSystem] = useState(false);
   const [clickUpDialogOpen, setClickUpDialogOpen] = useState(false);
-  const [clickUpTask, setClickUpTask] = useState<ClickUpTask | undefined>();
+  const [clickUpTask, setClickUpTask] = useState<TaskDetails | undefined>();
   const [clickUpLoading, setClickUpLoading] = useState(false);
   const [clickUpError, setClickUpError] = useState<string | undefined>();
+
+  // Redux selectors
+  const allProjects = useSelector(selectAllProjects);
 
   // Use our custom hook for data
   const {
@@ -109,34 +111,29 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleClickUpOpen = async (e: React.MouseEvent, taskId: string) => {
+  const handleClickUpOpen = (e: React.MouseEvent, taskId: string) => {
     e.stopPropagation();
-    setClickUpDialogOpen(true);
-    setClickUpLoading(true);
-    setClickUpError(undefined);
+    const project = allProjects.matched.find(p => p.clickUp?.id === taskId) || 
+                   allProjects.unmatched.clickUp.find(p => p.clickUp?.id === taskId);
     
-    try {
-      const task = await clickupService.getTaskDetails(taskId);
-      if (task) {
-        const clickUpData: ClickUpData = {
-          id: task.id,
-          name: task.name,
-          status: typeof task.status === 'string' ? task.status : task.status?.status || 'No Status',
-          statusColor: typeof task.status === 'object' ? task.status.color : '#666666',
-          url: task.url || '',
-          customFields: task.custom_fields?.reduce((acc: Record<string, string | number | null>, field: ClickUpCustomField) => {
-            acc[field.name] = field.value;
-            return acc;
-          }, {}) || {}
-        };
-        dispatch(updateClickUpProject(clickUpData));
-        setClickUpTask(task);
-      }
-    } catch (err) {
-      console.error('Failed to load ClickUp task:', err);
-      setClickUpError('Failed to load ClickUp task details');
-    } finally {
-      setClickUpLoading(false);
+    if (project?.clickUp) {
+      setClickUpTask({
+        id: project.clickUp.id,
+        name: project.clickUp.name,
+        status: {
+          label: project.clickUp.status,
+          color: project.clickUp.statusColor
+        },
+        dateCreated: project.clickUp.dateCreated || '',
+        dateUpdated: project.clickUp.dateUpdated || '',
+        url: project.clickUp.url,
+        customFields: Object.entries(project.clickUp.customFields || {}).map(([name, value]) => ({
+          id: name,
+          name,
+          value: value as string | number | null
+        }))
+      });
+      setClickUpDialogOpen(true);
     }
   };
 

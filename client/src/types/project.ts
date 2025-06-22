@@ -67,6 +67,8 @@ export interface ClickUpData {
   status: string;
   statusColor: string;
   url: string;
+  dateCreated?: string;
+  dateUpdated?: string;
   customFields: {
     [key: string]: string | number | null;
   };

@@ -80,6 +80,8 @@
 - [✓] Update project cards to use centralized data (6/22/2025)
 - [✓] Maintain current UI/UX (6/22/2025)
 - [✓] Add loading/error states (6/22/2025)
+- [✓] Remove redundant ClickUp API calls (6/22/2025)
+- [✓] Use mapped data from project pages (6/22/2025)
 
 ### F. Service Layer Updates
 - [✓] Update clickupService.ts (6/22/2025):
@@ -147,10 +149,10 @@
    - [✓] Set up Redux store with new slice (6/22/2025)
    - [✓] Update ProjectPage to be data source (6/22/2025)
    - [✓] Implement live ClickUp data fetching (6/22/2025)
-   - [ ] Update Dashboard to use Redux store
+   - [✓] Update Dashboard to use Redux store (6/22/2025)
    - [✓] Update ProjectTracking to use Redux store (6/22/2025)
    - [✓] Add automatic route generation (6/22/2025)
-   - [ ] Clean up redundant API calls
+   - [✓] Clean up redundant API calls (6/22/2025)
    - [ ] Add comprehensive tests
 
 ## Progress Tracking:

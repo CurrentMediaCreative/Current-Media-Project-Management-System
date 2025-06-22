@@ -11,12 +11,12 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material';
-import { ClickUpTask, ClickUpCustomField, CLICKUP_FIELD_NAMES } from '../../types/clickup';
+import { TaskDetails } from '../../types/task';
 
 interface ClickUpDataDialogProps {
   open: boolean;
   onClose: () => void;
-  task?: ClickUpTask;
+  task?: TaskDetails;
   loading?: boolean;
   error?: string;
   onSyncStatus?: () => void;
@@ -41,7 +41,7 @@ const ClickUpDataDialog: React.FC<ClickUpDataDialogProps> = ({
     });
   };
 
-  const renderCustomField = (field: ClickUpCustomField) => {
+  const renderCustomField = (field: TaskDetails['customFields'][0]) => {
     const value = field.value ?? 'N/A';
     return (
       <Box key={field.id} sx={{ mb: 2 }}>
@@ -75,7 +75,7 @@ const ClickUpDataDialog: React.FC<ClickUpDataDialogProps> = ({
         </Typography>
         {task?.status && (
           <Chip
-            label={task.status.status}
+            label={task.status.label}
             size="small"
             sx={{
               backgroundColor: task.status.color || '#666',
@@ -110,19 +110,19 @@ const ClickUpDataDialog: React.FC<ClickUpDataDialogProps> = ({
                 Dates
               </Typography>
               <Typography variant="body2">
-                Created: {formatDate(task.date_created)}
+              Created: {formatDate(task.dateCreated)}
               </Typography>
               <Typography variant="body2">
-                Last Updated: {formatDate(task.date_updated)}
+              Last Updated: {formatDate(task.dateUpdated)}
               </Typography>
             </Box>
 
-            {task.custom_fields && task.custom_fields.length > 0 && (
+            {task.customFields && task.customFields.length > 0 && (
               <Box sx={{ mb: 3 }}>
                 <Typography variant="subtitle1" gutterBottom>
                   Custom Fields
                 </Typography>
-                {task.custom_fields.map(renderCustomField)}
+                {task.customFields.map(renderCustomField)}
               </Box>
             )}
 
