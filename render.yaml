@@ -43,8 +43,11 @@ services:
     staticPublishPath: ./client/dist
     routes:
       - type: rewrite
-        source: /*
+        source: /pms/*
         destination: /index.html
+      - type: redirect
+        source: /
+        destination: /pms
     envVars:
       - key: VITE_API_URL
         value: https://current-media-project-management-api.onrender.com/pms/api
