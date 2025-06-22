@@ -3,7 +3,7 @@ services:
     name: current-media-project-management-api
     env: node
     buildCommand: cd server && NODE_ENV=production npm install --include=dev && npm run build && cp config/schema.sql dist/config/
-    startCommand: cd server && node dist/src/scripts/initializeDatabase.js && node dist/src/index.js
+    startCommand: cd server && node dist/config/initializeDatabase.js && node dist/src/index.js
     envVars:
       - key: NODE_ENV
         value: production
