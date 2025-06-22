@@ -83,6 +83,3 @@ export const CLICKUP_FIELD_NAMES = {
   TASK_TYPE: 'task_type',
   BUDGET: 'budget'
 } as const;
-
-// Alias for backward compatibility
-export type ClickUpData = ClickUpTask;

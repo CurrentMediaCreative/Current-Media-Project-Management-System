@@ -17,7 +17,7 @@ import {
   Alert
 } from '@mui/material';
 import { format } from 'date-fns';
-import { ProjectPageData, ClickUpTask, ClickUpCustomField, CLICKUP_FIELD_NAMES } from '../../../types';
+import { ProjectPageData, ClickUpTask, CLICKUP_FIELD_NAMES } from '../../../types';
 import { ProjectFormData } from '../../projects/creation/types';
 import ProjectDocuments from './ProjectDocuments';
 import { clickupService } from '../../../services/clickupService';
@@ -35,8 +35,8 @@ interface ProjectDetailsDialogProps {
 
 // Helper to get custom field value by name
 const getCustomFieldValue = (task: ClickUpTask, fieldName: string): string | number | null => {
-  const field = task.custom_fields?.find(f => f.name === fieldName);
-  return field?.value || null;
+  const field = task.customFields?.[fieldName];
+  return field || null;
 };
 
 // Helper to convert ClickUp data to ProjectFormData
