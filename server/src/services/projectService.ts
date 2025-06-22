@@ -12,7 +12,7 @@ class ProjectService {
 
       // Create project in database
       const project = await client.query(
-        'INSERT INTO projects (name, status, description, budget, predicted_costs, actual_costs, start_date, end_date, clickup_id, folder_path) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *',
+        'INSERT INTO "Projects" (name, status, description, budget, "predictedCosts", "actualCosts", "startDate", "endDate", "clickUpId", "folderPath") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *',
         [
           data.name,
           data.status,
@@ -45,7 +45,7 @@ class ProjectService {
 
           // Update folder path in database
           updatedProject = await client.query(
-            'UPDATE projects SET folder_path = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *',
+            'UPDATE "Projects" SET "folderPath" = $1, "updatedAt" = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *',
             [projectFolderPath, project.rows[0].id]
           );
         } catch (fileError) {
@@ -73,7 +73,7 @@ class ProjectService {
       values.push(filters.status);
     }
 
-    query += ' ORDER BY created_at DESC';
+    query += ' ORDER BY "createdAt" DESC';
 
     const result = await db.query(query, values);
     return result.rows.map(this.mapToLocalProject);
@@ -111,34 +111,34 @@ class ProjectService {
       values.push(data.budget);
     }
     if (data.predictedCosts !== undefined) {
-      updates.push(`predicted_costs = $${paramCount++}`);
+      updates.push(`"predictedCosts" = $${paramCount++}`);
       values.push(data.predictedCosts);
     }
     if (data.actualCosts !== undefined) {
-      updates.push(`actual_costs = $${paramCount++}`);
+      updates.push(`"actualCosts" = $${paramCount++}`);
       values.push(data.actualCosts);
     }
     if (data.startDate !== undefined) {
-      updates.push(`start_date = $${paramCount++}`);
+      updates.push(`"startDate" = $${paramCount++}`);
       values.push(data.startDate);
     }
     if (data.endDate !== undefined) {
-      updates.push(`end_date = $${paramCount++}`);
+      updates.push(`"endDate" = $${paramCount++}`);
       values.push(data.endDate);
     }
     if (data.clickUpId !== undefined) {
-      updates.push(`clickup_id = $${paramCount++}`);
+      updates.push(`"clickUpId" = $${paramCount++}`);
       values.push(data.clickUpId);
     }
     if (data.folderPath !== undefined) {
-      updates.push(`folder_path = $${paramCount++}`);
+      updates.push(`"folderPath" = $${paramCount++}`);
       values.push(data.folderPath);
     }
 
-    updates.push(`updated_at = CURRENT_TIMESTAMP`);
+    updates.push(`"updatedAt" = CURRENT_TIMESTAMP`);
 
     const query = `
-      UPDATE projects 
+      UPDATE "Projects" 
       SET ${updates.join(', ')}
       WHERE id = $1
       RETURNING *
@@ -167,7 +167,7 @@ class ProjectService {
     if (project?.folderPath && fs.existsSync(project.folderPath)) {
       fs.rmSync(project.folderPath, { recursive: true, force: true });
     }
-    await db.query('DELETE FROM projects WHERE id = $1', [id]);
+    await db.query('DELETE FROM "Projects" WHERE id = $1', [id]);
   }
 
   async linkClickUpTask(projectId: string, taskName: string): Promise<LocalProject> {
@@ -176,7 +176,7 @@ class ProjectService {
       await client.query('BEGIN');
 
       // Get the project
-      const projectResult = await client.query('SELECT * FROM projects WHERE id = $1', [projectId]);
+      const projectResult = await client.query('SELECT * FROM "Projects" WHERE id = $1', [projectId]);
       if (!projectResult.rows.length) {
         throw new Error('Project not found');
       }
@@ -190,7 +190,7 @@ class ProjectService {
 
       // Link the task
       const result = await client.query(
-        'UPDATE projects SET clickup_id = $1, status = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3 RETURNING *',
+        'UPDATE "Projects" SET "clickUpId" = $1, status = $2, "updatedAt" = CURRENT_TIMESTAMP WHERE id = $3 RETURNING *',
         [taskId, 'ACTIVE', projectId]
       );
 
@@ -206,7 +206,7 @@ class ProjectService {
 
   async unlinkClickUpTask(projectId: string): Promise<LocalProject> {
     const result = await db.query(
-      'UPDATE projects SET clickup_id = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING *',
+      'UPDATE "Projects" SET "clickUpId" = NULL, "updatedAt" = CURRENT_TIMESTAMP WHERE id = $1 RETURNING *',
       [projectId]
     );
     return this.mapToLocalProject(result.rows[0]);
@@ -219,15 +219,15 @@ class ProjectService {
       status: row.status,
       description: row.description,
       budget: row.budget,
-      predictedCosts: row.predicted_costs,
-      actualCosts: row.actual_costs,
-      startDate: row.start_date,
-      endDate: row.end_date,
-      clickUpId: row.clickup_id,
-      folderPath: row.folder_path,
+      predictedCosts: row.predictedCosts,
+      actualCosts: row.actualCosts,
+      startDate: row.startDate,
+      endDate: row.endDate,
+      clickUpId: row.clickUpId,
+      folderPath: row.folderPath,
       documents: row.documents || [],
-      createdAt: row.created_at,
-      updatedAt: row.updated_at
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt
     };
   }
 
@@ -284,21 +284,21 @@ class ProjectService {
             <p>${project.description || 'No description available.'}</p>
             
             <h3>Timeline</h3>
-            <p>Start Date: ${project.start_date ? new Date(project.start_date).toLocaleDateString() : 'Not set'}</p>
-            <p>End Date: ${project.end_date ? new Date(project.end_date).toLocaleDateString() : 'Not set'}</p>
+            <p>Start Date: ${project.startDate ? new Date(project.startDate).toLocaleDateString() : 'Not set'}</p>
+            <p>End Date: ${project.endDate ? new Date(project.endDate).toLocaleDateString() : 'Not set'}</p>
         </div>
 
         <div class="financial">
             <h2>Financial Overview</h2>
             <p>Budget: $${project.budget || 0}</p>
-            <p>Predicted Costs: $${project.predicted_costs || 0}</p>
-            <p>Actual Costs: $${project.actual_costs || 0}</p>
+            <p>Predicted Costs: $${project.predictedCosts || 0}</p>
+            <p>Actual Costs: $${project.actualCosts || 0}</p>
         </div>
 
-        ${project.clickup_id ? `
+        ${project.clickUpId ? `
         <div class="integration">
             <h2>ClickUp Integration</h2>
-            <p>ClickUp Task ID: ${project.clickup_id}</p>
+            <p>ClickUp Task ID: ${project.clickUpId}</p>
         </div>
         ` : ''}
     </div>
