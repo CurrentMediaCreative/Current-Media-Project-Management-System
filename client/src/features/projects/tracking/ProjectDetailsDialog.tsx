@@ -101,7 +101,7 @@ export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
 
   const handleEditProject = () => {
     if (!project.local?.id) return;
-    navigate(`/projects/${project.local.id}/edit`);
+    navigate(`/pms/projects/${project.local.id}/edit`);
     onClose();
   };
 
@@ -115,7 +115,7 @@ export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
     localStorage.setItem('project_creation_state', JSON.stringify(formData));
     
     // Navigate to project creation flow
-    navigate('/projects/create', { 
+    navigate('/pms/projects/create', { 
       state: { 
         fromClickUp: true,
         clickUpId: project.clickUp?.id 
@@ -126,13 +126,13 @@ export const ProjectDetailsDialog: React.FC<ProjectDetailsDialogProps> = ({
 
   const handleImportProject = () => {
     if (!project.clickUp?.id) return;
-    navigate(`/projects/${project.clickUp.id}/import`);
+    navigate(`/pms/projects/${project.clickUp.id}/import`);
     onClose();
   };
 
   const handleCreateDocument = (type: 'overview' | 'budget') => {
     if (!project.clickUp?.id) return;
-    navigate(`/projects/${project.clickUp.id}/documents/create/${type}`);
+    navigate(`/pms/projects/${project.clickUp.id}/documents/create/${type}`);
     onClose();
   };
 

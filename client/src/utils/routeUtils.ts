@@ -22,28 +22,35 @@ export interface RouteElement {
 // Base routes configuration
 export const routes: RouteConfig[] = [
   {
-    path: '/',
+    path: '/pms',
     element: Dashboard,
     guard: true,
     title: 'Dashboard',
     breadcrumb: 'Dashboard'
   },
   {
-    path: '/projects',
+    path: '/pms/dashboard',
+    element: Dashboard,
+    guard: true,
+    title: 'Dashboard',
+    breadcrumb: 'Dashboard'
+  },
+  {
+    path: '/pms/projects',
     element: ProjectTracking,
     guard: true,
     title: 'Projects',
     breadcrumb: 'Projects'
   },
   {
-    path: '/projects/new',
+    path: '/pms/projects/new',
     element: ProjectCreationFlow,
     guard: true,
     title: 'New Project',
     breadcrumb: 'New Project'
   },
   {
-    path: '/projects/:id',
+    path: '/pms/projects/:id',
     element: ProjectPage,
     guard: true,
     title: 'Project Details',
@@ -54,7 +61,7 @@ export const routes: RouteConfig[] = [
 // Public routes that don't require authentication
 export const publicRoutes: RouteConfig[] = [
   {
-    path: '/login',
+    path: '/pms/login',
     element: LoginFlow,
     title: 'Login',
     breadcrumb: 'Login'
@@ -62,7 +69,7 @@ export const publicRoutes: RouteConfig[] = [
 ];
 
 // Helper to get route path with base prefix
-export const getRoutePath = (path: string): string => `/pms${path}`;
+export const getRoutePath = (path: string): string => path.startsWith('/pms') ? path : `/pms${path}`;
 
 // Helper to get route by path
 export const getRouteByPath = (path: string): RouteConfig | undefined => {
@@ -95,6 +102,12 @@ export const getBreadcrumbItems = (path: string): Array<{ title: string; path: s
       // Handle dynamic project IDs
       items.push({
         title: 'Project Details',
+        path: getRoutePath(currentPath)
+      });
+    } else {
+      // Handle project names
+      items.push({
+        title: decodeURIComponent(part),
         path: getRoutePath(currentPath)
       });
     }

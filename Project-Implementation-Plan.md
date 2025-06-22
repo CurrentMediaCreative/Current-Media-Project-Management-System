@@ -99,12 +99,18 @@
   * Improve error handling
   * Add validation for name matching
 
-### G. Route Generation
+### G. Route Generation & Prefixing
 - [✓] Implement automatic route generation (6/22/2025):
   * Add dynamic route mapping
   * Handle URL parameters
   * Add route guards
   * Implement navigation helpers
+- [✓] Add /pms prefix to all routes (6/22/2025):
+  * Update frontend route definitions
+  * Update navigation paths in components
+  * Configure Vite base URL
+  * Update API route prefixes
+  * Update proxy configuration
 
 ### H. Testing & Validation
 - [ ] Add unit tests for new Redux logic
@@ -152,6 +158,7 @@
    - [✓] Update Dashboard to use Redux store (6/22/2025)
    - [✓] Update ProjectTracking to use Redux store (6/22/2025)
    - [✓] Add automatic route generation (6/22/2025)
+   - [✓] Add /pms route prefix support (6/22/2025)
    - [✓] Clean up redundant API calls (6/22/2025)
    - [ ] Add comprehensive tests
 

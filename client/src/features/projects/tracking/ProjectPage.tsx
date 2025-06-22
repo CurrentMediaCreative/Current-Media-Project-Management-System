@@ -40,11 +40,10 @@ import ProjectDetailsDialog from './ProjectDetailsDialog';
 import ProjectErrorBoundary from './components/ProjectErrorBoundary';
 import { useProjectData } from './hooks/useProjectData';
 
-interface ProjectPageProps {
-  projectName?: string;
-}
+import { useParams } from 'react-router-dom';
 
-const ProjectPage: React.FC<ProjectPageProps> = ({ projectName }) => {
+const ProjectPage: React.FC = () => {
+  const { id, name } = useParams<{ id?: string; name?: string }>();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   
@@ -59,17 +58,25 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ projectName }) => {
   // Use our custom hook for data fetching and polling
   const { loading, errors, refetch, refetchClickUp } = useProjectData();
 
-  // Set current project based on URL if provided
+  // Set current project based on URL parameters
   React.useEffect(() => {
-    if (projectName) {
+    if (id) {
+      const matchedProject = allProjects.matched.find(p => p.id === id);
+      if (matchedProject) {
+        dispatch(setCurrentProject({ id: matchedProject.id, type: 'local' }));
+        return;
+      }
+    }
+
+    if (name) {
       const matchedProject = allProjects.matched.find(
-        p => p.local?.title === projectName || p.clickUp?.name === projectName
+        p => p.local?.title === name || p.clickUp?.name === name
       );
       const unmatchedLocal = allProjects.unmatched.local.find(
-        p => p.local?.title === projectName
+        p => p.local?.title === name
       );
       const unmatchedClickUp = allProjects.unmatched.clickUp.find(
-        p => p.clickUp?.name === projectName
+        p => p.clickUp?.name === name
       );
 
       if (matchedProject) {
@@ -80,14 +87,24 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ projectName }) => {
         dispatch(setCurrentProject({ id: unmatchedClickUp.id, type: 'clickup' }));
       }
     }
-  }, [dispatch, projectName, allProjects]);
+  }, [dispatch, id, name, allProjects]);
 
   // Find the project in our filtered data
   const project: ProjectPageData | null = (() => {
-    if (!projectName) return null;
+    if (id) {
+      const matchedProject = filteredProjects.matched.find(p => p.id === id);
+      if (matchedProject) {
+        return {
+          local: matchedProject.local,
+          clickUp: matchedProject.clickUp
+        };
+      }
+    }
+
+    if (!name) return null;
 
     const matchedProject = filteredProjects.matched.find(
-      p => p.local?.title === projectName || p.clickUp?.name === projectName
+      p => p.local?.title === name || p.clickUp?.name === name
     );
     if (matchedProject) {
       return {
@@ -97,7 +114,7 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ projectName }) => {
     }
 
     const unmatchedLocal = filteredProjects.unmatched.local.find(
-      p => p.local?.title === projectName
+      p => p.local?.title === name
     );
     if (unmatchedLocal) {
       return {
@@ -107,7 +124,7 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ projectName }) => {
     }
 
     const unmatchedClickUp = filteredProjects.unmatched.clickUp.find(
-      p => p.clickUp?.name === projectName
+      p => p.clickUp?.name === name
     );
     if (unmatchedClickUp) {
       return {
@@ -142,7 +159,7 @@ const ProjectPage: React.FC<ProjectPageProps> = ({ projectName }) => {
 
   const handleCreateLocalProject = () => {
     if (!project?.clickUp?.id) return;
-    navigate(`/projects/${project.clickUp.id}/import`);
+    navigate(`/pms/projects/${project.clickUp.id}/import`);
     setIsCreateDialogOpen(false);
   };
 

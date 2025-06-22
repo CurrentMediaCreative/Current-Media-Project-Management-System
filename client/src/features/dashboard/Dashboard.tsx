@@ -89,7 +89,7 @@ const Dashboard: React.FC = () => {
         break;
       case 'edit':
         if (selectedProject.local?.id) {
-          navigate(`/projects/edit/${selectedProject.local.id}`);
+          navigate(`/pms/projects/edit/${selectedProject.local.id}`);
         }
         break;
       case 'details':
@@ -156,7 +156,7 @@ const Dashboard: React.FC = () => {
 
   const handleEditClick = (e: React.MouseEvent, projectId: string) => {
     e.stopPropagation();
-    navigate(`/projects/edit/${projectId}`);
+    navigate(`/pms/projects/edit/${projectId}`);
   };
 
   const getNotificationIcon = (type: NotificationItem['type']) => {
@@ -269,7 +269,7 @@ const Dashboard: React.FC = () => {
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
-                  onClick={() => navigate('/projects/new')}
+                  onClick={() => navigate('/pms/projects/new')}
                 >
                   New Project
                 </Button>
@@ -341,7 +341,7 @@ const Dashboard: React.FC = () => {
                       backgroundColor: 'action.hover'
                     }
                   }}
-                  onClick={() => navigate('/projects')}
+                  onClick={() => navigate('/pms/projects')}
                 >
                   <Box display="flex" alignItems="center">
                     <AssignmentIcon sx={{ fontSize: 40, color: 'primary.main', mr: 2 }} />
@@ -363,7 +363,7 @@ const Dashboard: React.FC = () => {
                       backgroundColor: 'action.hover'
                     }
                   }}
-                  onClick={() => navigate('/settings')}
+                  onClick={() => navigate('/pms/settings')}
                 >
                   <Box display="flex" alignItems="center">
                     <PersonIcon sx={{ fontSize: 40, color: 'primary.main', mr: 2 }} />

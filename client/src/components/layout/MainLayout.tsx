@@ -30,8 +30,8 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { logout } = useAuth();
 
   const menuItems = [
-    { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-    { text: 'Projects', icon: <ProjectsIcon />, path: '/projects' }
+    { text: 'Dashboard', icon: <DashboardIcon />, path: '/pms/dashboard' },
+    { text: 'Projects', icon: <ProjectsIcon />, path: '/pms/projects' }
   ];
 
   const handleDrawerToggle = () => {
@@ -46,7 +46,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/login');
+      navigate('/pms/login');
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -67,7 +67,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             Project Management System
           </Typography>
-          <IconButton color="inherit" onClick={() => navigate('/profile')}>
+          <IconButton color="inherit" onClick={() => navigate('/pms/profile')}>
             <ProfileIcon />
           </IconButton>
         </Toolbar>
