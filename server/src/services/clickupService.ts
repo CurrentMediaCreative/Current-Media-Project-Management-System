@@ -61,8 +61,33 @@ class ClickUpService {
     throw lastError;
   }
 
-  async getTasks(): Promise<ClickUpTask[]> {
-    return this.getAllTasks();
+  async getTasks(): Promise<{
+    parentTasks: ClickUpTask[];
+    taskRelationships: Map<string, ClickUpTask[]>;
+  }> {
+    const allTasks = await this.getAllTasks();
+    const editsTasks = allTasks.filter(task => task.list?.name === "Edits");
+
+    // Map to store parent task -> subtasks relationships
+    const taskRelationships = new Map<string, ClickUpTask[]>();
+
+    // First pass: identify all tasks and their relationships
+    editsTasks.forEach(task => {
+      if (task.parent) {
+        // This is a subtask
+        const parentTasks = taskRelationships.get(task.parent) || [];
+        parentTasks.push(task);
+        taskRelationships.set(task.parent, parentTasks);
+      }
+    });
+
+    // Get parent tasks (all tasks in Edits list that don't have a parent)
+    const parentTasks = editsTasks.filter(task => !task.parent);
+
+    return {
+      parentTasks,
+      taskRelationships
+    };
   }
 
   async getTask(taskId: string): Promise<ClickUpTask | null> {
@@ -126,23 +151,12 @@ class ClickUpService {
     return response.data.lists;
   }
 
-  async getSubTasks(taskId: string): Promise<ClickUpTask[]> {
-    const response = await axios.get(`${this.baseUrl}/task/${taskId}/subtask`, {
-      headers: this.getHeaders()
-    });
-    return response.data.tasks;
-  }
-
   async getAllTasks(): Promise<ClickUpTask[]> {
     await this.validateConfig();
     
     try {
-      let allTasks: ClickUpTask[] = [];
-
       // Get teams first
       const teams = await this.retryRequest(() => this.getTeams());
-      console.log('Found teams:', teams);
-
       if (!teams || teams.length === 0) {
         throw new Error('No teams found');
       }
@@ -152,41 +166,55 @@ class ClickUpService {
         this.getSpaces(teams[0].id)
       );
 
-      for (const space of spaces) {
-        try {
-          const lists = await this.retryRequest(() => 
-            this.getLists(space.id)
-          );
+      // Get all tasks from the Edits list
+      const lists = await this.retryRequest(() => 
+        this.getLists(spaces[0].id)
+      );
 
-          // Only get tasks from the "Edits" list
-          const editsList = lists.find((list: any) => list.name === "Edits");
-          if (editsList) {
-            try {
-              const response = await this.retryRequest(() =>
-                axios.get(`${this.baseUrl}/list/${editsList.id}/task?archived=false`, {
-                  headers: this.getHeaders(),
-                  params: {
-                    subtasks: true,
-                    include_closed: true
-                  }
-                })
-              );
-              
-              if (response.data && Array.isArray(response.data.tasks)) {
-                allTasks = [...allTasks, ...response.data.tasks];
-              } else {
-                console.warn(`Unexpected response format for list ${editsList.id}:`, response.data);
-              }
-            } catch (listError) {
-              console.error(`Error fetching tasks for list ${editsList.id}:`, listError);
-            }
-          }
-        } catch (spaceError) {
-          console.error(`Error fetching lists for space ${space.id}:`, spaceError);
-          // Continue with next space
-        }
+      // Find the Edits list
+      const editsList = lists.find((list: any) => list.name === "Edits");
+      if (!editsList) {
+        throw new Error('Edits list not found');
       }
 
+      // Get all tasks from the Edits list with pagination
+      let allTasks: ClickUpTask[] = [];
+      let page = 0;
+      const PAGE_SIZE = 100;
+      
+      while (true) {
+        const response = await this.retryRequest(() =>
+          axios.get(`${this.baseUrl}/list/${editsList.id}/task`, {
+            headers: this.getHeaders(),
+            params: {
+              archived: false,
+              subtasks: true,
+              include_closed: true,
+              page: page,
+              order_by: 'created',
+              reverse: false
+            }
+          })
+        );
+
+        if (!response.data || !Array.isArray(response.data.tasks)) {
+          console.warn(`Unexpected response format for list ${editsList.id}:`, response.data);
+          break;
+        }
+
+        const tasks = response.data.tasks;
+        if (tasks.length === 0) {
+          break; // No more tasks
+        }
+
+        allTasks = [...allTasks, ...tasks];
+        page++;
+
+        // Log progress
+        console.log(`Fetched ${allTasks.length} tasks so far...`);
+      }
+
+      console.log(`Total tasks fetched: ${allTasks.length}`);
       return allTasks;
     } catch (error) {
       console.error('Error in getAllTasks:', error);

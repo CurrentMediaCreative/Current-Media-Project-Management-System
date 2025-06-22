@@ -14,39 +14,61 @@
 export interface ClickUpTask {
   id: string;
   name: string;
-  status?: {
+  description?: string;
+  status: {
     status: string;
+    type: string;
     color: string;
   };
-  url?: string;
-  date_created?: string;
-  date_updated?: string;
-  custom_fields?: ClickUpCustomField[];
-}
-
-/**
- * Represents a read-only custom field from ClickUp
- * Used for displaying field information, never for updates
- */
-export interface ClickUpCustomField {
-  id: string;
-  name: string;
-  type: string;
-  type_config: {
-    options?: ClickUpCustomFieldOption[];
+  parent?: string | null;
+  date_created: string;
+  date_updated: string;
+  url: string;
+  list: {
+    id: string;
+    name: string;
   };
-  value: string | number | null;
+  space: {
+    id: string;
+  };
+  folder: {
+    id: string;
+  };
+  customFields?: Record<string, any>;
+  assignees?: {
+    id: string;
+    username: string;
+    email: string;
+  }[];
+  tags?: {
+    name: string;
+    tag_fg: string;
+    tag_bg: string;
+  }[];
+  dueDate?: string;
+  startDate?: string;
+  timeEstimate?: number;
+  timeSpent?: number;
+  priority?: {
+    priority: string;
+    color: string;
+  };
+  subtasks?: ClickUpTask[];
 }
 
 /**
- * Represents a read-only custom field option from ClickUp
- * Used for displaying option information, never for updates
+ * Represents a task with its subtasks
  */
-export interface ClickUpCustomFieldOption {
-  id: string;
-  name: string;
-  orderindex: number;
-  color?: string;
+export interface TaskWithSubtasks extends ClickUpTask {
+  subtasks: ClickUpTask[];
+}
+
+/**
+ * Represents the relationships between tasks
+ */
+export interface TaskRelationships {
+  parentTasks: TaskWithSubtasks[];
+  taskRelationships: Map<string, ClickUpTask[]>;
 }
 
 /**
@@ -61,3 +83,6 @@ export const CLICKUP_FIELD_NAMES = {
   TASK_TYPE: 'task_type',
   BUDGET: 'budget'
 } as const;
+
+// Alias for backward compatibility
+export type ClickUpData = ClickUpTask;

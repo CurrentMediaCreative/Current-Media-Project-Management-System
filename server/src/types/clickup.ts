@@ -5,7 +5,9 @@ export interface ClickUpTask {
   status: {
     status: string;
     type: string;
+    color: string;
   };
+  parent?: string | null;
   date_created: string;
   date_updated: string;
   url: string;
@@ -38,6 +40,16 @@ export interface ClickUpTask {
     priority: string;
     color: string;
   };
+  subtasks?: ClickUpTask[];
+}
+
+export interface TaskWithSubtasks extends ClickUpTask {
+  subtasks: ClickUpTask[];
+}
+
+export interface TaskRelationships {
+  parentTasks: TaskWithSubtasks[];
+  taskRelationships: Map<string, ClickUpTask[]>;
 }
 
 export interface ClickUpWorkspace {

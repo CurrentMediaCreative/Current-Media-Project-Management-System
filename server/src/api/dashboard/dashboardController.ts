@@ -38,7 +38,8 @@ export const getDashboardOverview = async (req: AuthRequest, res: Response) => {
 
     // Get ClickUp tasks
     try {
-      clickUpTasks = await clickupService.getTasks();
+      const taskData = await clickupService.getTasks();
+      clickUpTasks = taskData.parentTasks; // Only use parent tasks for dashboard
     } catch (clickUpError) {
       console.error('Error fetching ClickUp tasks:', clickUpError);
       if (clickUpError instanceof Error && 
@@ -121,16 +122,27 @@ export const getProjectSummary = async (req: AuthRequest, res: Response) => {
 
 export const getTaskSummary = async (req: AuthRequest, res: Response) => {
   try {
-    const tasks = await clickupService.getTasks();
+    const taskData = await clickupService.getTasks();
+    const { parentTasks, taskRelationships } = taskData;
+
+    // Count subtasks for each parent task
+    const taskCounts = parentTasks.map(task => ({
+      id: task.id,
+      name: task.name,
+      status: task.status.status,
+      subtaskCount: (taskRelationships.get(task.id) || []).length
+    }));
+
     const summary = {
-      total: tasks.length,
-      byStatus: tasks.reduce((acc: Record<string, number>, task: ClickUpTask) => {
+      total: parentTasks.length,
+      byStatus: parentTasks.reduce((acc: Record<string, number>, task: ClickUpTask) => {
         acc[task.status.status] = (acc[task.status.status] || 0) + 1;
         return acc;
       }, {}),
-      recentlyUpdated: tasks
+      recentlyUpdated: parentTasks
         .sort((a, b) => new Date(b.dueDate || '').getTime() - new Date(a.dueDate || '').getTime())
-        .slice(0, 5)
+        .slice(0, 5),
+      taskCounts
     };
     res.json(summary);
   } catch (error) {

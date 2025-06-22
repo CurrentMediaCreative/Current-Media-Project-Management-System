@@ -70,6 +70,7 @@ export interface ClickUpData {
   customFields: {
     [key: string]: string | number | null;
   };
+  subtasks?: ClickUpData[];
 }
 
 /**

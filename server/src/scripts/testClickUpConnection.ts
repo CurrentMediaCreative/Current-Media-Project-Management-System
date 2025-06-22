@@ -1,7 +1,15 @@
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import type { ClickUpTask } from '../types/clickup';
 import { clickupService as clickupServiceInstance } from '../services/clickupService';
+
+const RESULTS_DIR = path.join(__dirname, '../../exploration-results');
+
+// Create results directory if it doesn't exist
+if (!fs.existsSync(RESULTS_DIR)) {
+  fs.mkdirSync(RESULTS_DIR, { recursive: true });
+}
 
 interface ClickUpList {
   id: string;
@@ -73,14 +81,90 @@ async function testClickUpConnection(clickupService: typeof clickupServiceInstan
     console.log('\nTest 4: Getting all tasks...');
     const tasks = await clickupService.getTasks();
     console.log('✓ Successfully retrieved tasks:', tasks.length, 'tasks found');
-    
-    // Display task status distribution
-    const statusCount = tasks.reduce((acc: Record<string, number>, task: ClickUpTask) => {
+
+    // Get all tasks from the Edits list
+    const editsTasks = tasks.filter(task => task.list?.name === "Edits");
+    console.log('\nTotal tasks in Edits list:', editsTasks.length);
+
+    // Map of parent task IDs to their subtasks
+    const parentToSubtasks = new Map<string, ClickUpTask[]>();
+
+    // First pass: identify all tasks and their relationships
+    editsTasks.forEach(task => {
+      if (task.parent) {
+        // This is a subtask
+        const parentTasks = parentToSubtasks.get(task.parent) || [];
+        parentTasks.push(task);
+        parentToSubtasks.set(task.parent, parentTasks);
+      }
+    });
+
+    // Get parent tasks (tasks in Edits list that have subtasks)
+    const parentTasks = editsTasks.filter(task => parentToSubtasks.has(task.id));
+    const standaloneParentTasks = editsTasks.filter(task => !task.parent && !parentToSubtasks.has(task.id));
+    const subtasks = editsTasks.filter(task => task.parent);
+
+    // Save detailed task structure
+    const taskStructure = parentTasks.map(task => ({
+      id: task.id,
+      name: task.name,
+      status: task.status.status,
+      subtasks: parentToSubtasks.get(task.id)?.map(st => ({
+        id: st.id,
+        name: st.name,
+        status: st.status.status
+      }))
+    }));
+
+    const tasksPath = path.join(RESULTS_DIR, '05-tasks.json');
+    fs.writeFileSync(tasksPath, JSON.stringify({ 
+      taskStructure,
+      standaloneParentTasks: standaloneParentTasks.map(t => ({
+        id: t.id,
+        name: t.name,
+        status: t.status.status
+      }))
+    }, null, 2));
+    console.log('\n✓ Saved task structure to:', tasksPath);
+
+    // Count status distribution for parent tasks
+    const parentStatusCount = [...parentTasks, ...standaloneParentTasks].reduce((acc: Record<string, number>, task: ClickUpTask) => {
       const status = task.status.status;
       acc[status] = (acc[status] || 0) + 1;
       return acc;
     }, {});
-    console.log('\nTask status distribution:', statusCount);
+
+    // Count status distribution for subtasks
+    const subtaskStatusCount = subtasks.reduce((acc: Record<string, number>, task: ClickUpTask) => {
+      const status = task.status.status;
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {});
+
+    console.log('\nParent Tasks with subtasks:', parentTasks.length);
+    console.log('Standalone Parent Tasks:', standaloneParentTasks.length);
+    console.log('Total Parent Tasks:', parentTasks.length + standaloneParentTasks.length);
+    console.log('Status distribution:', parentStatusCount);
+    
+    console.log('\nSubtasks:', subtasks.length);
+    console.log('Status distribution:', subtaskStatusCount);
+
+    // Show example task structure
+    if (parentTasks.length > 0) {
+      const example = parentTasks[0];
+      const exampleSubtasks = parentToSubtasks.get(example.id);
+      console.log('\nExample task structure:');
+      console.log('Parent:', {
+        id: example.id,
+        name: example.name,
+        status: example.status.status
+      });
+      console.log('Subtasks:', exampleSubtasks?.map(st => ({
+        id: st.id,
+        name: st.name,
+        status: st.status.status
+      })));
+    }
 
     // Display sample task
     if (tasks.length > 0) {

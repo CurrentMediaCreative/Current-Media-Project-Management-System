@@ -7,7 +7,7 @@
  * handled locally in our own system.
  */
 
-import { ClickUpTask } from '../types/clickup';
+import { ClickUpTask, TaskRelationships } from '../types/clickup';
 import api from '../utils/api';
 
 class ClickUpService {
@@ -42,12 +42,25 @@ class ClickUpService {
     }
   }
 
-  async getTasks(): Promise<ClickUpTask[]> {
+  async getTasks(): Promise<TaskRelationships> {
     try {
       const response = await api.get('/clickup/tasks');
       return response.data;
     } catch (error: any) {
       console.error('Error fetching ClickUp tasks:', error);
+      throw error;
+    }
+  }
+
+  async getTaskWithSubtasks(taskId: string): Promise<ClickUpTask> {
+    try {
+      const response = await api.get(`/clickup/tasks/${taskId}/with-subtasks`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.warn(`Task ${taskId} not found`);
+        throw error;
+      }
       throw error;
     }
   }
