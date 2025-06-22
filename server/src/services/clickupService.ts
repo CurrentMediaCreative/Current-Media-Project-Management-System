@@ -4,17 +4,33 @@ import { ClickUpTask } from '../types/clickup';
 class ClickUpService {
   private apiKey: string;
   private baseUrl: string;
-  private workspaceId: string;
+  private teamId: string;
   private retryAttempts = 3;
   private retryDelay = 1000; // 1 second
 
   constructor() {
-    this.apiKey = process.env.CLICKUP_API_KEY || '';
-    this.workspaceId = process.env.CLICKUP_WORKSPACE_ID || '';
+    const apiKey = process.env.CLICKUP_API_KEY;
+    const teamId = process.env.CLICKUP_WORKSPACE_ID;
+
+    if (!apiKey) {
+      throw new Error('CLICKUP_API_KEY environment variable is not set');
+    }
+    if (!teamId) {
+      throw new Error('CLICKUP_WORKSPACE_ID environment variable is not set');
+    }
+
+    this.apiKey = apiKey;
+    this.teamId = teamId;
     this.baseUrl = 'https://api.clickup.com/api/v2';
+
+    // Log initialization (but not the actual values)
+    console.log('ClickUpService initialized with API key and team ID');
   }
 
   private getHeaders() {
+    // Log header generation (but not the actual values)
+    console.log('Generating headers with API key:', this.apiKey ? '✓ Present' : '✗ Missing');
+    
     return {
       'Authorization': this.apiKey,
       'Content-Type': 'application/json'
@@ -25,8 +41,8 @@ class ClickUpService {
     if (!this.apiKey) {
       throw new Error('ClickUp API key is not configured');
     }
-    if (!this.workspaceId) {
-      throw new Error('ClickUp workspace ID is not configured');
+    if (!this.teamId) {
+      throw new Error('ClickUp team ID is not configured');
     }
   }
 
@@ -83,11 +99,23 @@ class ClickUpService {
     });
   }
 
-  // Additional helper methods for workspace/space/list management
-  async getSpaces(workspaceId: string): Promise<any> {
-    const response = await axios.get(`${this.baseUrl}/team/${workspaceId}/space?archived=false`, {
+  // Get authorized teams first
+  async getTeams(): Promise<any> {
+    console.log('Getting authorized teams');
+    const response = await axios.get(`${this.baseUrl}/team`, {
       headers: this.getHeaders()
     });
+    console.log('Teams response:', response.data);
+    return response.data.teams;
+  }
+
+  // Get spaces for a team
+  async getSpaces(teamId: string): Promise<any> {
+    console.log('Getting spaces for team:', teamId);
+    const response = await axios.get(`${this.baseUrl}/team/${teamId}/space?archived=false`, {
+      headers: this.getHeaders()
+    });
+    console.log('Spaces response:', response.data);
     return response.data.spaces;
   }
 
@@ -111,9 +139,17 @@ class ClickUpService {
     try {
       let allTasks: ClickUpTask[] = [];
 
-      // Get spaces directly using workspace ID
+      // Get teams first
+      const teams = await this.retryRequest(() => this.getTeams());
+      console.log('Found teams:', teams);
+
+      if (!teams || teams.length === 0) {
+        throw new Error('No teams found');
+      }
+
+      // Use the first team's ID to get spaces
       const spaces = await this.retryRequest(() => 
-        this.getSpaces(this.workspaceId)
+        this.getSpaces(teams[0].id)
       );
 
       for (const space of spaces) {
@@ -122,10 +158,12 @@ class ClickUpService {
             this.getLists(space.id)
           );
 
-          for (const list of lists) {
+          // Only get tasks from the "Edits" list
+          const editsList = lists.find((list: any) => list.name === "Edits");
+          if (editsList) {
             try {
               const response = await this.retryRequest(() =>
-                axios.get(`${this.baseUrl}/list/${list.id}/task?archived=false`, {
+                axios.get(`${this.baseUrl}/list/${editsList.id}/task?archived=false`, {
                   headers: this.getHeaders(),
                   params: {
                     subtasks: true,
@@ -137,11 +175,10 @@ class ClickUpService {
               if (response.data && Array.isArray(response.data.tasks)) {
                 allTasks = [...allTasks, ...response.data.tasks];
               } else {
-                console.warn(`Unexpected response format for list ${list.id}:`, response.data);
+                console.warn(`Unexpected response format for list ${editsList.id}:`, response.data);
               }
             } catch (listError) {
-              console.error(`Error fetching tasks for list ${list.id}:`, listError);
-              // Continue with next list
+              console.error(`Error fetching tasks for list ${editsList.id}:`, listError);
             }
           }
         } catch (spaceError) {

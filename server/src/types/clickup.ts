@@ -6,9 +6,12 @@ export interface ClickUpTask {
     status: string;
     type: string;
   };
+  date_created: string;
+  date_updated: string;
   url: string;
   list: {
     id: string;
+    name: string;
   };
   space: {
     id: string;
