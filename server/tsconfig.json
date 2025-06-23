@@ -4,21 +4,26 @@
     "module": "commonjs",
     "lib": ["es2020"],
     "outDir": "./dist",
-    "rootDir": ".",
+    "rootDir": "..",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["../shared/src/*"]
+    }
   },
   "include": [
     "src/**/*",
-    "config/**/*"
+    "config/**/*",
+    "../shared/src/**/*"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "scripts/**/*"
+    "scripts/**/*",
+    "public/**/*"
   ]
 }

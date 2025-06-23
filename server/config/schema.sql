@@ -40,6 +40,6 @@ CREATE TRIGGER update_projects_updated_at
 -- Add comments for documentation
 COMMENT ON TABLE "Projects" IS 'Stores project information with name-based matching to ClickUp tasks';
 COMMENT ON COLUMN "Projects"."name" IS 'Primary matching field for ClickUp integration';
-COMMENT ON COLUMN "Projects"."status" IS 'Project status (NEW_NOT_SENT, NEW_SENT, ACTIVE, COMPLETED, ARCHIVED)';
+COMMENT ON COLUMN "Projects"."status" IS 'Project status (new_not_sent, new_sent, pending_clickup, active, completed, archived)';
 COMMENT ON COLUMN "Projects"."clickUpId" IS 'Optional reference to associated ClickUp task';
 COMMENT ON COLUMN "Projects"."documents" IS 'Array of document paths associated with the project';

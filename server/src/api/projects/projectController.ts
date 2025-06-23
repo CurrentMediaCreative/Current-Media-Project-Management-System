@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { projectService } from '../../services/projectService';
-import { CreateProjectInput, UpdateProjectInput } from '../../types/project';
+import { CreateProjectInput, UpdateProjectInput, ProjectStatus } from '@shared/types/project';
 import { clickupService } from '../../services/clickupService';
 
 interface AuthRequest extends Request {
@@ -47,7 +47,7 @@ export const getProjects = async (req: AuthRequest, res: Response) => {
   try {
     const { status } = req.query;
     const projects = await projectService.getProjects(
-      status ? { status: status as string } : undefined
+      status ? { status: status as ProjectStatus } : undefined
     );
     res.json(projects);
   } catch (error) {

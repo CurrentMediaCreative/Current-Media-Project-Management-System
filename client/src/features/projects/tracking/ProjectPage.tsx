@@ -23,7 +23,7 @@ import {
   LocalProject,
   hasClickUpData, 
   hasLocalData
-} from '../../../types/project';
+} from '@shared/types/project';
 import {
   setCurrentProject,
   updateLocalProject,

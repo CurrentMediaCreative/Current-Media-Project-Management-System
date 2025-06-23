@@ -13,7 +13,7 @@ const App = () => {
   
   return (
     <Provider store={store}>
-      <Router>
+      <Router basename="/pms">
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <AuthProvider>

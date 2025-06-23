@@ -1,6 +1,10 @@
+import path from 'path';
+
+// Load environment variables first
+require('dotenv').config({ path: path.join(process.cwd(), '.env') });
+
 import express from 'express';
 import cors from 'cors';
-import path from 'path';
 import { testConnection, cleanup } from '../config/database';
 import projectRoutes from './api/projects/projectRoutes';
 import clickupRoutes from './api/clickup/clickupRoutes';
@@ -9,9 +13,6 @@ import dashboardRoutes from './api/dashboard/dashboardRoutes';
 import contractorRoutes from './api/contractors/contractorRateRoutes';
 import authRoutes from './api/auth/authRoutes';
 import { authMiddleware } from './middleware/authMiddleware';
-
-// Load environment variables
-require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -43,9 +44,17 @@ app.use('/pms/api/*', (req, res) => {
   res.status(404).json({ message: 'API endpoint not found' });
 });
 
-// Root path handler
+// Serve static files from the public directory
+app.use('/pms', express.static(path.join(process.cwd(), 'public')));
+
+// SPA fallback - serve index.html for all non-API routes under /pms
+app.get('/pms/*', (req, res) => {
+  res.sendFile(path.join(process.cwd(), 'public/index.html'));
+});
+
+// Root path redirect to /pms
 app.get('/', (req, res) => {
-  res.json({ message: 'Current Media Project Management API' });
+  res.redirect('/pms');
 });
 
 // Error handling middleware

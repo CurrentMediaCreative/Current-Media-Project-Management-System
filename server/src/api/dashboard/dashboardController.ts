@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { clickupService } from '../../services/clickupService';
 import { projectService } from '../../services/projectService';
 import { ClickUpTask } from '../../types/clickup';
-import { LocalProject } from '../../types/project';
+import { LocalProject, ProjectStatus } from '@shared/types/project';
 
 interface AuthRequest extends Request {
   user?: {
@@ -54,19 +54,19 @@ export const getDashboardOverview = async (req: AuthRequest, res: Response) => {
 
     // Calculate project status counts
     const projectStatusCounts = {
-      newNotSent: localProjects.filter(p => p.status === 'NEW_NOT_SENT').length,
-      newSent: localProjects.filter(p => p.status === 'NEW_SENT').length,
-      activeInClickUp: localProjects.filter(p => p.status === 'ACTIVE').length,
-      completed: localProjects.filter(p => p.status === 'COMPLETED').length,
-      archived: localProjects.filter(p => p.status === 'ARCHIVED').length
+      newNotSent: localProjects.filter(p => p.status === ProjectStatus.NEW_NOT_SENT).length,
+      newSent: localProjects.filter(p => p.status === ProjectStatus.NEW_SENT).length,
+      activeInClickUp: localProjects.filter(p => p.status === ProjectStatus.ACTIVE).length,
+      completed: localProjects.filter(p => p.status === ProjectStatus.COMPLETED).length,
+      archived: localProjects.filter(p => p.status === ProjectStatus.ARCHIVED).length
     };
 
     // Group projects by status
     const projects = {
-      newProjects: localProjects.filter(p => ['NEW_NOT_SENT', 'NEW_SENT'].includes(p.status)),
-      activeProjects: localProjects.filter(p => p.status === 'ACTIVE'),
-      postProduction: localProjects.filter(p => p.status === 'COMPLETED'),
-      archived: localProjects.filter(p => p.status === 'ARCHIVED')
+      newProjects: localProjects.filter(p => [ProjectStatus.NEW_NOT_SENT, ProjectStatus.NEW_SENT].includes(p.status)),
+      activeProjects: localProjects.filter(p => p.status === ProjectStatus.ACTIVE),
+      postProduction: localProjects.filter(p => p.status === ProjectStatus.COMPLETED),
+      archived: localProjects.filter(p => p.status === ProjectStatus.ARCHIVED)
     };
 
     // Return data even if some parts failed
@@ -110,7 +110,7 @@ export const getProjectSummary = async (req: AuthRequest, res: Response) => {
         return acc;
       }, {}),
       recentlyUpdated: projects
-        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+        .sort((a, b) => (b.updatedAt?.getTime() || 0) - (a.updatedAt?.getTime() || 0))
         .slice(0, 5)
     };
     res.json(summary);
@@ -140,7 +140,11 @@ export const getTaskSummary = async (req: AuthRequest, res: Response) => {
         return acc;
       }, {}),
       recentlyUpdated: parentTasks
-        .sort((a, b) => new Date(b.dueDate || '').getTime() - new Date(a.dueDate || '').getTime())
+        .sort((a, b) => {
+          const bDate = b.dueDate ? new Date(b.dueDate).getTime() : 0;
+          const aDate = a.dueDate ? new Date(a.dueDate).getTime() : 0;
+          return bDate - aDate;
+        })
         .slice(0, 5),
       taskCounts
     };

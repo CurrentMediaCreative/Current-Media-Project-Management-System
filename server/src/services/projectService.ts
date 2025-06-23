@@ -1,4 +1,4 @@
-import { LocalProject, CreateProjectInput, UpdateProjectInput } from '../types/project';
+import { LocalProject, CreateProjectInput, UpdateProjectInput, ProjectStatus } from '@shared/types/project';
 import { db } from '../../config/database';
 import fs from 'fs';
 import path from 'path';
@@ -64,7 +64,7 @@ class ProjectService {
     }
   }
 
-  async getProjects(filters?: { status?: string }): Promise<LocalProject[]> {
+  async getProjects(filters?: { status?: ProjectStatus }): Promise<LocalProject[]> {
     let query = 'SELECT * FROM "Projects"';
     const values: any[] = [];
 
@@ -191,7 +191,7 @@ class ProjectService {
       // Link the task
       const result = await client.query(
         'UPDATE "Projects" SET "clickUpId" = $1, status = $2, "updatedAt" = CURRENT_TIMESTAMP WHERE id = $3 RETURNING *',
-        [taskId, 'ACTIVE', projectId]
+        [taskId, ProjectStatus.ACTIVE, projectId]
       );
 
       await client.query('COMMIT');
@@ -215,14 +215,19 @@ class ProjectService {
   private mapToLocalProject(row: any): LocalProject {
     return {
       id: row.id,
-      name: row.name,
-      status: row.status,
-      description: row.description,
-      budget: row.budget,
-      predictedCosts: row.predictedCosts,
-      actualCosts: row.actualCosts,
-      startDate: row.startDate,
-      endDate: row.endDate,
+      title: row.name,
+      client: row.client || 'Unknown',
+      status: row.status as ProjectStatus,
+      timeframe: {
+        startDate: row.startDate?.toISOString() || '',
+        endDate: row.endDate?.toISOString() || ''
+      },
+      budget: {
+        estimated: row.budget || 0,
+        actual: row.actualCosts || 0
+      },
+      contractors: [],
+      metadata: {},
       clickUpId: row.clickUpId,
       folderPath: row.folderPath,
       documents: row.documents || [],

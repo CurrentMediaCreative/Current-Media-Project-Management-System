@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { ClickUpTask } from '../types/clickup';
+import { ProjectStatus } from '@shared/types/project';
 
 class ClickUpService {
   private apiKey: string;
@@ -9,6 +10,12 @@ class ClickUpService {
   private retryDelay = 1000; // 1 second
 
   constructor() {
+    console.log('Environment variables:', {
+      CLICKUP_API_KEY: process.env.CLICKUP_API_KEY ? 'Present' : 'Missing',
+      NODE_ENV: process.env.NODE_ENV,
+      PORT: process.env.PORT
+    });
+    
     const apiKey = process.env.CLICKUP_API_KEY;
     const teamId = process.env.CLICKUP_WORKSPACE_ID;
 
@@ -249,21 +256,68 @@ class ClickUpService {
       const matchingProject = projects.find(p => p.clickUpId === task.id);
       if (matchingProject) {
         // Check status changes
-        if (task.status.status === 'complete' && matchingProject.status !== 'COMPLETED') {
+        if (task.status.status === 'complete' && matchingProject.status !== ProjectStatus.COMPLETED) {
           completed.push(task);
-          await projectService.updateProject(matchingProject.id, { status: 'COMPLETED' });
-        } else if (task.status.status === 'archived' && matchingProject.status !== 'ARCHIVED') {
+          await projectService.updateProject(matchingProject.id, { status: ProjectStatus.COMPLETED });
+        } else if (task.status.status === 'archived' && matchingProject.status !== ProjectStatus.ARCHIVED) {
           archived.push(task);
-          await projectService.updateProject(matchingProject.id, { status: 'ARCHIVED' });
+          await projectService.updateProject(matchingProject.id, { status: ProjectStatus.ARCHIVED });
         } else if (task.status.status !== matchingProject.status) {
           updated.push(task);
-          await projectService.updateProject(matchingProject.id, { status: task.status.status });
+          await projectService.updateProject(matchingProject.id, { 
+            status: this.mapClickUpStatusToProjectStatus(task.status.status)
+          });
         }
       }
     }
 
     return { updated, completed, archived };
   }
+
+  private mapClickUpStatusToProjectStatus(clickUpStatus: string): ProjectStatus {
+    switch (clickUpStatus.toLowerCase()) {
+      case 'complete':
+        return ProjectStatus.COMPLETED;
+      case 'archived':
+        return ProjectStatus.ARCHIVED;
+      case 'active':
+        return ProjectStatus.ACTIVE;
+      case 'pending':
+        return ProjectStatus.PENDING_CLICKUP;
+      default:
+        return ProjectStatus.NEW_NOT_SENT;
+    }
+  }
 }
 
-export const clickupService = new ClickUpService();
+let instance: ClickUpService | null = null;
+
+export const clickupService = {
+  getInstance(): ClickUpService {
+    if (!instance) {
+      instance = new ClickUpService();
+    }
+    return instance;
+  },
+  getTasks() {
+    return this.getInstance().getTasks();
+  },
+  getTask(taskId: string) {
+    return this.getInstance().getTask(taskId);
+  },
+  createTask(taskData: Partial<ClickUpTask>) {
+    return this.getInstance().createTask(taskData);
+  },
+  updateTask(taskId: string, taskData: Partial<ClickUpTask>) {
+    return this.getInstance().updateTask(taskId, taskData);
+  },
+  deleteTask(taskId: string) {
+    return this.getInstance().deleteTask(taskId);
+  },
+  findTaskIdByName(taskName: string) {
+    return this.getInstance().findTaskIdByName(taskName);
+  },
+  pollForUpdates() {
+    return this.getInstance().pollForUpdates();
+  }
+};

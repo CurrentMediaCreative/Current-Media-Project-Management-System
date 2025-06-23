@@ -7,21 +7,21 @@ export default defineConfig({
   base: '/pms/',
   plugins: [react()],
   build: {
-    outDir: 'dist',
+    outDir: '../server/public',
     emptyOutDir: true
   },
   server: {
     proxy: {
-      '/api': {
+      '/pms/api': {
         target: 'http://localhost:3000',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '/pms/api')
+        changeOrigin: true
       }
     }
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
+      '@': path.resolve(__dirname, './src'),
+      '@shared': path.resolve(__dirname, '../shared/src')
     }
   }
 });

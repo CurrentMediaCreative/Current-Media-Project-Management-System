@@ -2,7 +2,7 @@ export const schema = `
 CREATE TABLE IF NOT EXISTS projects (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(255) NOT NULL,
-  status VARCHAR(50) NOT NULL CHECK (status IN ('PLANNING', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED')),
+  status VARCHAR(50) NOT NULL CHECK (status IN ('new_not_sent', 'new_sent', 'pending_clickup', 'active', 'completed', 'archived')),
   description TEXT,
   budget DECIMAL,
   predicted_costs DECIMAL,

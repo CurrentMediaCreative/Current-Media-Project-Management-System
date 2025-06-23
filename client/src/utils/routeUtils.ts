@@ -22,35 +22,35 @@ export interface RouteElement {
 // Base routes configuration
 export const routes: RouteConfig[] = [
   {
-    path: '/pms',
+    path: '/',
     element: Dashboard,
     guard: true,
     title: 'Dashboard',
     breadcrumb: 'Dashboard'
   },
   {
-    path: '/pms/dashboard',
+    path: '/dashboard',
     element: Dashboard,
     guard: true,
     title: 'Dashboard',
     breadcrumb: 'Dashboard'
   },
   {
-    path: '/pms/projects',
+    path: '/projects',
     element: ProjectTracking,
     guard: true,
     title: 'Projects',
     breadcrumb: 'Projects'
   },
   {
-    path: '/pms/projects/new',
+    path: '/projects/new',
     element: ProjectCreationFlow,
     guard: true,
     title: 'New Project',
     breadcrumb: 'New Project'
   },
   {
-    path: '/pms/projects/:id',
+    path: '/projects/:id',
     element: ProjectPage,
     guard: true,
     title: 'Project Details',
@@ -61,7 +61,7 @@ export const routes: RouteConfig[] = [
 // Public routes that don't require authentication
 export const publicRoutes: RouteConfig[] = [
   {
-    path: '/pms/login',
+    path: '/login',
     element: LoginFlow,
     title: 'Login',
     breadcrumb: 'Login'

@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { body, validationResult } from 'express-validator';
+import { ProjectStatus } from '@shared/types/project';
 
-const validStatuses = ['PLANNING', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED'];
+const validStatuses = Object.values(ProjectStatus);
 
 export const validateProject = [
   body('name')

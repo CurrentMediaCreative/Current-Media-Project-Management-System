@@ -1,9 +1,19 @@
 services:
   - type: web
-    name: current-media-project-management-api
+    name: current-media-project-management-system
     env: node
-    buildCommand: cd server && NODE_ENV=production npm install --include=dev && npm run build && cp config/schema.sql dist/config/
+    buildCommand: |
+      cd server && npm install && 
+      cd ../client && npm install && npm run build && npm run copy-build &&
+      cd ../server && npm run build && cp config/schema.sql dist/config/
     startCommand: cd server && node dist/config/initializeDatabase.js && node dist/src/index.js
+    routes:
+      - type: rewrite
+        source: /pms/*
+        destination: /index.html
+      - type: redirect
+        source: /
+        destination: /pms
     envVars:
       - key: NODE_ENV
         value: production
@@ -35,22 +45,6 @@ services:
         sync: false
       - key: CLICKUP_API_KEY
         sync: false
-
-  - type: web
-    name: current-media-project-management-client
-    env: static
-    buildCommand: cd client && npm install && npm run build
-    staticPublishPath: ./client/dist
-    routes:
-      - type: rewrite
-        source: /pms/*
-        destination: /index.html
-      - type: redirect
-        source: /
-        destination: /pms
-    envVars:
-      - key: VITE_API_URL
-        value: https://current-media-project-management-api.onrender.com/pms/api
 
 databases:
   - name: current-media-db

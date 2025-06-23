@@ -2,8 +2,8 @@ import axios from 'axios';
 
 // Configure API base URL
 const baseURL = import.meta.env.PROD 
-  ? 'https://current-media-project-management-api.onrender.com/pms/api'  // Production API URL
-  : '/api';  // In development, proxy will handle /api -> http://localhost:3000/pms/api
+  ? 'https://current-media-project-management-system.onrender.com/pms/api'  // Production API URL
+  : '/pms/api';  // In development, we're already under /pms path
 
 const api = axios.create({
   baseURL,
