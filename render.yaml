@@ -1,0 +1,50 @@
+services:
+  # Backend API service
+  - type: web
+    name: currentmedia-pms-api
+    env: node
+    region: oregon
+    plan: starter
+    buildCommand: cd server && npm install && npm run build
+    startCommand: cd server && npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 8080
+      - key: JWT_SECRET
+        sync: false
+      - key: CLICKUP_API_URL
+        value: https://api.clickup.com/api/v2
+      - key: CLICKUP_API_KEY
+        sync: false
+      - key: CLICKUP_LIST_ID
+        sync: false
+    autoDeploy: true
+
+  # Frontend web service
+  - type: web
+    name: currentmedia-pms-web
+    env: static
+    region: oregon
+    plan: starter
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: ./client/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://currentmedia-pms-api.onrender.com/api
+    autoDeploy: true
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+
+# Specify the order of service deployment
+deploy:
+  - currentmedia-pms-api
+  - currentmedia-pms-web

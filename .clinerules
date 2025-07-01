@@ -1,0 +1,45 @@
+# CurrentMedia Project Management System Rules
+
+## Memory Bank
+
+This project uses a Memory Bank to maintain continuity between sessions. At the start of EVERY task, you MUST read ALL of the following files in this order:
+
+1. `memory-bank/projectbrief.md` - Foundation document that shapes all other files
+2. `memory-bank/productContext.md` - Why this project exists and problems it solves
+3. `memory-bank/systemPatterns.md` - System architecture and key technical decisions
+4. `memory-bank/techContext.md` - Technologies used and development setup
+5. `memory-bank/activeContext.md` - Current work focus and recent changes
+6. `memory-bank/progress.md` - What works and what's left to build
+
+## Project Guidelines
+
+1. **Simplicity First**: Keep the MVP simple and avoid over-engineering
+2. **Documentation**: Update the Memory Bank files when making significant changes
+3. **Code Quality**: Write clean, maintainable code with appropriate comments
+4. **Testing**: Implement tests for critical functionality
+5. **Security**: Handle authentication and data securely
+
+## ClickUp API Information
+
+- **Client ID**: EEQ5VO6GJ8VTUHISXL7OKQ8FX9DABE6G
+- **Client Secret**: C2RXDEKJEE377TGPVBN88A097LM5IAWL7NE90DRC99T2WP1U0IL5GAEQ032ETC40
+- **Redirect URL**: localhost:3000
+- **API Documentation**: https://developer.clickup.com/docs/index
+
+## Development Workflow
+
+1. Read Memory Bank files at the start of each task
+2. Understand the current state and next steps
+3. Implement changes according to the project guidelines
+4. Update Memory Bank files to reflect changes
+5. Document any new decisions or insights
+
+## Memory Bank Updates
+
+When significant changes are made to the project, update the relevant Memory Bank files:
+
+- `activeContext.md` - For current work focus and recent changes
+- `progress.md` - For updating project status and milestones
+- Other files as needed for architectural or technical changes
+
+Use the command **update memory bank** to trigger a comprehensive review and update of all Memory Bank files.
